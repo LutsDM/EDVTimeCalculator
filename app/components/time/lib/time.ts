@@ -1,19 +1,17 @@
 export type TimeParts = {
     hour: string;
     minute: string;
-    second: string;
 };
 
 export const pad = (n: number) => String(n).padStart(2, "0");
 
-export const timeToSeconds = ({ hour, minute, second }: TimeParts) =>
-    Number(hour) * 3600 + Number(minute) * 60 + Number(second);
+export const timeToMinutes = ({ hour, minute }: TimeParts) =>
+    Number(hour) * 60 + Number(minute);
 
-export const formatDuration = (seconds: number) => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    return `${h} Stunden ${m} Minuten ${s} Sekunden`;
+export const formatDuration = (minutes: number) => {
+    const h = Math.floor(minutes / 60);
+    const m = Math.floor(minutes % 60);
+    return `${h} Stunden ${m} Minuten`;
 };
 
 export const getToday = () => new Date().toISOString().slice(0, 10);
@@ -23,7 +21,6 @@ export const getNowTime = (): TimeParts => {
     return {
         hour: pad(now.getHours()),
         minute: pad(now.getMinutes()),
-        second: pad(now.getSeconds()),
     };
 };
 
@@ -33,14 +30,12 @@ export const getEndTime = (): TimeParts => {
     return {
         hour: pad(now.getHours()),
         minute: pad(now.getMinutes()),
-        second: pad(now.getSeconds()),
     };
 };
 
 export const emptyTime: TimeParts = {
     hour: "00",
     minute: "00",
-    second: "00",
 };
 
 export const makeTimeOptions = (max: number) =>

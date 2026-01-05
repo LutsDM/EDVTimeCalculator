@@ -7,8 +7,8 @@ import {
   getEndTime,
   getNowTime,
   getToday,
+  timeToMinutes,
   makeTimeOptions,
-  timeToSeconds,
   type TimeParts,
 } from "./time/lib/time";
 
@@ -45,10 +45,10 @@ export default function TimeCalculator() {
   const timeOptions = useMemo(() => makeTimeOptions, []);
 
   useEffect(() => {
-    const startSec = timeToSeconds(start);
-    const endSec = timeToSeconds(end);
+    const startMin = timeToMinutes(start);
+    const endMin = timeToMinutes(end);
 
-    if (startSec >= endSec) {
+    if (startMin>= endMin) {
       setError("Arbeitsbeginn muss vor dem Arbeitsende liegen.");
       setReport(null);
       return;
@@ -57,31 +57,31 @@ export default function TimeCalculator() {
     let fahrzeit = 0;
 
     if (includeFahrzeit) {
-      const abfahrtSec = timeToSeconds(abfahrt);
-      const ankunftSec = timeToSeconds(ankunft);
+      const abfahrtMin = timeToMinutes(abfahrt);
+      const ankunftMin = timeToMinutes(ankunft);
 
-      if (abfahrtSec > ankunftSec) {
+      if (abfahrtMin > ankunftMin) {
         setError("Abfahrt darf nicht später als Ankunft sein.");
         setReport(null);
         return;
       }
 
-      if (ankunftSec > startSec) {
+      if (ankunftMin > startMin) {
         setError("Arbeitsbeginn darf nicht vor der Ankunft liegen.");
         setReport(null);
         return;
       }
 
-      if (abfahrtSec > endSec) {
+      if (abfahrtMin > endMin) {
         setError("Abfahrt darf nicht nach dem Arbeitsende liegen.");
         setReport(null);
         return;
       }
 
-      fahrzeit = ankunftSec - abfahrtSec;
+      fahrzeit = ankunftMin - abfahrtMin;
     }
 
-    const arbeitszeit = endSec - startSec;
+    const arbeitszeit = endMin - startMin;
 
     setError("");
     setReport({
@@ -94,7 +94,7 @@ export default function TimeCalculator() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
-      <div className="max-w-4xl lg:max-w-xl mx-auto space-y-6">
+      <div className="max-w-md sm:max-w-sm mx-auto space-y-6">
         <h1 className="text-2xl font-semibold text-gray-900">
           Arbeitszeit Rechner
         </h1>

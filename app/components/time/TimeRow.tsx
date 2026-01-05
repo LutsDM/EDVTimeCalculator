@@ -13,19 +13,18 @@ export default function TimeRow({
     onChange,
     timeOptions,
 }: Props) {
-    const labels = ["Stunde", "Minute", "Sekunde"] as const;
+    const labels = ["Stunde", "Minute"] as const;
 
     return (
         <div>
             <div className="text-xs font-medium text-gray-600 mb-1">{label}</div>
 
-            <div className="grid grid-cols-3 gap-2">
-                {(["hour", "minute", "second"] as const).map((k, idx) => (
+            <div className="grid grid-cols-2 gap-2">
+                {(["hour", "minute"] as const).map((k, idx) => (
                     <div key={k}>
                         <div className="text-[10px] text-gray-500 mb-0.5 uppercase">
                             {labels[idx]}
                         </div>
-
                         <select
                             value={value[k]}
                             onChange={(e) => onChange({ ...value, [k]: e.target.value })}
