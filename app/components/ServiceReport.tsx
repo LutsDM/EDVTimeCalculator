@@ -46,30 +46,37 @@ export default function ServiceReport({
     <div className="print-area max-w-[800px] mx-auto bg-white p-8 text-sm text-gray-900 leading-relaxed">
 
       {/* HEADER */}
-      <div className="flex justify-between items-start mb-8">
-        <div className="text-[10px] leading-relaxed">
-          EDV-SERVICE Samirae<br />
-          Schloßstr. 33<br />
-          51427 Bergisch Gladbach<br />
-          Tel. 02204 / 96 70 720<br />
-          Mobil 0163 / 2496741<br />
-          <br />
-        </div>
-        <div className="text-[10px] leading-relaxed">
-          EDV-SERVICE Samirae<br />
-          Franz-Boehm-Strasse 3<br />
-          40789 Monheim am Rhein<br />
-          Tel. 02173 / 9939835<br />
-          Mobil 0163 / 2496741
-        </div>
-        <Image className="w-[200px] -mt-4"
-          src="/LOGO.png"
-          alt="EDV-Service Samirae"
-          width={160}
-          height={80}
-        />
+      <div className="mb-8">
+  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+    
+    <div className="text-[10px] leading-relaxed">
+      EDV-SERVICE Samirae<br />
+      Schloßstr. 33<br />
+      51427 Bergisch Gladbach<br />
+      Tel. 02204 / 96 70 720<br />
+      Mobil 0163 / 2496741
+    </div>
 
-      </div>
+    <div className="text-[10px] leading-relaxed">
+      EDV-SERVICE Samirae<br />
+      Franz-Boehm-Strasse 3<br />
+      40789 Monheim am Rhein<br />
+      Tel. 02173 / 9939835<br />
+      Mobil 0163 / 2496741
+    </div>
+
+    <div className="sm:self-start self-center">
+      <Image
+        src="/LOGO.png"
+        alt="EDV-Service Samirae"
+        width={160}
+        height={80}
+        className="w-[140px] sm:w-[160px]"
+      />
+    </div>
+
+  </div>
+</div>
 
       <div className="text-right text-xs leading-relaxed mb-4">
         <strong className="text-sm">Servicebericht</strong><br />
@@ -140,7 +147,7 @@ export default function ServiceReport({
       </div>
 
       {/* EMPLOYEES WITH SIGNATURES */}
-      <div className="mt-10 max-w-[400px] text-xs">
+      <div className="mt-10 max-w-[400px] text-xs break-inside-avoid">
         <strong>Ausgeführt durch:</strong>
 
         <div className="grid grid-cols-2 gap-6 mt-4">
@@ -154,8 +161,8 @@ export default function ServiceReport({
       </div>
 
       {/* CUSTOMER SIGNATURE */}
-      <div className="mt-12 text-xs text-center">
-        <div className=" ml-120 w-1/3">
+      <div className="mt-12 text-xs break-inside-avoid">
+        <div className="w-full sm:w-1/3 sm:ml-auto text-center">
           <div className="mb-6 border-b border-gray-500 h-6"></div>
           Kunde
         </div>

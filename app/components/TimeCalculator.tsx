@@ -123,6 +123,15 @@ export default function TimeCalculator() {
     })
   }
 
+  const handlePrint = () => {
+    if (!hasEmployees) {
+      setError("Bitte wählen Sie mindestens einen Mitarbeiter aus.")
+      return
+    }
+
+    window.print()
+  }
+
   const downloadPdf = async () => {
     setShowPreview(true)
 
@@ -438,19 +447,23 @@ export default function TimeCalculator() {
 
             )
           })()}
+
           <div className="flex justify-end gap-2">
-            <button
-              type="button"
-              disabled={!hasEmployees}
-              onClick={() => window.print()}
-              className={`h-9 px-4 rounded-md text-sm
-    ${hasEmployees
-                  ? "bg-red-900 text-white"
-                  : "bg-red-200 text-white cursor-not-allowed"}
-  `}
-            >
-              Drucken
-            </button>
+            {!isIOS && (
+              <button
+                type="button"
+                disabled={!hasEmployees}
+                onClick={handlePrint}
+                className={`h-9 px-4 rounded-md text-sm
+      ${hasEmployees
+                    ? "bg-red-900 text-white"
+                    : "bg-red-200 text-white cursor-not-allowed"}
+    `}
+              >
+                Drucken
+              </button>
+            )}
+
 
 
             <button
