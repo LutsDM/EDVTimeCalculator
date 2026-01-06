@@ -28,6 +28,10 @@ Das Projekt ist am ersten Arbeitstag in einem neuen Job entstanden und orientier
 Ziel war es, ein möglichst praxisnahes Tool zu bauen, das reale Arbeitsprozesse widerspiegelt.  
 Der Rechner soll nicht nur Zeiten addieren, sondern typische Fehler vermeiden und logisch korrekte Eingaben erzwingen.
 
+## 🛠️ Billing Principle
+
+Die Abrechnung erfolgt auf Basis eines einheitlichen Stundensatzes, der sowohl für die Arbeitszeit als auch für die Fahrzeit gilt. Die Berechnung erfolgt minutengenau und nicht auf Grundlage gerundeter Stunden. Der angegebene Stundensatz wird auf einen Minutenpreis umgerechnet, indem er durch 60 geteilt wird. Der Gesamtbetrag ergibt sich aus der Summe der geleisteten Arbeitszeit und gegebenenfalls der Fahrzeit in Minuten, multipliziert mit dem Minutenpreis. Die Rundung erfolgt ausschließlich beim Endbetrag auf zwei Nachkommastellen.
+
 ## 🛠 Tech Stack
 
 - React
