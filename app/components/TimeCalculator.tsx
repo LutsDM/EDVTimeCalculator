@@ -39,7 +39,7 @@ export default function TimeCalculator() {
 
   const [date, setDate] = useState(getToday);
   const [auftragsnummer, setAuftragsnummer] = useState<string>(`${getToday()}- 001`)
-  const [price, setPrice] = useState<number>(95)
+  const [price, setPrice] = useState<string>("95")
 
   const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<number[]>([])
   const [employeeToAdd, setEmployeeToAdd] = useState<number | "">("")
@@ -110,72 +110,72 @@ export default function TimeCalculator() {
   }, [start, end, abfahrt, ankunft, includeFahrzeit]);
 
 
-const downloadPdf = async () => {
-  if (!report) return
+  const downloadPdf = async () => {
+    if (!report) return
 
-  // ⬇️ динамический импорт В МОМЕНТ КЛИКА
-  const { pdf } = await import("@react-pdf/renderer")
+    // ⬇️ динамический импорт В МОМЕНТ КЛИКА
+    const { pdf } = await import("@react-pdf/renderer")
 
-  // ⬇️ импорт РЕАЛЬНОГО PDF-компонента, не dynamic
-  const { default: ServiceReportPdf } =
-    await import("../components/time/lib/ServiceReportPdf")
+    // ⬇️ импорт РЕАЛЬНОГО PDF-компонента, не dynamic
+    const { default: ServiceReportPdf } =
+      await import("../components/time/lib/ServiceReportPdf")
 
-  const blob = await pdf(
-    <ServiceReportPdf
-      arbeitsdatum={date}
-      auftragsnummer={auftragsnummer}
-      arbeitszeitText={formatDuration(report.arbeitszeit)}
-      arbeitszeitRange={arbeitszeitRange}
-      fahrzeitText={
-        report.includeFahrzeit
-          ? formatDuration(report.fahrzeit)
-          : undefined
-      }
-      fahrzeitRange={fahrzeitRange}
-      gesamtzeitText={formatDuration(report.gesamtzeit)}
-      stundensatz={`${price.toFixed(2)} €`}
-      mitarbeiterAnzahl={employeeCount}
-      netto={`${nettoAmount.toFixed(2)} €`}
-      mwst={`${mwstAmount.toFixed(2)} €`}
-      brutto={`${bruttoAmount.toFixed(2)} €`}
-      employees={employees.filter(e =>
-        selectedEmployeeIds.includes(e.id)
-      )}
-    />
-  ).toBlob()
+    const blob = await pdf(
+      <ServiceReportPdf
+        arbeitsdatum={date}
+        auftragsnummer={auftragsnummer}
+        arbeitszeitText={formatDuration(report.arbeitszeit)}
+        arbeitszeitRange={arbeitszeitRange}
+        fahrzeitText={
+          report.includeFahrzeit
+            ? formatDuration(report.fahrzeit)
+            : undefined
+        }
+        fahrzeitRange={fahrzeitRange}
+        gesamtzeitText={formatDuration(report.gesamtzeit)}
+        stundensatz={`${priceNumber.toFixed(2)} €`}
+        mitarbeiterAnzahl={employeeCount}
+        netto={`${nettoAmount.toFixed(2)} €`}
+        mwst={`${mwstAmount.toFixed(2)} €`}
+        brutto={`${bruttoAmount.toFixed(2)} €`}
+        employees={employees.filter(e =>
+          selectedEmployeeIds.includes(e.id)
+        )}
+      />
+    ).toBlob()
 
-  const url = URL.createObjectURL(blob)
+    const url = URL.createObjectURL(blob)
 
-// 1️⃣ iOS: нативный Share Sheet, если доступен
-if (isIOS && navigator.share) {
-  const file = new File([blob], `Servicebericht_${date}.pdf`, {
-    type: "application/pdf",
-  })
+    // 1️⃣ iOS: нативный Share Sheet, если доступен
+    if (isIOS && navigator.share) {
+      const file = new File([blob], `Servicebericht_${date}.pdf`, {
+        type: "application/pdf",
+      })
 
-  await navigator.share({
-    files: [file],
-    title: "Servicebericht",
-  })
+      await navigator.share({
+        files: [file],
 
-  URL.revokeObjectURL(url)
-  return
-}
+      })
 
-// 2️⃣ iOS Safari: открываем PDF в новой вкладке
-if (isIOS) {
-  window.open(url)
-  setTimeout(() => URL.revokeObjectURL(url), 10000)
-  return
-}
+      URL.revokeObjectURL(url)
+      return
+    }
 
-// 3️⃣ Desktop и Android
-const a = document.createElement("a")
-a.href = url
-a.download = `Servicebericht_${date}.pdf`
-a.click()
-URL.revokeObjectURL(url)
+    // 2️⃣ iOS Safari: открываем PDF в новой вкладке
+    if (isIOS) {
+      window.open(url)
+      setTimeout(() => URL.revokeObjectURL(url), 10000)
+      return
+    }
 
-}
+    // 3️⃣ Desktop и Android
+    const a = document.createElement("a")
+    a.href = url
+    a.download = `Servicebericht_${date}.pdf`
+    a.click()
+    URL.revokeObjectURL(url)
+
+  }
 
 
   const applyPdfSafeColors = () => {
@@ -257,9 +257,11 @@ URL.revokeObjectURL(url)
 
   const employeeCount = selectedEmployeeIds.length
 
+  const priceNumber = Number(price || 0)
+
   const bruttoAmount = report
     ? (report.arbeitszeit + report.fahrzeit) *
-    (price / 60) *
+    (priceNumber / 60) *
     employeeCount
     : 0
 
@@ -322,8 +324,9 @@ URL.revokeObjectURL(url)
             </label>
             <input
               type="number"
+              inputMode="decimal"
               value={price}
-              onChange={(e) => setPrice(Number(e.target.value))}
+              onChange={(e) => setPrice(e.target.value)}
               className="h-9 w-full rounded-md border border-gray-300 px-2 text-sm bg-white"
             />
           </div>
@@ -529,11 +532,12 @@ URL.revokeObjectURL(url)
                 type="button"
                 disabled={!hasEmployees}
                 onClick={handlePrint}
-                className={`h-9 px-4 rounded-md text-sm
-      ${hasEmployees
-                    ? "bg-red-900 text-white"
-                    : "bg-red-200 text-white cursor-not-allowed"}
-    `}
+                className={`h-9 px-4 rounded-md text-sm transition-colors duration-150
+    ${hasEmployees
+                    ? "bg-red-900 text-white hover:bg-red-800 active:bg-red-950"
+                    : "bg-red-200 text-white cursor-not-allowed"
+                  }
+  `}
               >
                 Drucken
               </button>
@@ -545,41 +549,29 @@ URL.revokeObjectURL(url)
               type="button"
               disabled={!hasEmployees}
               onClick={() => setShowPreview(true)}
-              className={`h-9 px-4 rounded-md text-sm
+              className={`h-9 px-4 rounded-md text-sm transition-colors duration-150
     ${hasEmployees
-                  ? "bg-gray-200 text-gray-800"
-                  : "bg-gray-100 text-gray-400 cursor-not-allowed"}
+                  ? "bg-gray-200 text-gray-800 hover:bg-gray-300 active:bg-gray-400"
+                  : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                }
   `}
             >
               Bericht ansehen
             </button>
-
-
-
-            {/* <button
+            <button
               type="button"
               disabled={!hasEmployees}
               onClick={downloadPdf}
-              className={`h-9 px-4 rounded-md text-sm
+              className={`h-9 px-4 rounded-md text-sm transition-all duration-150
     ${hasEmployees
-                  ? "bg-green-700 text-white"
-                  : "bg-green-200 text-white cursor-not-allowed"}
+                  ? "bg-green-700 text-white hover:bg-green-600 active:bg-green-800 active:scale-[0.98]"
+                  : "bg-green-200 text-white cursor-not-allowed"
+                }
   `}
             >
-              Herunterladen
-            </button> */}
-            <button
-  type="button"
-  disabled={!hasEmployees}
-  onClick={downloadPdf}
-  className={`h-9 px-4 rounded-md text-sm
-    ${hasEmployees
-      ? "bg-green-700 text-white"
-      : "bg-green-200 text-white cursor-not-allowed"}
-  `}
->
-  PDF herunterladen
-</button>
+              {isIOS ? "Drucken / Speichern" : "PDF herunterladen"}
+            </button>
+
 
           </div>
 
@@ -609,7 +601,7 @@ URL.revokeObjectURL(url)
             }
             fahrzeitRange={fahrzeitRange}
             gesamtzeitText={formatDuration(report.gesamtzeit)}
-            stundensatz={`${price.toFixed(2)} €`}
+            stundensatz={`${priceNumber.toFixed(2)} €`}
             mitarbeiterAnzahl={employeeCount}
             netto={nettoAmount.toFixed(2) + " €"}
             mwst={mwstAmount.toFixed(2) + " €"}
