@@ -33,13 +33,23 @@ export default function HeaderBlock({
         </label>
 
         {isIOS ? (
-          <input
-            type="text"
-            readOnly
-            value={new Date(date).toLocaleDateString("de-DE")}
-            onClick={() => dateInputRef.current?.showPicker()}
-            className="h-9 w-full rounded-md border border-gray-300 px-2 text-sm bg-gray-50 text-gray-800"
-          />
+          <div className="relative">
+            <input
+              type="text"
+              readOnly
+              value={new Date(date).toLocaleDateString("de-DE")}
+              className="h-9 w-full rounded-md border border-gray-300 px-2 text-sm bg-gray-50 text-gray-800"
+            />
+
+            {/* date picker */}
+            <input
+              ref={dateInputRef}
+              type="date"
+              value={date}
+              onChange={(e) => onDateChange(e.target.value)}
+              className="absolute inset-0 opacity-0"
+            />
+          </div>
         ) : (
           <input
             type="date"
@@ -49,6 +59,7 @@ export default function HeaderBlock({
             className="h-9 w-full rounded-md border border-gray-300 px-2 text-sm bg-white"
           />
         )}
+
       </div>
 
       <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
