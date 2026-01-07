@@ -1,6 +1,6 @@
 "use client";
 
-import { Employee } from "./employees"
+import { Employee } from "../lib/employees"
 
 type ServiceReportProps = {
   arbeitsdatum: string

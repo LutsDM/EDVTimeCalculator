@@ -1,30 +1,24 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   emptyTime,
   formatDuration,
   getEndTime,
   getNowTime,
   getToday,
-  timeToMinutes,
   makeTimeOptions,
   type TimeParts,
 } from "./time/lib/time";
 
-import TimeRow from "./time/TimeRow";
-import ReportRow from "./time/ReportRow";
-import TimeBlock from "./time/TimeBlock";
-import { employees, type Employee } from "./time/lib/employees";
-import ServiceReport from "./time/lib/ServiceReport";
+import TimeRow from "./time/ui/TimeRow";
+import ReportRow from "./time/ui/ReportRow";
+import TimeBlock from "./time/ui/TimeBlock";
 
-
-type Report = {
-  arbeitszeit: number;
-  fahrzeit: number;
-  gesamtzeit: number;
-
-};
+import ServiceReport from "./time/report/ServiceReport";
+import { useTimeCalculation } from "./time/hooks/useTimeCalculation";
+import { usePriceCalculation } from "@/app/components/time/hooks/usePriceCalculation"
+import { useEmployeesSelection } from "./time/hooks/useEmployeesSelection"
 
 export default function TimeCalculator() {
   const isIOS =
@@ -35,9 +29,7 @@ export default function TimeCalculator() {
   const [auftragsnummer, setAuftragsnummer] = useState<string>(`${getToday()}- 001`)
   const [price, setPrice] = useState<string>("95")
 
-  const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<number[]>([])
-  const [employeeToAdd, setEmployeeToAdd] = useState<number | "">("")
-  const [isAddingEmployee, setIsAddingEmployee] = useState(false)
+  const [uiError, setUiError] = useState<string>("")
 
   const [start, setStart] = useState<TimeParts>(getNowTime);
   const [end, setEnd] = useState<TimeParts>(getEndTime);
@@ -47,71 +39,51 @@ export default function TimeCalculator() {
 
   const [includeFahrzeit, setIncludeFahrzeit] = useState(false);
 
-  const [report, setReport] = useState<Report | null>(null);
-  const [error, setError] = useState("");
+  const {
+    selectedEmployees,
+    availableEmployees,
+    employeeCount,
+    hasEmployees,
+    employeeToAdd,
+    isAdding,
+    setEmployeeToAdd,
+    setIsAdding,
+    addEmployee,
+    removeEmployee,
+  } = useEmployeesSelection()
 
   const [showPreview, setShowPreview] = useState(false)
 
   const timeOptions = useMemo(() => makeTimeOptions, []);
 
-  useEffect(() => {
-    const startMin = timeToMinutes(start);
-    const endMin = timeToMinutes(end);
+  const { report, error } = useTimeCalculation({
+    start,
+    end,
+    abfahrt,
+    ankunft,
+    includeFahrzeit,
+  })
 
-    if (startMin >= endMin) {
-      setError("Arbeitsbeginn muss vor dem Arbeitsende liegen.");
-      setReport(null);
-      return;
-    }
 
-    let fahrzeit = 0;
-
-    if (includeFahrzeit) {
-      const abfahrtMin = timeToMinutes(abfahrt);
-      const ankunftMin = timeToMinutes(ankunft);
-
-      if (abfahrtMin > ankunftMin) {
-        setError("Abfahrt darf nicht später als Ankunft sein.");
-        setReport(null);
-        return;
-      }
-
-      if (ankunftMin > startMin) {
-        setError("Arbeitsbeginn darf nicht vor der Ankunft liegen.");
-        setReport(null);
-        return;
-      }
-
-      if (abfahrtMin > endMin) {
-        setError("Abfahrt darf nicht nach dem Arbeitsende liegen.");
-        setReport(null);
-        return;
-      }
-
-      fahrzeit = ankunftMin - abfahrtMin;
-
-    }
-
-    const arbeitszeit = endMin - startMin;
-
-    setError("");
-    setReport({
-      arbeitszeit,
-      fahrzeit,
-      gesamtzeit: arbeitszeit + fahrzeit,
-    });
-  }, [start, end, abfahrt, ankunft, includeFahrzeit]);
+  const {
+    brutto,
+    netto,
+    mwst,
+    stundensatzText,
+  } = usePriceCalculation({
+    report,
+    price,
+    employeeCount,
+  })
 
 
   const downloadPdf = async () => {
     if (!report) return
 
-
     const { pdf } = await import("@react-pdf/renderer")
 
-
     const { default: ServiceReportPdf } =
-      await import("../components/time/lib/ServiceReportPdf")
+      await import("../components/time/report/ServiceReportPdf")
 
     const blob = await pdf(
       <ServiceReportPdf
@@ -126,14 +98,12 @@ export default function TimeCalculator() {
         }
         fahrzeitRange={fahrzeitRange}
         gesamtzeitText={formatDuration(report.gesamtzeit)}
-        stundensatz={`${priceNumber.toFixed(2)} €`}
+        stundensatz={stundensatzText}
         mitarbeiterAnzahl={employeeCount}
-        netto={`${nettoAmount.toFixed(2)} €`}
-        mwst={`${mwstAmount.toFixed(2)} €`}
-        brutto={`${bruttoAmount.toFixed(2)} €`}
-        employees={employees.filter(e =>
-          selectedEmployeeIds.includes(e.id)
-        )}
+        netto={`${netto.toFixed(2)} €`}
+        mwst={`${mwst.toFixed(2)} €`}
+        brutto={`${brutto.toFixed(2)} €`}
+        employees={selectedEmployees}
       />
     ).toBlob()
 
@@ -175,14 +145,14 @@ export default function TimeCalculator() {
 
   const handlePrint = () => {
     if (!hasEmployees) {
-      setError("Bitte wählen Sie mindestens einen Mitarbeiter aus.")
+      setUiError("Bitte wählen Sie mindestens einen Mitarbeiter aus.")
       return
     }
-
+    setUiError("")
     window.print()
   }
 
-  const hasEmployees = selectedEmployeeIds.length > 0
+
 
   const formatTime = (t: TimeParts) =>
     `${String(t.hour).padStart(2, "0")}:${String(t.minute).padStart(2, "0")}`
@@ -197,18 +167,6 @@ export default function TimeCalculator() {
       : undefined
 
 
-  const employeeCount = selectedEmployeeIds.length
-
-  const priceNumber = Number(price || 0)
-
-  const bruttoAmount = report
-    ? (report.arbeitszeit + report.fahrzeit) *
-    (priceNumber / 60) *
-    employeeCount
-    : 0
-
-  const nettoAmount = bruttoAmount / 1.19
-  const mwstAmount = bruttoAmount - nettoAmount
 
 
   return (
@@ -279,10 +237,10 @@ export default function TimeCalculator() {
     ${!hasEmployees ? "border-amber-300" : "border-gray-200"}
   `}>
 
-            {!isAddingEmployee && (
+            {!isAdding && (
               <button
                 type="button"
-                onClick={() => setIsAddingEmployee(true)}
+                onClick={() => setIsAdding(true)}
                 className="inline-flex items-center gap-2 text-sm text-green-700 font-medium"
               >
                 <span className="text-lg leading-none">+</span>
@@ -295,7 +253,7 @@ export default function TimeCalculator() {
                 Bitte wählen Sie mindestens einen Mitarbeiter aus, um den Servicebericht zu erstellen.
               </div>
             )}
-            {isAddingEmployee && (
+            {isAdding && (
               <div className="flex gap-2">
                 <select
                   value={employeeToAdd}
@@ -303,23 +261,16 @@ export default function TimeCalculator() {
                   className="h-9 flex-1 rounded-md border border-gray-300 px-2 text-sm"
                 >
                   <option value="">Mitarbeiter auswählen</option>
-                  {employees
-                    .filter(e => !selectedEmployeeIds.includes(e.id))
-                    .map((employee) => (
-                      <option key={employee.id} value={employee.id}>
-                        {employee.name}
-                      </option>
-                    ))}
+                  {availableEmployees.map(e => (
+                    <option key={e.id} value={e.id}>{e.name}</option>
+                  ))}
                 </select>
 
                 <button
                   type="button"
                   disabled={!employeeToAdd}
-                  onClick={() => {
-                    setSelectedEmployeeIds([...selectedEmployeeIds, employeeToAdd as number])
-                    setEmployeeToAdd("")
-                    setIsAddingEmployee(false)
-                  }}
+                  onClick={addEmployee}
+
                   className="h-9 px-3 rounded-md bg-green-600 text-white text-sm disabled:opacity-50"
                 >
                   Hinzufügen
@@ -330,34 +281,26 @@ export default function TimeCalculator() {
               </div>
 
             )}
-            {selectedEmployeeIds.length > 0 && (
+            {selectedEmployees.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {selectedEmployeeIds.map((id) => {
-                  const employee = employees.find(e => e.id === id)
-                  if (!employee) return null
-
-                  return (
-                    <div
-                      key={id}
-                      className="flex items-center gap-1 px-3 py-1 rounded-full bg-green-200 text-green-800 text-sm"
+                {selectedEmployees.map(employee => (
+                  <div
+                    key={employee.id}
+                    className="flex items-center gap-1 px-3 py-1 rounded-full bg-green-200 text-green-800 text-sm"
+                  >
+                    {employee.name}
+                    <button
+                      type="button"
+                      onClick={() => removeEmployee(employee.id)}
+                      className="ml-1 text-green-700 hover:text-green-900"
                     >
-                      {employee.name}
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setSelectedEmployeeIds(
-                            selectedEmployeeIds.filter(eid => eid !== id)
-                          )
-                        }
-                        className="ml-1 text-green-700 hover:text-green-900"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  )
-                })}
+                      ×
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
+
 
           </div>
 
@@ -461,7 +404,7 @@ export default function TimeCalculator() {
                   </div>
 
                   <div className="font-semibold">
-                    {`${bruttoAmount.toFixed(2)} €`}
+                    {brutto.toFixed(2)} €
                   </div>
                 </div>
 
@@ -470,22 +413,29 @@ export default function TimeCalculator() {
             )
           })()}
 
+          {uiError && (
+            <div className="border border-red-300 bg-red-50 p-3 text-red-700 rounded-md">
+              {uiError}
+            </div>
+          )}
+
+
           <div className="flex justify-end gap-2">
             {!isIOS && (
-  <button
-    type="button"
-    disabled={!hasEmployees}
-    onClick={handlePrint}
-    className={`h-9 px-4 rounded-md text-sm transition-colors duration-150
+              <button
+                type="button"
+                disabled={!hasEmployees}
+                onClick={handlePrint}
+                className={`h-9 px-4 rounded-md text-sm transition-colors duration-150
       ${hasEmployees
-        ? "bg-red-900 text-white hover:bg-red-800 active:bg-red-950"
-        : "bg-red-200 text-white cursor-not-allowed"
-      }
+                    ? "bg-red-900 text-white hover:bg-red-800 active:bg-red-950"
+                    : "bg-red-200 text-white cursor-not-allowed"
+                  }
     `}
-  >
-    Drucken
-  </button>
-)}
+              >
+                Drucken
+              </button>
+            )}
 
 
             <button
@@ -520,37 +470,35 @@ export default function TimeCalculator() {
         </div>
 
       </div>
-{report && (
-  <div
-    id="print-preview"
-    className={`
+      {report && (
+        <div
+          id="print-preview"
+          className={`
       ${showPreview ? "block" : "hidden"}
       print:block
     `}
-  >
-    <ServiceReport
-      arbeitsdatum={date}
-      auftragsnummer={auftragsnummer}
-      arbeitszeitText={formatDuration(report.arbeitszeit)}
-      arbeitszeitRange={arbeitszeitRange}
-      fahrzeitText={
-        includeFahrzeit
-          ? formatDuration(report.fahrzeit)
-          : undefined
-      }
-      fahrzeitRange={fahrzeitRange}
-      gesamtzeitText={formatDuration(report.gesamtzeit)}
-      stundensatz={`${priceNumber.toFixed(2)} €`}
-      mitarbeiterAnzahl={employeeCount}
-      netto={nettoAmount.toFixed(2) + " €"}
-      mwst={mwstAmount.toFixed(2) + " €"}
-      brutto={bruttoAmount.toFixed(2) + " €"}
-      employees={employees.filter(e =>
-        selectedEmployeeIds.includes(e.id)
+        >
+          <ServiceReport
+            arbeitsdatum={date}
+            auftragsnummer={auftragsnummer}
+            arbeitszeitText={formatDuration(report.arbeitszeit)}
+            arbeitszeitRange={arbeitszeitRange}
+            fahrzeitText={
+              includeFahrzeit
+                ? formatDuration(report.fahrzeit)
+                : undefined
+            }
+            fahrzeitRange={fahrzeitRange}
+            gesamtzeitText={formatDuration(report.gesamtzeit)}
+            stundensatz={stundensatzText}
+            mitarbeiterAnzahl={employeeCount}
+            netto={`${netto.toFixed(2)} €`}
+            mwst={`${mwst.toFixed(2)} €`}
+            brutto={`${brutto.toFixed(2)} €`}
+            employees={selectedEmployees}
+          />
+        </div>
       )}
-    />
-  </div>
-)}
 
     </>
 

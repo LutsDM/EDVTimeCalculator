@@ -1,4 +1,4 @@
-import { TimeParts } from "./lib/time";
+import { TimeParts } from "../lib/time";
 import TimeRow from "./TimeRow";
 
 type Props = {
