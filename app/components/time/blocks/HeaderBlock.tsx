@@ -10,7 +10,7 @@ type HeaderBlockProps = {
   onPriceChange: (value: string) => void
   isIOS: boolean
 }
-const dateInputRef = useRef<HTMLInputElement>(null)
+
 
 export default function HeaderBlock({
   date,
@@ -21,6 +21,9 @@ export default function HeaderBlock({
   onPriceChange,
   isIOS,
 }: HeaderBlockProps) {
+
+  const dateInputRef = useRef<HTMLInputElement>(null)
+
   return (
     <>
       <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
