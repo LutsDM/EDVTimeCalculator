@@ -29,7 +29,6 @@ export default function HeaderBlock({
           <input
             type="text"
             value={new Date(date).toLocaleDateString("de-DE")}
-            readOnly
             className="h-9 w-full rounded-md border border-gray-300 px-2 text-sm bg-gray-50 text-gray-800"
           />
         ) : (
