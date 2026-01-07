@@ -1,6 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+
+/* ------------------------------------------------------------------
+ * Time helpers and types
+ * ------------------------------------------------------------------ */
 import {
   emptyTime,
   formatDuration,
@@ -11,41 +15,68 @@ import {
   type TimeParts,
 } from "./time/lib/time";
 
-import TimeRow from "./time/ui/TimeRow";
-
-import TimeBlock from "./time/ui/TimeBlock";
-import ActionsBlock from "./time/blocks/ActionsBlock"
-import ServiceReport from "./time/report/ServiceReport";
+/* ------------------------------------------------------------------
+ * Hooks (business logic)
+ * ------------------------------------------------------------------ */
 import { useTimeCalculation } from "./time/hooks/useTimeCalculation";
-import { usePriceCalculation } from "@/app/components/time/hooks/usePriceCalculation"
-import { useEmployeesSelection } from "./time/hooks/useEmployeesSelection"
+import { usePriceCalculation } from "@/app/components/time/hooks/usePriceCalculation";
+import { useEmployeesSelection } from "./time/hooks/useEmployeesSelection";
+import { usePdfDownload } from "./time/hooks/usePdfDownload";
+import { useTimeRanges } from "./time/hooks/useTimeRange";
+
+/* ------------------------------------------------------------------
+ * UI Blocks (presentation only)
+ * ------------------------------------------------------------------ */
+import HeaderBlock from "./time/blocks/HeaderBlock";
 import EmployeesBlock from "./time/blocks/EmployeesBlock";
-import ReportSummaryBlock from "./time/blocks/ReportSummaryBlock"
-import HeaderBlock from "./time/blocks/HeaderBlock"
-import TravelTimeBlock from "./time/blocks/TravelTimeBlock"
+import TravelTimeBlock from "./time/blocks/TravelTimeBlock";
 import ArbeitszeitBlock from "./time/blocks/ArbeitszeitBlock";
+import ReportSummaryBlock from "./time/blocks/ReportSummaryBlock";
+import ActionsBlock from "./time/blocks/ActionsBlock";
 
-
+/* ------------------------------------------------------------------
+ * Print / Preview
+ * ------------------------------------------------------------------ */
+import ServiceReport from "./time/report/ServiceReport";
 
 export default function TimeCalculator() {
+  /* ------------------------------------------------------------------
+   * Platform detection
+   * ------------------------------------------------------------------ */
   const isIOS =
     typeof navigator !== "undefined" &&
     /iPad|iPhone|iPod/.test(navigator.userAgent);
 
+  /* ------------------------------------------------------------------
+   * Header state (date, order number, price)
+   * ------------------------------------------------------------------ */
   const [date, setDate] = useState(getToday);
-  const [auftragsnummer, setAuftragsnummer] = useState<string>(`${getToday()}- 001`)
-  const [price, setPrice] = useState<string>("95")
+  const [auftragsnummer, setAuftragsnummer] = useState<string>(
+    `${getToday()}- 001`
+  );
+  const [price, setPrice] = useState<string>("95");
 
-  const [uiError, setUiError] = useState<string>("")
+  /* ------------------------------------------------------------------
+   * UI-level error (not business validation)
+   * ------------------------------------------------------------------ */
+  const [uiError, setUiError] = useState<string>("");
 
+  /* ------------------------------------------------------------------
+   * Working time (Von / Bis)
+   * ------------------------------------------------------------------ */
   const [start, setStart] = useState<TimeParts>(getNowTime);
   const [end, setEnd] = useState<TimeParts>(getEndTime);
 
+  /* ------------------------------------------------------------------
+   * Travel time (Abfahrt / Ankunft)
+   * ------------------------------------------------------------------ */
   const [abfahrt, setAbfahrt] = useState<TimeParts>(emptyTime);
   const [ankunft, setAnkunft] = useState<TimeParts>(emptyTime);
-
   const [includeFahrzeit, setIncludeFahrzeit] = useState(false);
 
+  /* ------------------------------------------------------------------
+   * Employees selection logic
+   * ------------------------------------------------------------------ */
   const {
     selectedEmployees,
     availableEmployees,
@@ -57,142 +88,106 @@ export default function TimeCalculator() {
     setIsAdding,
     addEmployee,
     removeEmployee,
-  } = useEmployeesSelection()
+  } = useEmployeesSelection();
 
-  const [showPreview, setShowPreview] = useState(false)
+  /* ------------------------------------------------------------------
+   * Preview / print mode
+   * ------------------------------------------------------------------ */
+  const [showPreview, setShowPreview] = useState(false);
 
-  const timeOptions = useMemo(() => ({
-    hours: makeTimeOptions(24),
-    minutes: makeTimeOptions(60),
-  }), [])
+  /* ------------------------------------------------------------------
+   * Time select options (memoized once)
+   * ------------------------------------------------------------------ */
+  const timeOptions = useMemo(
+    () => ({
+      hours: makeTimeOptions(24),
+      minutes: makeTimeOptions(60),
+    }),
+    []
+  );
 
+  /* ------------------------------------------------------------------
+   * Core business calculation (time validation + totals)
+   * ------------------------------------------------------------------ */
   const { report, error } = useTimeCalculation({
     start,
     end,
     abfahrt,
     ankunft,
     includeFahrzeit,
-  })
+  });
 
-
-  const {
-    brutto,
-    netto,
-    mwst,
-    stundensatzText,
-  } = usePriceCalculation({
+  /* ------------------------------------------------------------------
+   * Price calculation (derived values only)
+   * ------------------------------------------------------------------ */
+  const { brutto, netto, mwst, stundensatzText } = usePriceCalculation({
     report,
     price,
     employeeCount,
-  })
+  });
 
+  /* ------------------------------------------------------------------
+   * Formatted time ranges (for UI + PDF)
+   * ------------------------------------------------------------------ */
+  const { arbeitszeitRange, fahrzeitRange } = useTimeRanges({
+    report,
+    start,
+    end,
+    abfahrt,
+    ankunft,
+    includeFahrzeit,
+  });
 
-  const downloadPdf = async () => {
-    if (!report) return
+  /* ------------------------------------------------------------------
+   * PDF download handler (isolated side-effect)
+   * ------------------------------------------------------------------ */
+  const downloadPdf = usePdfDownload({
+    report,
+    date,
+    auftragsnummer,
+    includeFahrzeit,
+    arbeitszeitRange,
+    fahrzeitRange,
+    stundensatzText,
+    employeeCount,
+    netto,
+    mwst,
+    brutto,
+    employees: selectedEmployees,
+    isIOS,
+  });
 
-    const { pdf } = await import("@react-pdf/renderer")
-
-    const { default: ServiceReportPdf } =
-      await import("../components/time/report/ServiceReportPdf")
-
-    const blob = await pdf(
-      <ServiceReportPdf
-        arbeitsdatum={date}
-        auftragsnummer={auftragsnummer}
-        arbeitszeitText={formatDuration(report.arbeitszeit)}
-        arbeitszeitRange={arbeitszeitRange}
-        fahrzeitText={
-          includeFahrzeit
-            ? formatDuration(report.fahrzeit)
-            : undefined
-        }
-        fahrzeitRange={fahrzeitRange}
-        gesamtzeitText={formatDuration(report.gesamtzeit)}
-        stundensatz={stundensatzText}
-        mitarbeiterAnzahl={employeeCount}
-        netto={`${netto.toFixed(2)} €`}
-        mwst={`${mwst.toFixed(2)} €`}
-        brutto={`${brutto.toFixed(2)} €`}
-        employees={selectedEmployees}
-      />
-    ).toBlob()
-
-    const url = URL.createObjectURL(blob)
-
-
-    if (isIOS && navigator.share) {
-      const file = new File([blob], `Servicebericht_${date}.pdf`, {
-        type: "application/pdf",
-      })
-
-      await navigator.share({
-        files: [file],
-
-      })
-
-      URL.revokeObjectURL(url)
-      return
-    }
-
-
-    if (isIOS) {
-      window.open(url)
-      setTimeout(() => URL.revokeObjectURL(url), 10000)
-      return
-    }
-
-
-    const a = document.createElement("a")
-    a.href = url
-    a.download = `Servicebericht_${date}.pdf`
-    a.click()
-    URL.revokeObjectURL(url)
-
-  }
-
-
-
-
+  /* ------------------------------------------------------------------
+   * Print handler (desktop only)
+   * ------------------------------------------------------------------ */
   const handlePrint = () => {
     if (!hasEmployees) {
-      setUiError("Bitte wählen Sie mindestens einen Mitarbeiter aus.")
-      return
+      setUiError("Bitte wählen Sie mindestens einen Mitarbeiter aus.");
+      return;
     }
-    setUiError("")
-    window.print()
-  }
+    setUiError("");
+    window.print();
+  };
 
-
-
-  const formatTime = (t: TimeParts) =>
-    `${String(t.hour).padStart(2, "0")}:${String(t.minute).padStart(2, "0")}`
-
-  const arbeitszeitRange = report
-    ? `${formatTime(start)} bis ${formatTime(end)}`
-    : ""
-
-  const fahrzeitRange =
-    report && includeFahrzeit
-      ? `${formatTime(abfahrt)} bis ${formatTime(ankunft)}`
-      : undefined
-
-
-
-
+  /* ==================================================================
+   * RENDER
+   * ================================================================== */
   return (
     <>
+      {/* ===================== FORM VIEW ===================== */}
       <div
         className={`
-    min-h-screen bg-gray-50 p-4 sm:p-6
-    ${showPreview ? "hidden" : "block"}
-    print:hidden
-  `}
+          min-h-screen bg-gray-50 p-4 sm:p-6
+          ${showPreview ? "hidden" : "block"}
+          print:hidden
+        `}
       >
         <div className="max-w-md sm:max-w-sm mx-auto space-y-4">
           <h1 className="text-2xl font-semibold text-gray-900">
             Servicebericht
           </h1>
 
+          {/* Header (date, order number, price) */}
           <HeaderBlock
             date={date}
             onDateChange={setDate}
@@ -203,7 +198,7 @@ export default function TimeCalculator() {
             isIOS={isIOS}
           />
 
-
+          {/* Employees selection */}
           <EmployeesBlock
             selectedEmployees={selectedEmployees}
             availableEmployees={availableEmployees}
@@ -216,8 +211,7 @@ export default function TimeCalculator() {
             onRemoveEmployee={removeEmployee}
           />
 
-
-
+          {/* Travel time */}
           <TravelTimeBlock
             includeFahrzeit={includeFahrzeit}
             onToggleIncludeFahrzeit={setIncludeFahrzeit}
@@ -228,7 +222,7 @@ export default function TimeCalculator() {
             timeOptions={timeOptions}
           />
 
-
+          {/* Working time */}
           <ArbeitszeitBlock
             start={start}
             end={end}
@@ -237,13 +231,14 @@ export default function TimeCalculator() {
             timeOptions={timeOptions}
           />
 
-
+          {/* Validation errors */}
           {error && (
             <div className="border border-red-300 bg-red-50 p-3 text-red-700 rounded-md">
               {error}
             </div>
           )}
 
+          {/* Report summary */}
           {report && (
             <ReportSummaryBlock
               report={report}
@@ -253,14 +248,14 @@ export default function TimeCalculator() {
             />
           )}
 
-
+          {/* UI errors */}
           {uiError && (
             <div className="border border-red-300 bg-red-50 p-3 text-red-700 rounded-md">
               {uiError}
             </div>
           )}
 
-
+          {/* Actions */}
           <ActionsBlock
             hasEmployees={hasEmployees}
             isIOS={isIOS}
@@ -269,15 +264,16 @@ export default function TimeCalculator() {
             onDownloadPdf={downloadPdf}
           />
         </div>
-
       </div>
+
+      {/* ===================== PRINT / PREVIEW ===================== */}
       {report && (
         <div
           id="print-preview"
           className={`
-      ${showPreview ? "block" : "hidden"}
-      print:block
-    `}
+            ${showPreview ? "block" : "hidden"}
+            print:block
+          `}
         >
           <ServiceReport
             arbeitsdatum={date}
@@ -300,8 +296,6 @@ export default function TimeCalculator() {
           />
         </div>
       )}
-
     </>
-
   );
 }
