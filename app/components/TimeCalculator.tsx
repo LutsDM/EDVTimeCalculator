@@ -108,6 +108,8 @@ export default function TimeCalculator() {
       includeFahrzeit,
     });
   }, [start, end, abfahrt, ankunft, includeFahrzeit]);
+
+
 const downloadPdf = async () => {
   if (!report) return
 
@@ -144,12 +146,35 @@ const downloadPdf = async () => {
 
   const url = URL.createObjectURL(blob)
 
-  const a = document.createElement("a")
-  a.href = url
-  a.download = `Servicebericht_${date}.pdf`
-  a.click()
+// 1️⃣ iOS: нативный Share Sheet, если доступен
+if (isIOS && navigator.share) {
+  const file = new File([blob], `Servicebericht_${date}.pdf`, {
+    type: "application/pdf",
+  })
+
+  await navigator.share({
+    files: [file],
+    title: "Servicebericht",
+  })
 
   URL.revokeObjectURL(url)
+  return
+}
+
+// 2️⃣ iOS Safari: открываем PDF в новой вкладке
+if (isIOS) {
+  window.open(url)
+  setTimeout(() => URL.revokeObjectURL(url), 10000)
+  return
+}
+
+// 3️⃣ Desktop и Android
+const a = document.createElement("a")
+a.href = url
+a.download = `Servicebericht_${date}.pdf`
+a.click()
+URL.revokeObjectURL(url)
+
 }
 
 
