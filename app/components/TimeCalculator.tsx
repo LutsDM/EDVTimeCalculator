@@ -16,21 +16,14 @@ import TimeRow from "./time/TimeRow";
 import ReportRow from "./time/ReportRow";
 import TimeBlock from "./time/TimeBlock";
 import { employees, type Employee } from "./time/lib/employees";
-import ServiceReport from "../components/time/lib/ServiceReport"
-
-
-
-
 
 
 type Report = {
   arbeitszeit: number;
   fahrzeit: number;
   gesamtzeit: number;
-  includeFahrzeit: boolean;
+
 };
-
-
 
 export default function TimeCalculator() {
   const isIOS =
@@ -105,7 +98,6 @@ export default function TimeCalculator() {
       arbeitszeit,
       fahrzeit,
       gesamtzeit: arbeitszeit + fahrzeit,
-      includeFahrzeit,
     });
   }, [start, end, abfahrt, ankunft, includeFahrzeit]);
 
@@ -113,10 +105,10 @@ export default function TimeCalculator() {
   const downloadPdf = async () => {
     if (!report) return
 
-    // ⬇️ динамический импорт В МОМЕНТ КЛИКА
+
     const { pdf } = await import("@react-pdf/renderer")
 
-    // ⬇️ импорт РЕАЛЬНОГО PDF-компонента, не dynamic
+
     const { default: ServiceReportPdf } =
       await import("../components/time/lib/ServiceReportPdf")
 
@@ -127,7 +119,7 @@ export default function TimeCalculator() {
         arbeitszeitText={formatDuration(report.arbeitszeit)}
         arbeitszeitRange={arbeitszeitRange}
         fahrzeitText={
-          report.includeFahrzeit
+          includeFahrzeit
             ? formatDuration(report.fahrzeit)
             : undefined
         }
@@ -146,7 +138,7 @@ export default function TimeCalculator() {
 
     const url = URL.createObjectURL(blob)
 
-    // 1️⃣ iOS: нативный Share Sheet, если доступен
+
     if (isIOS && navigator.share) {
       const file = new File([blob], `Servicebericht_${date}.pdf`, {
         type: "application/pdf",
@@ -178,25 +170,7 @@ export default function TimeCalculator() {
   }
 
 
-  const applyPdfSafeColors = () => {
-    document.querySelectorAll("#print-preview *").forEach(el => {
-      const element = el as HTMLElement
-      element.style.color = "#000"
-      element.style.backgroundColor = "#fff"
-      element.style.borderColor = "#000"
-      element.style.boxShadow = "none"
-    })
-  }
 
-  const resetPdfSafeColors = () => {
-    document.querySelectorAll("#print-preview *").forEach(el => {
-      const element = el as HTMLElement
-      element.style.removeProperty("color")
-      element.style.removeProperty("background-color")
-      element.style.removeProperty("border-color")
-      element.style.removeProperty("box-shadow")
-    })
-  }
 
   const handlePrint = () => {
     if (!hasEmployees) {
@@ -206,39 +180,6 @@ export default function TimeCalculator() {
 
     window.print()
   }
-
-  // const downloadPdf = async () => {
-  //   setShowPreview(true)
-
-  //   await new Promise(resolve => setTimeout(resolve, 120))
-
-  //   const element = document.getElementById("print-preview")
-  //   if (!element) return
-
-  //   applyPdfSafeColors()
-
-  //   await new Promise(resolve => setTimeout(resolve, 50))
-
-  //   const html2pdf = (await import("html2pdf.js")).default
-
-  //   await html2pdf()
-  //     .from(element)
-  //     .set({
-  //       margin: 10,
-  //       filename: `Servicebericht_${date}.pdf`,
-  //       image: { type: "jpeg", quality: 0.98 },
-  //       html2canvas: {
-  //         scale: 2,
-  //         backgroundColor: "#ffffff",
-  //         useCORS: true,
-  //       },
-  //       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-  //     })
-  //     .save()
-
-  //   resetPdfSafeColors()
-  //   setShowPreview(false)
-  // }
 
   const hasEmployees = selectedEmployeeIds.length > 0
 
@@ -250,7 +191,7 @@ export default function TimeCalculator() {
     : ""
 
   const fahrzeitRange =
-    report && report.includeFahrzeit
+    report && includeFahrzeit
       ? `${formatTime(abfahrt)} bis ${formatTime(ankunft)}`
       : undefined
 
@@ -286,13 +227,15 @@ export default function TimeCalculator() {
           <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
             <label className="block text-xs font-medium text-gray-600 mb-1">
               Arbeitsdatum
+              {isIOS && (
+                <span className="ml-1">📅</span>
+              )}
             </label>
 
             {isIOS ? (
               <input
                 type="text"
                 value={new Date(date).toLocaleDateString("de-DE")}
-                readOnly
                 className="h-9 w-full rounded-md border border-gray-300 px-2 text-sm bg-gray-50 text-gray-800"
               />
             ) : (
@@ -482,7 +425,7 @@ export default function TimeCalculator() {
                   value={formatDuration(report.arbeitszeit)}
                 />
 
-                {report.includeFahrzeit && (
+                {includeFahrzeit && (
                   <ReportRow
                     label="Fahrzeit"
                     value={formatDuration(report.fahrzeit)}
@@ -527,23 +470,6 @@ export default function TimeCalculator() {
           })()}
 
           <div className="flex justify-end gap-2">
-            {!isIOS && (
-              <button
-                type="button"
-                disabled={!hasEmployees}
-                onClick={handlePrint}
-                className={`h-9 px-4 rounded-md text-sm transition-colors duration-150
-    ${hasEmployees
-                    ? "bg-red-900 text-white hover:bg-red-800 active:bg-red-950"
-                    : "bg-red-200 text-white cursor-not-allowed"
-                  }
-  `}
-              >
-                Drucken
-              </button>
-            )}
-
-
 
             <button
               type="button"
@@ -574,52 +500,10 @@ export default function TimeCalculator() {
 
 
           </div>
-
-
-
         </div>
 
       </div>
-      {/* ================= PRINT REPORT ================= */}
-      {report && (
-        <div
-          id="print-preview"
-          className={`
-      ${showPreview ? "block" : "hidden"}
-      print:block 
-    `}
-        >
-          <ServiceReport
-            arbeitsdatum={date}
-            auftragsnummer={auftragsnummer}
-            arbeitszeitText={formatDuration(report.arbeitszeit)}
-            arbeitszeitRange={arbeitszeitRange}
-            fahrzeitText={
-              report.includeFahrzeit
-                ? formatDuration(report.fahrzeit)
-                : undefined
-            }
-            fahrzeitRange={fahrzeitRange}
-            gesamtzeitText={formatDuration(report.gesamtzeit)}
-            stundensatz={`${priceNumber.toFixed(2)} €`}
-            mitarbeiterAnzahl={employeeCount}
-            netto={nettoAmount.toFixed(2) + " €"}
-            mwst={mwstAmount.toFixed(2) + " €"}
-            brutto={bruttoAmount.toFixed(2) + " €"}
-            employees={employees.filter(e =>
-              selectedEmployeeIds.includes(e.id)
-            )}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPreview(false)}
-            className="ml-30 text-sm text-gray-600 underline "
-          >
-            Vorschau schließen
-          </button>
 
-        </div>
-      )}
     </>
 
   );
