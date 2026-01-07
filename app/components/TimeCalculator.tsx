@@ -16,6 +16,7 @@ import TimeRow from "./time/TimeRow";
 import ReportRow from "./time/ReportRow";
 import TimeBlock from "./time/TimeBlock";
 import { employees, type Employee } from "./time/lib/employees";
+import ServiceReport from "./time/lib/ServiceReport";
 
 
 type Report = {
@@ -470,6 +471,22 @@ export default function TimeCalculator() {
           })()}
 
           <div className="flex justify-end gap-2">
+            {!isIOS && (
+  <button
+    type="button"
+    disabled={!hasEmployees}
+    onClick={handlePrint}
+    className={`h-9 px-4 rounded-md text-sm transition-colors duration-150
+      ${hasEmployees
+        ? "bg-red-900 text-white hover:bg-red-800 active:bg-red-950"
+        : "bg-red-200 text-white cursor-not-allowed"
+      }
+    `}
+  >
+    Drucken
+  </button>
+)}
+
 
             <button
               type="button"
@@ -503,6 +520,37 @@ export default function TimeCalculator() {
         </div>
 
       </div>
+{report && (
+  <div
+    id="print-preview"
+    className={`
+      ${showPreview ? "block" : "hidden"}
+      print:block
+    `}
+  >
+    <ServiceReport
+      arbeitsdatum={date}
+      auftragsnummer={auftragsnummer}
+      arbeitszeitText={formatDuration(report.arbeitszeit)}
+      arbeitszeitRange={arbeitszeitRange}
+      fahrzeitText={
+        includeFahrzeit
+          ? formatDuration(report.fahrzeit)
+          : undefined
+      }
+      fahrzeitRange={fahrzeitRange}
+      gesamtzeitText={formatDuration(report.gesamtzeit)}
+      stundensatz={`${priceNumber.toFixed(2)} €`}
+      mitarbeiterAnzahl={employeeCount}
+      netto={nettoAmount.toFixed(2) + " €"}
+      mwst={mwstAmount.toFixed(2) + " €"}
+      brutto={bruttoAmount.toFixed(2) + " €"}
+      employees={employees.filter(e =>
+        selectedEmployeeIds.includes(e.id)
+      )}
+    />
+  </div>
+)}
 
     </>
 

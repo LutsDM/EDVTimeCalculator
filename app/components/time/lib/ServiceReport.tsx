@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image"
+
 import { Employee } from "./employees"
 
 type ServiceReportProps = {
@@ -66,13 +66,13 @@ export default function ServiceReport({
     </div>
 
     <div className="sm:self-start self-center">
-      <Image
-        src="/LOGO.png"
-        alt="EDV-Service Samirae"
-        width={160}
-        height={80}
-        className="w-[140px] sm:w-[160px]"
-      />
+   <img
+  src="/LOGO.png"
+  alt="EDV-Service Samirae"
+  width={160}
+  height={80}
+  style={{ objectFit: "contain" }}
+/>
     </div>
 
   </div>
