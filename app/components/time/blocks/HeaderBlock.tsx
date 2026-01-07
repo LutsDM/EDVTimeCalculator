@@ -1,3 +1,6 @@
+import { useRef } from "react"
+
+
 type HeaderBlockProps = {
   date: string
   onDateChange: (value: string) => void
@@ -7,6 +10,7 @@ type HeaderBlockProps = {
   onPriceChange: (value: string) => void
   isIOS: boolean
 }
+const dateInputRef = useRef<HTMLInputElement>(null)
 
 export default function HeaderBlock({
   date,
@@ -28,7 +32,9 @@ export default function HeaderBlock({
         {isIOS ? (
           <input
             type="text"
+            readOnly
             value={new Date(date).toLocaleDateString("de-DE")}
+            onClick={() => dateInputRef.current?.showPicker()}
             className="h-9 w-full rounded-md border border-gray-300 px-2 text-sm bg-gray-50 text-gray-800"
           />
         ) : (
