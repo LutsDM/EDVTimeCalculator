@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image"
-import { Employee } from "./time/lib/employees"
+import { Employee } from "./employees"
 
 type ServiceReportProps = {
   arbeitsdatum: string

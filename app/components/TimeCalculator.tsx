@@ -16,7 +16,11 @@ import TimeRow from "./time/TimeRow";
 import ReportRow from "./time/ReportRow";
 import TimeBlock from "./time/TimeBlock";
 import { employees, type Employee } from "./time/lib/employees";
-import ServiceReport from "./ServiceReport"
+import ServiceReport from "../components/time/lib/ServiceReport"
+
+
+
+
 
 
 type Report = {
@@ -25,6 +29,8 @@ type Report = {
   gesamtzeit: number;
   includeFahrzeit: boolean;
 };
+
+
 
 export default function TimeCalculator() {
   const isIOS =
@@ -102,6 +108,50 @@ export default function TimeCalculator() {
       includeFahrzeit,
     });
   }, [start, end, abfahrt, ankunft, includeFahrzeit]);
+const downloadPdf = async () => {
+  if (!report) return
+
+  // ⬇️ динамический импорт В МОМЕНТ КЛИКА
+  const { pdf } = await import("@react-pdf/renderer")
+
+  // ⬇️ импорт РЕАЛЬНОГО PDF-компонента, не dynamic
+  const { default: ServiceReportPdf } =
+    await import("../components/time/lib/ServiceReportPdf")
+
+  const blob = await pdf(
+    <ServiceReportPdf
+      arbeitsdatum={date}
+      auftragsnummer={auftragsnummer}
+      arbeitszeitText={formatDuration(report.arbeitszeit)}
+      arbeitszeitRange={arbeitszeitRange}
+      fahrzeitText={
+        report.includeFahrzeit
+          ? formatDuration(report.fahrzeit)
+          : undefined
+      }
+      fahrzeitRange={fahrzeitRange}
+      gesamtzeitText={formatDuration(report.gesamtzeit)}
+      stundensatz={`${price.toFixed(2)} €`}
+      mitarbeiterAnzahl={employeeCount}
+      netto={`${nettoAmount.toFixed(2)} €`}
+      mwst={`${mwstAmount.toFixed(2)} €`}
+      brutto={`${bruttoAmount.toFixed(2)} €`}
+      employees={employees.filter(e =>
+        selectedEmployeeIds.includes(e.id)
+      )}
+    />
+  ).toBlob()
+
+  const url = URL.createObjectURL(blob)
+
+  const a = document.createElement("a")
+  a.href = url
+  a.download = `Servicebericht_${date}.pdf`
+  a.click()
+
+  URL.revokeObjectURL(url)
+}
+
 
   const applyPdfSafeColors = () => {
     document.querySelectorAll("#print-preview *").forEach(el => {
@@ -132,38 +182,38 @@ export default function TimeCalculator() {
     window.print()
   }
 
-  const downloadPdf = async () => {
-    setShowPreview(true)
+  // const downloadPdf = async () => {
+  //   setShowPreview(true)
 
-    await new Promise(resolve => setTimeout(resolve, 120))
+  //   await new Promise(resolve => setTimeout(resolve, 120))
 
-    const element = document.getElementById("print-preview")
-    if (!element) return
+  //   const element = document.getElementById("print-preview")
+  //   if (!element) return
 
-    applyPdfSafeColors()
+  //   applyPdfSafeColors()
 
-    await new Promise(resolve => setTimeout(resolve, 50))
+  //   await new Promise(resolve => setTimeout(resolve, 50))
 
-    const html2pdf = (await import("html2pdf.js")).default
+  //   const html2pdf = (await import("html2pdf.js")).default
 
-    await html2pdf()
-      .from(element)
-      .set({
-        margin: 10,
-        filename: `Servicebericht_${date}.pdf`,
-        image: { type: "jpeg", quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          backgroundColor: "#ffffff",
-          useCORS: true,
-        },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      })
-      .save()
+  //   await html2pdf()
+  //     .from(element)
+  //     .set({
+  //       margin: 10,
+  //       filename: `Servicebericht_${date}.pdf`,
+  //       image: { type: "jpeg", quality: 0.98 },
+  //       html2canvas: {
+  //         scale: 2,
+  //         backgroundColor: "#ffffff",
+  //         useCORS: true,
+  //       },
+  //       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+  //     })
+  //     .save()
 
-    resetPdfSafeColors()
-    setShowPreview(false)
-  }
+  //   resetPdfSafeColors()
+  //   setShowPreview(false)
+  // }
 
   const hasEmployees = selectedEmployeeIds.length > 0
 
@@ -481,7 +531,7 @@ export default function TimeCalculator() {
 
 
 
-            <button
+            {/* <button
               type="button"
               disabled={!hasEmployees}
               onClick={downloadPdf}
@@ -492,7 +542,20 @@ export default function TimeCalculator() {
   `}
             >
               Herunterladen
-            </button>
+            </button> */}
+            <button
+  type="button"
+  disabled={!hasEmployees}
+  onClick={downloadPdf}
+  className={`h-9 px-4 rounded-md text-sm
+    ${hasEmployees
+      ? "bg-green-700 text-white"
+      : "bg-green-200 text-white cursor-not-allowed"}
+  `}
+>
+  PDF herunterladen
+</button>
+
           </div>
 
 
