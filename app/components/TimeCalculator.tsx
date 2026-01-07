@@ -78,17 +78,33 @@ export default function TimeCalculator() {
    * Employees selection logic
    * ------------------------------------------------------------------ */
   const {
+    // state
     selectedEmployees,
+    employeeToAdd,
+    isAdding,
+    isAddingCustom,
+    customEmployeeName,
+
+    // setters
+    setEmployeeToAdd,
+    setIsAdding,
+    setIsAddingCustom,
+    setCustomEmployeeName,
+
+    // derived
     availableEmployees,
     employeeCount,
     hasEmployees,
-    employeeToAdd,
-    isAdding,
-    setEmployeeToAdd,
-    setIsAdding,
-    addEmployee,
+
+    // actions
+    startAddFromList,
+    startAddCustom,
+    cancelAdd,
+    addEmployeeFromList,
+    addCustomEmployee,
     removeEmployee,
-  } = useEmployeesSelection();
+  } = useEmployeesSelection()
+
 
   /* ------------------------------------------------------------------
    * Preview / print mode
@@ -204,10 +220,20 @@ export default function TimeCalculator() {
             availableEmployees={availableEmployees}
             employeeToAdd={employeeToAdd}
             isAdding={isAdding}
+            isAddingCustom={isAddingCustom}
+            customEmployeeName={customEmployeeName}
             hasEmployees={hasEmployees}
-            onStartAdd={() => setIsAdding(true)}
+
+            onStartAddFromList={startAddFromList}
+            onStartAddCustom={startAddCustom}
+            onCancelAdd={cancelAdd}
+
             onEmployeeToAddChange={setEmployeeToAdd}
-            onAddEmployee={addEmployee}
+            onCustomEmployeeNameChange={setCustomEmployeeName}
+
+            onAddEmployeeFromList={addEmployeeFromList}
+            onAddCustomEmployee={addCustomEmployee}
+
             onRemoveEmployee={removeEmployee}
           />
 
