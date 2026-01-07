@@ -8,7 +8,7 @@ import {
   StyleSheet,
   Image,
 } from "@react-pdf/renderer"
-import { Employee } from "./employees"
+import { Employee } from "../lib/employees"
 
 type Props = {
   arbeitsdatum: string
