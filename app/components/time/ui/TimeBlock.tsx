@@ -1,13 +1,19 @@
 import { TimeParts } from "../lib/time";
 import TimeRow from "./TimeRow";
 
+type TimeOptions = {
+  hours: string[]
+  minutes: string[]
+}
+
 type Props = {
-  title: string;
-  label: string;
-  value: TimeParts;
-  onChange: (next: TimeParts) => void;
-  timeOptions: (max: number) => string[];
-};
+  title: string
+  label: string
+  value: TimeParts
+  onChange: (next: TimeParts) => void
+  timeOptions: TimeOptions
+}
+
 
 export default function TimeBlock({
   title,
