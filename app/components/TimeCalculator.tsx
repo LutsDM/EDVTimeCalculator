@@ -38,6 +38,8 @@ import ActionsBlock from "./time/blocks/ActionsBlock";
  * Print / Preview
  * ------------------------------------------------------------------ */
 import ServiceReport from "./time/report/ServiceReport";
+import { Customer } from "../types/customer";
+import CustomerModal from "./time/blocks/CustomerModal";
 
 export default function TimeCalculator() {
   /* ------------------------------------------------------------------
@@ -76,6 +78,11 @@ export default function TimeCalculator() {
 
   const [abfahrtVon, setAbfahrtVon] = useState<TimeParts>(emptyTime)
   const [abfahrtBis, setAbfahrtBis] = useState<TimeParts>(emptyTime)
+  /* ------------------------------------------------------------------
+    * Customer 
+    * ------------------------------------------------------------------ */
+  const [customer, setCustomer] = useState<Customer | null>(null)
+  const [isCustomerModalOpen, setCustomerModalOpen] = useState(false)
 
   /* ------------------------------------------------------------------
    * Employees selection logic
@@ -182,6 +189,7 @@ export default function TimeCalculator() {
     brutto,
     employees: selectedEmployees,
     isIOS,
+    customer
   });
 
   /* ------------------------------------------------------------------
@@ -224,6 +232,21 @@ export default function TimeCalculator() {
             onPriceChange={setPrice}
             isIOS={isIOS}
           />
+
+          <button
+            onClick={() => setCustomerModalOpen(true)}
+            className="w-full bg-green-400 border border-gray-300 rounded-lg py-2 text-sm font-medium  hover:bg-green-600 active:bg-green-600 active:scale-[0.98]"
+          >
+            Kundendaten hinzufügen
+          </button>
+
+          {isCustomerModalOpen && (
+            <CustomerModal
+              initialValue={customer}
+              onSave={setCustomer}
+              onClose={() => setCustomerModalOpen(false)}
+            />
+          )}
 
           {/* Employees selection */}
           <EmployeesBlock

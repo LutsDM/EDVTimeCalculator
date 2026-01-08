@@ -9,6 +9,7 @@ import {
   Image,
 } from "@react-pdf/renderer"
 import { Employee } from "../lib/employees"
+import { Customer } from "@/app/types/customer"
 
 type Props = {
   arbeitsdatum: string
@@ -31,6 +32,7 @@ type Props = {
   brutto: string
 
   employees: Employee[]
+  customer?: Customer | null
 }
 
 const styles = StyleSheet.create({
@@ -169,6 +171,7 @@ export default function ServiceReportPdf(props: Props) {
     mwst,
     brutto,
     employees,
+    customer
   } = props
 
   return (
@@ -192,6 +195,13 @@ export default function ServiceReportPdf(props: Props) {
             Tel. 02173 9939835{"\n"}
             Mobil 0163 2496741
           </Text>
+
+          {customer && (
+            <>
+              <Text>{customer.postalCode} {customer.city}</Text>
+              <Text>{customer.street} {customer.houseNumber}</Text>
+            </>
+          )}
 
           <Image
             src="/LOGO.png"
@@ -278,7 +288,11 @@ export default function ServiceReportPdf(props: Props) {
         {/* CUSTOMER */}
         <View style={styles.customerSignature}>
           <View style={styles.signatureLine} />
-          <Text>Kunde</Text>
+          <Text>
+            {customer
+              ? `${customer.firstName} ${customer.lastName}`
+              : "Kunde"}
+          </Text>
         </View>
 
       </Page>

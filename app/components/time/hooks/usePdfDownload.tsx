@@ -1,6 +1,7 @@
 import { Report } from "@/app/types/report"
 import { Employee } from "../lib/employees"
 import { formatDuration } from "../lib/time"
+import { Customer } from "@/app/types/customer"
 
 type Params = {
   report: Report | null
@@ -16,6 +17,7 @@ type Params = {
   brutto: number
   employees: Employee[]
   isIOS: boolean
+  customer?: Customer | null
 }
 
 export function usePdfDownload({
@@ -32,6 +34,7 @@ export function usePdfDownload({
   brutto,
   employees,
   isIOS,
+  customer
 }: Params) {
   return async function downloadPdf() {
     if (!report) return
@@ -57,6 +60,7 @@ export function usePdfDownload({
         mwst={`${mwst.toFixed(2)} €`}
         brutto={`${brutto.toFixed(2)} €`}
         employees={employees}
+        customer={customer}
       />
     ).toBlob()
 
