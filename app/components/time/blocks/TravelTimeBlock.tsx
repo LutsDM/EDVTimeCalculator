@@ -4,13 +4,13 @@ import TimeRow from "../ui/TimeRow"
 import { TimeParts } from "../lib/time"
 
 type TravelTimeBlockProps = {
-  includeFahrzeit: boolean
-  onToggleIncludeFahrzeit: (value: boolean) => void
+  includeAbfahrt: boolean
+  onToggleIncludeAbfahrt: (value: boolean) => void
 
-  abfahrt: TimeParts
-  ankunft: TimeParts
-  onAbfahrtChange: (value: TimeParts) => void
-  onAnkunftChange: (value: TimeParts) => void
+  abfahrtVon: TimeParts
+  abfahrtBis: TimeParts
+  onAbfahrtVonChange: (value: TimeParts) => void
+  onAbfahrtBisChange: (value: TimeParts) => void
 
   timeOptions: {
     hours: string[]
@@ -19,12 +19,12 @@ type TravelTimeBlockProps = {
 }
 
 export default function TravelTimeBlock({
-  includeFahrzeit,
-  onToggleIncludeFahrzeit,
-  abfahrt,
-  ankunft,
-  onAbfahrtChange,
-  onAnkunftChange,
+  includeAbfahrt,
+  onToggleIncludeAbfahrt,
+  abfahrtVon,
+  abfahrtBis,
+  onAbfahrtVonChange,
+  onAbfahrtBisChange,
   timeOptions,
 }: TravelTimeBlockProps) {
   return (
@@ -32,28 +32,34 @@ export default function TravelTimeBlock({
       <label className="flex items-center gap-2 text-sm">
         <input
           type="checkbox"
-          checked={includeFahrzeit}
-          onChange={(e) => onToggleIncludeFahrzeit(e.target.checked)}
+          checked={includeAbfahrt}
+          onChange={(e) => onToggleIncludeAbfahrt(e.target.checked)}
           className="h-4 w-4"
         />
-        Fahrzeit berücksichtigen
+        Abfahrt berücksichtigen
       </label>
 
-      {includeFahrzeit && (
-        <div className="space-y-4 pt-2 border-t">
-          <TimeRow
-            label="Abfahrt"
-            value={abfahrt}
-            onChange={onAbfahrtChange}
-            timeOptions={timeOptions}
-          />
+      {includeAbfahrt && (
+        <div className="space-y-3 pt-2 border-t">
+          <div className="text-xs font-medium text-gray-600">
+            Abfahrt
+          </div>
 
-          <TimeRow
-            label="Ankunft"
-            value={ankunft}
-            onChange={onAnkunftChange}
-            timeOptions={timeOptions}
-          />
+          <div className="grid grid-cols-2 gap-3">
+            <TimeRow
+              label="Von"
+              value={abfahrtVon}
+              onChange={onAbfahrtVonChange}
+              timeOptions={timeOptions}
+            />
+
+            <TimeRow
+              label="Bis"
+              value={abfahrtBis}
+              onChange={onAbfahrtBisChange}
+              timeOptions={timeOptions}
+            />
+          </div>
         </div>
       )}
     </div>

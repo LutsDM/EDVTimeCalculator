@@ -24,7 +24,7 @@ export function usePriceCalculation({
     }
 
     const minutesTotal =
-        report.arbeitszeit + report.fahrzeit
+        report.gesamtzeit 
 
     const brutto =
         minutesTotal * (pricePerHour / 60) * employeeCount

@@ -70,9 +70,12 @@ export default function TimeCalculator() {
   /* ------------------------------------------------------------------
    * Travel time (Abfahrt / Ankunft)
    * ------------------------------------------------------------------ */
-  const [abfahrt, setAbfahrt] = useState<TimeParts>(emptyTime);
-  const [ankunft, setAnkunft] = useState<TimeParts>(emptyTime);
-  const [includeFahrzeit, setIncludeFahrzeit] = useState(false);
+  const [ankunftVon, setAnkunftVon] = useState<TimeParts>(getNowTime)
+  const [ankunftBis, setAnkunftBis] = useState<TimeParts>(getNowTime)
+  const [includeAbfahrt, setIncludeAbfahrt] = useState(false);
+
+  const [abfahrtVon, setAbfahrtVon] = useState<TimeParts>(emptyTime)
+  const [abfahrtBis, setAbfahrtBis] = useState<TimeParts>(emptyTime)
 
   /* ------------------------------------------------------------------
    * Employees selection logic
@@ -126,12 +129,14 @@ export default function TimeCalculator() {
    * Core business calculation (time validation + totals)
    * ------------------------------------------------------------------ */
   const { report, error } = useTimeCalculation({
+    ankunftVon,
+    ankunftBis,
     start,
     end,
-    abfahrt,
-    ankunft,
-    includeFahrzeit,
-  });
+    abfahrtVon,
+    abfahrtBis,
+    includeAbfahrt,
+  })
 
   /* ------------------------------------------------------------------
    * Price calculation (derived values only)
@@ -145,14 +150,20 @@ export default function TimeCalculator() {
   /* ------------------------------------------------------------------
    * Formatted time ranges (for UI + PDF)
    * ------------------------------------------------------------------ */
-  const { arbeitszeitRange, fahrzeitRange } = useTimeRanges({
+  const {
+    ankunftRange,
+    arbeitszeitRange,
+    abfahrtRange,
+  } = useTimeRanges({
     report,
+    ankunftVon,
+    ankunftBis,
     start,
     end,
-    abfahrt,
-    ankunft,
-    includeFahrzeit,
-  });
+    abfahrtVon,
+    abfahrtBis,
+    includeAbfahrt,
+  })
 
   /* ------------------------------------------------------------------
    * PDF download handler (isolated side-effect)
@@ -161,9 +172,9 @@ export default function TimeCalculator() {
     report,
     date,
     auftragsnummer,
-    includeFahrzeit,
+    includeAbfahrt,
     arbeitszeitRange,
-    fahrzeitRange,
+    abfahrtRange,
     stundensatzText,
     employeeCount,
     netto,
@@ -237,25 +248,31 @@ export default function TimeCalculator() {
             onRemoveEmployee={removeEmployee}
           />
 
-          {/* Travel time */}
-          <TravelTimeBlock
-            includeFahrzeit={includeFahrzeit}
-            onToggleIncludeFahrzeit={setIncludeFahrzeit}
-            abfahrt={abfahrt}
-            ankunft={ankunft}
-            onAbfahrtChange={setAbfahrt}
-            onAnkunftChange={setAnkunft}
-            timeOptions={timeOptions}
-          />
-
           {/* Working time */}
           <ArbeitszeitBlock
+            ankunftVon={ankunftVon}
+            ankunftBis={ankunftBis}
+            onAnkunftVonChange={setAnkunftVon}
+            onAnkunftBisChange={setAnkunftBis}
             start={start}
             end={end}
             onStartChange={setStart}
             onEndChange={setEnd}
             timeOptions={timeOptions}
           />
+
+
+          {/* Travel time */}
+          <TravelTimeBlock
+            includeAbfahrt={includeAbfahrt}
+            onToggleIncludeAbfahrt={setIncludeAbfahrt}
+            abfahrtVon={abfahrtVon}
+            abfahrtBis={abfahrtBis}
+            onAbfahrtVonChange={setAbfahrtVon}
+            onAbfahrtBisChange={setAbfahrtBis}
+            timeOptions={timeOptions}
+          />
+
 
           {/* Validation errors */}
           {error && (
@@ -268,7 +285,7 @@ export default function TimeCalculator() {
           {report && (
             <ReportSummaryBlock
               report={report}
-              includeFahrzeit={includeFahrzeit}
+              includeAbfahrt={includeAbfahrt}
               employeeCount={employeeCount}
               brutto={brutto}
             />
@@ -306,12 +323,10 @@ export default function TimeCalculator() {
             auftragsnummer={auftragsnummer}
             arbeitszeitText={formatDuration(report.arbeitszeit)}
             arbeitszeitRange={arbeitszeitRange}
-            fahrzeitText={
-              includeFahrzeit
-                ? formatDuration(report.fahrzeit)
-                : undefined
+            abfahrtText={
+              includeAbfahrt ? formatDuration(report.abfahrt) : undefined
             }
-            fahrzeitRange={fahrzeitRange}
+            abfahrtRange={abfahrtRange}
             gesamtzeitText={formatDuration(report.gesamtzeit)}
             stundensatz={stundensatzText}
             mitarbeiterAnzahl={employeeCount}
@@ -320,6 +335,7 @@ export default function TimeCalculator() {
             brutto={`${brutto.toFixed(2)} €`}
             employees={selectedEmployees}
           />
+
         </div>
       )}
     </>

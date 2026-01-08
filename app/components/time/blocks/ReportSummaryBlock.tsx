@@ -4,17 +4,31 @@ import { Report } from "@/app/types/report"
 
 type ReportSummaryBlockProps = {
   report: Report
-  includeFahrzeit: boolean
+  includeAbfahrt: boolean
   employeeCount: number
   brutto: number
 }
 
 export default function ReportSummaryBlock({
   report,
-  includeFahrzeit,
+  includeAbfahrt,
   employeeCount,
   brutto,
 }: ReportSummaryBlockProps) {
+
+  if (employeeCount === 0) {
+    return (
+      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
+        <div className="font-semibold mb-1">
+          Kein Mitarbeiter ausgewählt
+        </div>
+        <div>
+          Bitte wählen Sie mindestens einen Mitarbeiter aus, um den Servicebericht zu erstellen.
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm space-y-2">
       <div className="text-xs uppercase tracking-wide text-gray-500">
@@ -22,14 +36,19 @@ export default function ReportSummaryBlock({
       </div>
 
       <ReportRow
+        label="Ankunftszeit"
+        value={formatDuration(report.ankunftzeit)}
+      />
+
+      <ReportRow
         label="Arbeitszeit"
         value={formatDuration(report.arbeitszeit)}
       />
 
-      {includeFahrzeit && (
+      {includeAbfahrt && (
         <ReportRow
-          label="Fahrzeit"
-          value={formatDuration(report.fahrzeit)}
+          label="Abfahrt"
+          value={formatDuration(report.abfahrt)}
         />
       )}
 
@@ -50,12 +69,11 @@ export default function ReportSummaryBlock({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1 font-medium">
           <span>Gesamtbetrag</span>
-
           <div className="relative group">
             <span className="cursor-pointer text-gray-400">ℹ️</span>
-
             <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block w-64 rounded-md bg-gray-800 text-white text-xs p-2 shadow-lg z-10">
-              (Arbeitszeit + Fahrzeit) × Stundensatz × Mitarbeiteranzahl
+              (Ankunft + Arbeitszeit + Abfahrt) × Stundensatz × Mitarbeiteranzahl
+
             </div>
           </div>
         </div>

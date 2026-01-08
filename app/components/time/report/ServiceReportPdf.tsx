@@ -18,8 +18,8 @@ type Props = {
   arbeitszeitText: string
   arbeitszeitRange: string
 
-  fahrzeitText?: string
-  fahrzeitRange?: string
+  abfahrtText?: string
+  abfahrtRange?: string
 
   gesamtzeitText: string
 
@@ -160,8 +160,8 @@ export default function ServiceReportPdf(props: Props) {
     kundenNr,
     arbeitszeitText,
     arbeitszeitRange,
-    fahrzeitText,
-    fahrzeitRange,
+    abfahrtText,
+    abfahrtRange,
     gesamtzeitText,
     stundensatz,
     mitarbeiterAnzahl,
@@ -217,13 +217,13 @@ export default function ServiceReportPdf(props: Props) {
             <Text style={styles.tableCellRight}>{arbeitszeitText}</Text>
           </View>
 
-          {fahrzeitText && fahrzeitRange && (
+          {abfahrtText && abfahrtRange && (
             <View style={styles.tableRow}>
               <View style={styles.tableCellLeft}>
                 <Text>Fahrzeit</Text>
-                <Text style={styles.muted}>({fahrzeitRange})</Text>
+                <Text style={styles.muted}>({abfahrtRange})</Text>
               </View>
-              <Text style={styles.tableCellRight}>{fahrzeitText}</Text>
+              <Text style={styles.tableCellRight}>{abfahrtText}</Text>
             </View>
           )}
 

@@ -6,9 +6,9 @@ type Params = {
   report: Report | null
   date: string
   auftragsnummer: string
-  includeFahrzeit: boolean
+  includeAbfahrt: boolean
   arbeitszeitRange: string
-  fahrzeitRange?: string
+  abfahrtRange?: string
   stundensatzText: string
   employeeCount: number
   netto: number
@@ -22,9 +22,9 @@ export function usePdfDownload({
   report,
   date,
   auftragsnummer,
-  includeFahrzeit,
+  includeAbfahrt,
   arbeitszeitRange,
-  fahrzeitRange,
+  abfahrtRange,
   stundensatzText,
   employeeCount,
   netto,
@@ -46,10 +46,10 @@ export function usePdfDownload({
         auftragsnummer={auftragsnummer}
         arbeitszeitText={formatDuration(report.arbeitszeit)}
         arbeitszeitRange={arbeitszeitRange}
-        fahrzeitText={
-          includeFahrzeit ? formatDuration(report.fahrzeit) : undefined
+        abfahrtText={
+          includeAbfahrt ? formatDuration(report.abfahrt) : undefined
         }
-        fahrzeitRange={fahrzeitRange}
+        abfahrtRange={abfahrtRange}
         gesamtzeitText={formatDuration(report.gesamtzeit)}
         stundensatz={stundensatzText}
         mitarbeiterAnzahl={employeeCount}

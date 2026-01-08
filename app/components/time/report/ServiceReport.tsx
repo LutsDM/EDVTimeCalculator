@@ -10,8 +10,8 @@ type ServiceReportProps = {
   arbeitszeitText: string
   arbeitszeitRange: string
 
-  fahrzeitText?: string
-  fahrzeitRange?: string
+  abfahrtText?: string
+  abfahrtRange?: string
 
   gesamtzeitText: string
 
@@ -27,13 +27,13 @@ type ServiceReportProps = {
 
 
 export default function ServiceReport({
-  fahrzeitRange,
+  abfahrtRange,
   arbeitsdatum,
   arbeitszeitRange,
   auftragsnummer,
   kundenNr,
   arbeitszeitText,
-  fahrzeitText,
+  abfahrtText,
   gesamtzeitText,
   stundensatz,
   mitarbeiterAnzahl,
@@ -101,15 +101,15 @@ export default function ServiceReport({
 
 
 
-          {fahrzeitText && fahrzeitRange && (
+          {abfahrtText && abfahrtRange && (
             <tr className="border border-gray-300">
               <td className="p-2">
                 Fahrzeit<br />
                 <span className="text-xs text-gray-500">
-                  ({fahrzeitRange})
+                  ({abfahrtRange})
                 </span>
               </td>
-              <td className="p-2 text-right">{fahrzeitText}</td>
+              <td className="p-2 text-right">{abfahrtText}</td>
             </tr>
           )}
 

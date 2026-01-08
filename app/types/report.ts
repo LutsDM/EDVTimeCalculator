@@ -1,9 +1,10 @@
 export type Report = {
-  arbeitszeit: number;
-  fahrzeit: number;
-  gesamtzeit: number;
+  arbeitszeit: number
+  ankunftzeit: number,
+  abfahrt: number
+  gesamtzeit: number
+}
 
-};
 
 export type PriceCalculation = {
   brutto: number
@@ -11,3 +12,4 @@ export type PriceCalculation = {
   mwst: number
   pricePerHour: number
 }
+
