@@ -71,23 +71,23 @@ export default function CustomerModal({
 
         {type === "company" && (
           <input
-            className="w-full border rounded p-2 text-sm"
+            className="w-full border rounded-md p-2 text-sm"
             placeholder="Firmenname"
             value={form.companyName}
             onChange={e => update("companyName", e.target.value)}
           />
         )}
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid  grid-cols-2 gap-2">
           <input
             placeholder="Vorname"
-            className="border p-2 text-sm"
+            className="border rounded-md p-2 text-sm"
             value={form.firstName}
             onChange={e => update("firstName", e.target.value)}
           />
           <input
             placeholder="Nachname"
-            className="border p-2 text-sm"
+            className="border rounded-md p-2 text-sm"
             value={form.lastName}
             onChange={e => update("lastName", e.target.value)}
           />
@@ -95,7 +95,7 @@ export default function CustomerModal({
 
         <input
           placeholder="Telefon"
-          className="border p-2 text-sm"
+          className="border rounded-md p-2 text-sm"
           value={form.phone}
           onChange={e => update("phone", e.target.value)}
         />
@@ -103,13 +103,13 @@ export default function CustomerModal({
         <div className="grid grid-cols-3 gap-2">
           <input
             placeholder="PLZ"
-            className="border p-2 text-sm"
+            className="border rounded-md p-2 text-sm"
             value={form.postalCode}
             onChange={e => update("postalCode", e.target.value)}
           />
           <input
             placeholder="Ort"
-            className="border p-2 text-sm col-span-2"
+            className="border rounded-md p-2 text-sm col-span-2"
             value={form.city}
             onChange={e => update("city", e.target.value)}
           />
@@ -118,13 +118,13 @@ export default function CustomerModal({
         <div className="grid grid-cols-3 gap-2">
           <input
             placeholder="Straße"
-            className="border p-2 text-sm col-span-2"
+            className="border rounded-md p-2 text-sm col-span-2"
             value={form.street}
             onChange={e => update("street", e.target.value)}
           />
           <input
             placeholder="Nr."
-            className="border p-2 text-sm"
+            className="border rounded-md p-2 text-sm"
             value={form.houseNumber}
             onChange={e => update("houseNumber", e.target.value)}
           />
