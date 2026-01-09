@@ -357,6 +357,7 @@ export default function TimeCalculator() {
             mwst={`${mwst.toFixed(2)} €`}
             brutto={`${brutto.toFixed(2)} €`}
             employees={selectedEmployees}
+            customer={customer}
           />
 
         </div>

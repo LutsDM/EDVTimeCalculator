@@ -54,6 +54,12 @@ const styles = StyleSheet.create({
     lineHeight: 1.4,
   },
 
+  customerBlock: {
+    fontSize: 9,
+    lineHeight: 1.4,
+    marginTop: 12,
+  },
+
   logo: {
     width: 140,
     height: 60,
@@ -171,7 +177,7 @@ export default function ServiceReportPdf(props: Props) {
     mwst,
     brutto,
     employees,
-    customer
+    customer,
   } = props
 
   return (
@@ -180,33 +186,46 @@ export default function ServiceReportPdf(props: Props) {
 
         {/* HEADER */}
         <View style={styles.headerRow}>
-          <Text style={styles.address}>
-            EDV-SERVICE Samirae{"\n"}
-            Schloßstr. 33{"\n"}
-            51427 Bergisch Gladbach{"\n"}
-            Tel. 02204 9670720{"\n"}
-            Mobil 0163 2496741
-          </Text>
 
-          <Text style={styles.address}>
-            EDV-SERVICE Samirae{"\n"}
-            Franz-Boehm-Strasse 3{"\n"}
-            40789 Monheim am Rhein{"\n"}
-            Tel. 02173 9939835{"\n"}
-            Mobil 0163 2496741
-          </Text>
+          {/* LEFT COLUMN */}
+          <View>
+            <Text style={styles.address}>
+              EDV SERVICE Samirae{"\n"}
+              Schloßstr. 33{"\n"}
+              51427 Bergisch Gladbach{"\n"}
+              Tel. 02204 9670720{"\n"}
+              Mobil 0163 2496741
+            </Text>
 
-          {customer && (
-            <>
-              <Text>{customer.postalCode} {customer.city}</Text>
-              <Text>{customer.street} {customer.houseNumber}</Text>
-            </>
-          )}
+            {customer && (
+              <View style={styles.customerBlock}>
+                <Text style={styles.bold}>Kunde</Text>
 
-          <Image
-            src="/LOGO.png"
-            style={styles.logo}
-          />
+                {customer.type === "company" && customer.companyName && (
+                  <Text>{customer.companyName}</Text>
+                )}
+
+                <Text>
+                  {customer.firstName} {customer.lastName}
+                </Text>
+
+                <Text>
+                  {customer.street} {customer.houseNumber}
+                </Text>
+
+                <Text>
+                  {customer.postalCode} {customer.city}
+                </Text>
+
+                {customer.phone && (
+                  <Text>Tel. {customer.phone}</Text>
+                )}
+              </View>
+            )}
+          </View>
+
+          {/* RIGHT COLUMN */}
+          <Image src="/LOGO.png" style={styles.logo} />
         </View>
 
         {/* TITLE */}
@@ -214,7 +233,7 @@ export default function ServiceReportPdf(props: Props) {
           <Text style={styles.title}>Servicebericht</Text>
           <Text>Arbeitsdatum: {arbeitsdatum}</Text>
           <Text>Auftragsnummer: {auftragsnummer}</Text>
-          {kundenNr && <Text>Kunden-Nr: {kundenNr}</Text>}
+          {kundenNr && <Text>Kunden Nr: {kundenNr}</Text>}
         </View>
 
         {/* TABLE */}
@@ -238,7 +257,9 @@ export default function ServiceReportPdf(props: Props) {
           )}
 
           <View style={styles.tableRow}>
-            <Text style={[styles.tableCellLeft, styles.bold]}>Gesamtzeit</Text>
+            <Text style={[styles.tableCellLeft, styles.bold]}>
+              Gesamtzeit
+            </Text>
             <Text style={[styles.tableCellRight, styles.bold]}>
               {gesamtzeitText}
             </Text>
@@ -285,7 +306,7 @@ export default function ServiceReportPdf(props: Props) {
           </View>
         </View>
 
-        {/* CUSTOMER */}
+        {/* CUSTOMER SIGNATURE */}
         <View style={styles.customerSignature}>
           <View style={styles.signatureLine} />
           <Text>
