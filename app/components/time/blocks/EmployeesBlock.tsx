@@ -97,7 +97,7 @@ export default function EmployeesBlock({
                 e.target.value ? Number(e.target.value) : ""
               )
             }
-            className="h-9 flex-1 rounded-md border border-gray-300 px-2 text-sm"
+            className="h-9 flex-1 rounded-md border border-gray-300 px-2 text-sm bg-gray-50 text-gray-800"
           >
             
             <option value="">Mitarbeiter auswählen</option>
@@ -120,7 +120,7 @@ export default function EmployeesBlock({
           <button
             type="button"
             onClick={onCancelAdd}
-            className="h-9 px-3 rounded-md border border-gray-300 text-sm"
+            className="h-9 px-3 rounded-md border border-gray-300 text-sm bg-gray-50 text-gray-800"
           >
             Abbrechen
           </button>
@@ -160,7 +160,7 @@ export default function EmployeesBlock({
         </div>
       )}
 
-      {/* Employees fron databank */}
+      {/* Employees from databank */}
       {selectedEmployees.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {selectedEmployees.map((employee) => (

@@ -8,7 +8,7 @@ export default function ReportRow({ label, value, strong }: Props) {
   return (
     <div className="flex justify-between text-sm">
       <span className="text-gray-600">{label}</span>
-      <span className={strong ? "font-semibold" : ""}>{value}</span>
+      <span className={strong ? "font-semibold text-gray-800" : ""}>{value}</span>
     </div>
   );
-}
+} 

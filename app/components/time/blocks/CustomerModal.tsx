@@ -46,7 +46,7 @@ export default function CustomerModal({
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg w-full max-w-md p-4 space-y-4">
-        <div className="text-lg font-semibold">Kundendaten</div>
+        <div className="text-lg font-semibold text-gray-800">Kundendaten</div>
 
         {/* Type */}
         <div className="flex gap-4 text-sm">
@@ -55,6 +55,7 @@ export default function CustomerModal({
               type="radio"
               checked={type === "private"}
               onChange={() => setType("private")}
+              className="text-gray-800"
             />
             Privatkunde
           </label>
@@ -64,6 +65,7 @@ export default function CustomerModal({
               type="radio"
               checked={type === "company"}
               onChange={() => setType("company")}
+              className="text-gray-800"
             />
             Firma
           </label>
@@ -71,7 +73,7 @@ export default function CustomerModal({
 
         {type === "company" && (
           <input
-            className="w-full border rounded-md p-2 text-sm"
+            className="w-full border rounded-md p-2 text-sm bg-gray-50 text-gray-800"
             placeholder="Firmenname"
             value={form.companyName}
             onChange={e => update("companyName", e.target.value)}
@@ -81,13 +83,13 @@ export default function CustomerModal({
         <div className="grid  grid-cols-2 gap-2">
           <input
             placeholder="Vorname"
-            className="border rounded-md p-2 text-sm"
+            className="border rounded-md p-2 text-sm bg-gray-50 text-gray-800"
             value={form.firstName}
             onChange={e => update("firstName", e.target.value)}
           />
           <input
             placeholder="Nachname"
-            className="border rounded-md p-2 text-sm"
+            className="border rounded-md p-2 text-sm bg-gray-50 text-gray-800"
             value={form.lastName}
             onChange={e => update("lastName", e.target.value)}
           />
@@ -95,7 +97,7 @@ export default function CustomerModal({
 
         <input
           placeholder="Telefon"
-          className="border rounded-md p-2 text-sm"
+          className="border rounded-md p-2 text-sm bg-gray-50 text-gray-800"
           value={form.phone}
           onChange={e => update("phone", e.target.value)}
         />
@@ -103,13 +105,13 @@ export default function CustomerModal({
         <div className="grid grid-cols-3 gap-2">
           <input
             placeholder="PLZ"
-            className="border rounded-md p-2 text-sm"
+            className="border rounded-md p-2 text- bg-gray-50 text-gray-800"
             value={form.postalCode}
             onChange={e => update("postalCode", e.target.value)}
           />
           <input
             placeholder="Ort"
-            className="border rounded-md p-2 text-sm col-span-2"
+            className="border rounded-md p-2 text-sm col-span-2 bg-gray-50 text-gray-800"
             value={form.city}
             onChange={e => update("city", e.target.value)}
           />
@@ -118,19 +120,19 @@ export default function CustomerModal({
         <div className="grid grid-cols-3 gap-2">
           <input
             placeholder="Straße"
-            className="border rounded-md p-2 text-sm col-span-2"
+            className="border rounded-md p-2 text-sm col-span-2 bg-gray-50 text-gray-800"
             value={form.street}
             onChange={e => update("street", e.target.value)}
           />
           <input
             placeholder="Nr."
-            className="border rounded-md p-2 text-sm"
+            className="border rounded-md p-2 text-sm bg-gray-50 text-gray-800"
             value={form.houseNumber}
             onChange={e => update("houseNumber", e.target.value)}
           />
         </div>
 
-        <div className="flex justify-end gap-2 pt-2">
+        <div className="flex justify-end gap-2 pt-2 text-gray-800">
           <button onClick={onClose} className="text-sm">
             Abbrechen
           </button>

@@ -68,7 +68,7 @@ export default function ReportSummaryBlock({
 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1 font-medium">
-          <span>Gesamtbetrag</span>
+          <span className="text-gray-800">Gesamtbetrag</span>
           <div className="relative group">
             <span className="cursor-pointer text-gray-400">ℹ️</span>
             <div className="absolute left-0 bottom-full mb-2 hidden group-hover:block w-64 rounded-md bg-gray-800 text-white text-xs p-2 shadow-lg z-10">
@@ -78,7 +78,7 @@ export default function ReportSummaryBlock({
           </div>
         </div>
 
-        <div className="font-semibold">
+        <div className="font-semibold text-gray-800">
           {brutto.toFixed(2)} €
         </div>
       </div>
