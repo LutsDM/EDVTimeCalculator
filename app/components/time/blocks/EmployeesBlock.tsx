@@ -152,7 +152,7 @@ export default function EmployeesBlock({
           <button
             type="button"
             onClick={onCancelAdd}
-            className="h-9 px-3 rounded-md border border-gray-300 text-sm"
+            className="h-9 px-3 rounded-md border border-gray-300 text-sm text-gray-800"
           >
             Abbrechen
           </button>

@@ -50,7 +50,7 @@ export default function CustomerModal({
 
         {/* Type */}
         <div className="flex gap-4 text-sm">
-          <label className="flex items-center gap-2">
+          <label className="flex items-center gap-2 text-gray-800">
             <input
               type="radio"
               checked={type === "private"}
@@ -60,7 +60,7 @@ export default function CustomerModal({
             Privatkunde
           </label>
 
-          <label className="flex items-center gap-2">
+          <label className="flex items-center gap-2 text-gray-800">
             <input
               type="radio"
               checked={type === "company"}
@@ -80,7 +80,7 @@ export default function CustomerModal({
           />
         )}
 
-        <div className="grid  grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <input
             placeholder="Vorname"
             className="border rounded-md p-2 text-sm bg-gray-50 text-gray-800"
