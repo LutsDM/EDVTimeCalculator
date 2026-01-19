@@ -36,7 +36,7 @@ export default function TimeRow({
               onChange={(e) =>
                 onChange({ ...value, [k]: e.target.value })
               }
-              className="h-9 w-full rounded-md border border-gray-300 bg-white px-2 text-sm"
+              className="h-9 w-full rounded-md border border-gray-300 bg-gray-50 text-gray-800 px-2 text-sm"
             >
               {(k === "hour"
                 ? timeOptions.hours

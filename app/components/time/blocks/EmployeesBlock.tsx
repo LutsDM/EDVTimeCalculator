@@ -137,7 +137,7 @@ export default function EmployeesBlock({
               placeholder="Name des Mitarbeiters"
               value={customEmployeeName}
               onChange={(e) => onCustomEmployeeNameChange(e.target.value)}
-              className="h-9 flex-1 rounded-md border border-gray-300 px-2 text-sm"
+              className="h-9 flex-1 rounded-md border border-gray-300 px-2 text-sm bg-gray-50 text-gray-800"
             />
           </div>
           <button
