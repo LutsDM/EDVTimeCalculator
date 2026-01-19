@@ -70,7 +70,7 @@ export default function HeaderBlock({
           type="text"
           value={auftragsnummer}
           onChange={(e) => onAuftragsnummerChange(e.target.value)}
-          className="h-9 w-full rounded-md border border-gray-300 px-2 text-sm bg-white"
+          className="h-9 w-full rounded-md border border-gray-300 text-gray-800 px-2 text-sm bg-white"
         />
       </div>
 

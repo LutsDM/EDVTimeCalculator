@@ -29,7 +29,7 @@ export default function TravelTimeBlock({
 }: TravelTimeBlockProps) {
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm space-y-4">
-      <label className="flex items-center gap-2 text-sm">
+      <label className="flex items-center gap-2 text-sm text-gray-800">
         <input
           type="checkbox"
           checked={includeAbfahrt}
