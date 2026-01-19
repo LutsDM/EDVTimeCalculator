@@ -1,31 +1,22 @@
-import { useRef, useState } from "react"
+import { useCallback, useRef, useState } from "react"
 import { employees, type Employee } from "../lib/employees"
 
 export function useEmployeesSelection() {
-  
   const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([])
-
-
   const [employeeToAdd, setEmployeeToAdd] = useState<number | "">("")
   const [isAdding, setIsAdding] = useState(false)
-
 
   const [isAddingCustom, setIsAddingCustom] = useState(false)
   const [customEmployeeName, setCustomEmployeeName] = useState("")
 
   const customIdRef = useRef(-1)
 
-  // Derived
   const selectedIds = selectedEmployees.map(e => e.id)
-
-  const availableEmployees = employees.filter(
-    e => !selectedIds.includes(e.id)
-  )
+  const availableEmployees = employees.filter(e => !selectedIds.includes(e.id))
 
   const employeeCount = selectedEmployees.length
   const hasEmployees = employeeCount > 0
 
-  // Actions
   const startAddFromList = () => {
     setIsAdding(true)
     setIsAddingCustom(false)
@@ -44,12 +35,11 @@ export function useEmployeesSelection() {
   }
 
   const addEmployeeFromList = () => {
-    if (!employeeToAdd) return
+    if (employeeToAdd === "") return
 
     const found = employees.find(e => e.id === employeeToAdd)
     if (!found) return
 
-    
     if (selectedEmployees.some(e => e.id === found.id)) {
       setEmployeeToAdd("")
       setIsAdding(false)
@@ -79,26 +69,26 @@ export function useEmployeesSelection() {
     setSelectedEmployees(prev => prev.filter(e => e.id !== id))
   }
 
+  const hydrateEmployees = useCallback((list: Employee[]) => {
+    setSelectedEmployees(list)
+  }, [])
+
   return {
-    // state
     selectedEmployees,
     employeeToAdd,
     isAdding,
     isAddingCustom,
     customEmployeeName,
 
-    // setters
     setEmployeeToAdd,
     setIsAdding,
     setIsAddingCustom,
     setCustomEmployeeName,
 
-    // derived
     availableEmployees,
     employeeCount,
     hasEmployees,
 
-    // actions
     startAddFromList,
     startAddCustom,
     cancelAdd,
@@ -106,5 +96,6 @@ export function useEmployeesSelection() {
     addCustomEmployee,
     removeEmployee,
 
-    }
+    hydrateEmployees,
+  }
 }

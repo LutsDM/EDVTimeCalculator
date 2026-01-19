@@ -25,6 +25,8 @@ type ServiceReportProps = {
 
   employees: Employee[]
   customer?: Customer | null
+
+  onBack: () => void
 }
 
 export default function ServiceReport({
@@ -43,9 +45,17 @@ export default function ServiceReport({
   brutto,
   employees,
   customer,
+  onBack,
 }: ServiceReportProps) {
   return (
     <div className="print-area max-w-[800px] mx-auto bg-white p-8 text-sm text-gray-900 leading-relaxed">
+      <button
+        type="button"
+        onClick={onBack}
+        className="mb-4 rounded-lg border px-3 py-2 text-sm hover:bg-gray-50 print:hidden"
+      >
+        Zurück
+      </button>
 
       {/* HEADER */}
       <div className="mb-8">

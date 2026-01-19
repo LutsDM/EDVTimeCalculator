@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 /* ------------------------------------------------------------------
  * Time helpers and types
@@ -113,6 +113,8 @@ export default function TimeCalculator() {
     addEmployeeFromList,
     addCustomEmployee,
     removeEmployee,
+
+    hydrateEmployees
   } = useEmployeesSelection()
 
 
@@ -120,6 +122,124 @@ export default function TimeCalculator() {
    * Preview / print mode
    * ------------------------------------------------------------------ */
   const [showPreview, setShowPreview] = useState(false);
+
+  /* ------------------------------------------------------------------
+     * Save service report in Local Storage
+     * ------------------------------------------------------------------ */
+  const STORAGE_KEY = "service_report_draft";
+
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  const draft = useMemo(
+    () => ({
+      date,
+      auftragsnummer,
+      price,
+
+      start,
+      end,
+
+      ankunftVon,
+      ankunftBis,
+      includeAbfahrt,
+      abfahrtVon,
+      abfahrtBis,
+
+      selectedEmployees,
+      customer,
+    }),
+    [
+      date,
+      auftragsnummer,
+      price,
+      start,
+      end,
+      ankunftVon,
+      ankunftBis,
+      includeAbfahrt,
+      abfahrtVon,
+      abfahrtBis,
+      selectedEmployees,
+      customer,
+    ]
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) {
+      setIsHydrated(true);
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(stored);
+
+      if (parsed.date) setDate(parsed.date);
+      if (parsed.auftragsnummer) setAuftragsnummer(parsed.auftragsnummer);
+      if (parsed.price) setPrice(parsed.price);
+
+      if (parsed.start) setStart(parsed.start);
+      if (parsed.end) setEnd(parsed.end);
+
+      if (parsed.ankunftVon) setAnkunftVon(parsed.ankunftVon);
+      if (parsed.ankunftBis) setAnkunftBis(parsed.ankunftBis);
+
+      if (typeof parsed.includeAbfahrt === "boolean") {
+        setIncludeAbfahrt(parsed.includeAbfahrt);
+      }
+
+      if (parsed.abfahrtVon) setAbfahrtVon(parsed.abfahrtVon);
+      if (parsed.abfahrtBis) setAbfahrtBis(parsed.abfahrtBis);
+
+      if (Array.isArray(parsed.selectedEmployees)) {
+        hydrateEmployees(parsed.selectedEmployees);
+      }
+
+      setCustomer(parsed.customer ?? null);
+    } catch {
+      localStorage.removeItem(STORAGE_KEY);
+    } finally {
+      setIsHydrated(true);
+    }
+  }, [hydrateEmployees]);
+
+  useEffect(() => {
+    if (!isHydrated) return;
+    if (typeof window === "undefined") return;
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+  }, [draft, isHydrated]);
+
+
+ /* ------------------------------------------------------------------
+     * Function fur Reset Button
+     * ------------------------------------------------------------------ */
+  const resetForm = () => {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+
+  setDate(getToday());
+  setAuftragsnummer(`${getToday()}- 001`);
+  setPrice("95");
+
+  setStart(getNowTime());
+  setEnd(getEndTime());
+
+  setAnkunftVon(getNowTime());
+  setAnkunftBis(getNowTime());
+
+  setIncludeAbfahrt(false);
+  setAbfahrtVon(emptyTime);
+  setAbfahrtBis(emptyTime);
+
+  setCustomer(null);
+
+  hydrateEmployees([]);
+};
+
 
   /* ------------------------------------------------------------------
    * Time select options (memoized once)
@@ -131,6 +251,7 @@ export default function TimeCalculator() {
     }),
     []
   );
+
 
   /* ------------------------------------------------------------------
    * Core business calculation (time validation + totals)
@@ -203,6 +324,7 @@ export default function TimeCalculator() {
     setUiError("");
     window.print();
   };
+
 
   /* ==================================================================
    * RENDER
@@ -328,6 +450,7 @@ export default function TimeCalculator() {
             onPrint={handlePrint}
             onPreview={() => setShowPreview(true)}
             onDownloadPdf={downloadPdf}
+            onReset={resetForm}
           />
         </div>
       </div>
@@ -358,6 +481,7 @@ export default function TimeCalculator() {
             brutto={`${brutto.toFixed(2)} €`}
             employees={selectedEmployees}
             customer={customer}
+            onBack={() => setShowPreview(false)}
           />
 
         </div>
