@@ -33,6 +33,9 @@ type Props = {
 
   employees: Employee[]
   customer?: Customer | null
+
+  signatureKunde: string | null
+  signatureEmployee: string | null
 }
 
 const styles = StyleSheet.create({
@@ -138,12 +141,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 24,
-    marginTop: 16,
+    marginTop: 10,
   },
 
   signatureBox: {
     width: "45%",
     textAlign: "center",
+    paddingTop: 6,
   },
 
   signatureLine: {
@@ -159,6 +163,59 @@ const styles = StyleSheet.create({
     marginLeft: "auto",
     textAlign: "center",
   },
+
+  customerSignatureImageWrapper: {
+    height: 52,
+    justifyContent: "flex-end",
+    marginBottom: 0,
+  },
+  customerSignatureImage: {
+    width: "100%",
+    height: "100%",
+    objectFit: "contain",
+  },
+
+
+  customerLine: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#555",
+    height: 1,
+    marginTop: 4,
+    marginBottom: 6,
+  },
+
+  footerSignatures: {
+    marginTop: 28,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-end",
+  },
+
+  employeeSignature: {
+    width: "35%",
+    textAlign: "center",
+  },
+
+  employeeSignatureImageWrapper: {
+    height: 52,
+    justifyContent: "flex-end",
+    marginBottom: 0,
+  },
+
+  employeeSignatureImage: {
+    width: "100%",
+    height: "100%",
+    objectFit: "contain",
+  },
+
+  employeeLine: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#555",
+    height: 1,
+    marginTop: 4,
+    marginBottom: 6,
+  },
+
 })
 
 export default function ServiceReportPdf(props: Props) {
@@ -178,6 +235,8 @@ export default function ServiceReportPdf(props: Props) {
     brutto,
     employees,
     customer,
+    signatureKunde,
+    signatureEmployee,
   } = props
 
   return (
@@ -292,30 +351,49 @@ export default function ServiceReportPdf(props: Props) {
           </View>
         </View>
 
-        {/* EMPLOYEES */}
-        <View style={styles.signatures}>
-          <Text style={styles.bold}>Ausgeführt durch:</Text>
-
-          <View style={styles.signatureGrid}>
-            {employees.map(e => (
-              <View key={e.id} style={styles.signatureBox}>
-                <View style={styles.signatureLine} />
-                <Text>{e.name}</Text>
+        {/* SIGNATURES FOOTER */}
+        <View style={styles.footerSignatures}>
+          {/* EMPLOYEE SIGNATURE */}
+          <View style={styles.employeeSignature}>
+            <Text style={styles.bold}>Ausgeführt durch:</Text>
+            {signatureEmployee ? (
+              <View style={styles.employeeSignatureImageWrapper}>
+                <Image
+                  src={signatureEmployee}
+                  style={styles.employeeSignatureImage}
+                />
               </View>
-            ))}
+            ) : (
+              <Text style={styles.muted}>Bitte unterschreiben</Text>
+            )}
+
+            <View style={styles.employeeLine} />
+
+            <Text>
+              {employees?.[0]?.name ? employees[0].name : "Mitarbeiter"}
+            </Text>
+          </View>
+
+          {/* CUSTOMER SIGNATURE */}
+          <View style={styles.customerSignature}>
+            {signatureKunde ? (
+              <View style={styles.customerSignatureImageWrapper}>
+                <Image
+                  src={signatureKunde}
+                  style={styles.customerSignatureImage}
+                />
+              </View>
+            ) : (
+              <Text style={styles.muted}>Bitte unterschreiben</Text>
+            )}
+
+            <View style={styles.customerLine} />
+
+            <Text>
+              {customer ? `${customer.firstName} ${customer.lastName}` : "Kunde"}
+            </Text>
           </View>
         </View>
-
-        {/* CUSTOMER SIGNATURE */}
-        <View style={styles.customerSignature}>
-          <View style={styles.signatureLine} />
-          <Text>
-            {customer
-              ? `${customer.firstName} ${customer.lastName}`
-              : "Kunde"}
-          </Text>
-        </View>
-
       </Page>
     </Document>
   )

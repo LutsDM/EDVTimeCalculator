@@ -27,6 +27,12 @@ type ServiceReportProps = {
   customer?: Customer | null
 
   onBack: () => void
+
+  signatureKunde: string | null
+  signatureEmployee: string | null
+
+  orderDetails?: string  
+
 }
 
 export default function ServiceReport({
@@ -46,6 +52,9 @@ export default function ServiceReport({
   employees,
   customer,
   onBack,
+  signatureKunde,
+  signatureEmployee,
+  orderDetails
 }: ServiceReportProps) {
   return (
     <div className="print-area max-w-[800px] mx-auto bg-white p-8 text-sm text-gray-900 leading-relaxed">
@@ -176,29 +185,62 @@ export default function ServiceReport({
       </div>
 
       {/* EMPLOYEES */}
-      <div className="mt-10 max-w-[400px] text-xs break-inside-avoid">
-        <strong>Ausgeführt durch:</strong>
+      <div className="flex items-center gap-10">
 
-        <div className="grid grid-cols-2 gap-6 mt-4">
-          {employees.map(e => (
-            <div key={e.id} className="text-center">
-              <div className="mb-6 border-b border-gray-500 h-6" />
-              <div className="font-medium">{e.name}</div>
+      <div className="mt-10 ml-auto max-w-[400px] text-xs break-inside-avoid">
+        
+           {/* EMPLOYEE SIGNATURE */}
+          <div className="text-center">
+            <strong>Ausgeführt durch:</strong>
+            <div className="bg-white flex items-center justify-center overflow-hidden h-[90px]">
+              {signatureEmployee ? (
+                <img
+                  src={signatureEmployee}
+                  alt="Unterschrift Mitarbeiter"
+                  className="max-h-[90px] max-w-full object-contain"
+                />
+              ) : (
+                <span className="text-gray-400">Bitte unterschreiben</span>
+              )}
             </div>
-          ))}
-        </div>
+
+            <div className="border-b border-gray-500 h-2 mb-1" />
+
+            <div className="font-medium">
+              {employees.length === 1 ? employees[0].name : "Mitarbeiter"}
+            </div>
+          </div>
       </div>
 
-      {/* CUSTOMER SIGNATURE */}
-      <div className="mt-12 text-xs break-inside-avoid">
-        <div className="w-full sm:w-1/3 sm:ml-auto text-center">
-          <div className="mb-6 border-b border-gray-500 h-6" />
-          {customer
-            ? `${customer.firstName} ${customer.lastName}`
-            : "Kunde"}
+      {/* SIGNATURES */}
+      <div className="mt-10 text-xs break-inside-avoid">
+        <div>
+       
+
+          {/* CUSTOMER SIGNATURE */}
+          <div className="text-center">
+             <strong>Kunde:</strong>
+            <div className="bg-white flex items-center justify-center overflow-hidden h-[90px]">
+              {signatureKunde ? (
+                <img
+                  src={signatureKunde}
+                  alt="Unterschrift Kunde"
+                  className="max-h-[90px] max-w-full object-contain"
+                />
+              ) : (
+                <span className="text-gray-400">Bitte unterschreiben</span>
+              )}
+            </div>
+
+            <div className="border-b border-gray-500 h-2 mb-2" />
+
+            <div className="font-medium">
+              {customer ? `${customer.firstName} ${customer.lastName}` : "Kunde"}
+            </div>
+          </div>
         </div>
       </div>
-
+      </div>
     </div>
   )
 }

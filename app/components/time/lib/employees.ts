@@ -5,6 +5,6 @@ export type Employee = {
 
 export const employees: Employee[] = [
   { id: 1, name: "Dmytro Luts" },
-  { id: 2, name: "Vladlen Stolz" },
+  { id: 2, name: "Julian Raschke" },
   { id: 3, name: "Frank Samirae" },
 ]

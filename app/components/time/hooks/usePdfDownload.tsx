@@ -18,6 +18,8 @@ type Params = {
   employees: Employee[]
   isIOS: boolean
   customer?: Customer | null
+  signatureKunde: string | null
+  signatureEmployee: string | null
 }
 
 export function usePdfDownload({
@@ -34,7 +36,9 @@ export function usePdfDownload({
   brutto,
   employees,
   isIOS,
-  customer
+  customer,
+  signatureKunde,
+  signatureEmployee
 }: Params) {
   return async function downloadPdf() {
     if (!report) return
@@ -61,6 +65,8 @@ export function usePdfDownload({
         brutto={`${brutto.toFixed(2)} €`}
         employees={employees}
         customer={customer}
+        signatureKunde={signatureKunde}
+        signatureEmployee={signatureEmployee}
       />
     ).toBlob()
 

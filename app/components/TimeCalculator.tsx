@@ -83,6 +83,11 @@ export default function TimeCalculator() {
     * ------------------------------------------------------------------ */
   const [customer, setCustomer] = useState<Customer | null>(null)
   const [isCustomerModalOpen, setCustomerModalOpen] = useState(false)
+  /* ------------------------------------------------------------------
+    * OrderDetails
+    * ------------------------------------------------------------------ */
+
+  const [orderDetails, setOrderDetails] = useState<string>("");
 
   /* ------------------------------------------------------------------
    * Employees selection logic
@@ -124,6 +129,15 @@ export default function TimeCalculator() {
   const [showPreview, setShowPreview] = useState(false);
 
   /* ------------------------------------------------------------------
+   * Signature Modal
+   * ------------------------------------------------------------------ */
+  const [signatureKunde, setSignatureKunde] = useState<string | null>(null);
+  const [signatureKundeOpen, setSignatureKundeOpen] = useState(false);
+  const [signatureEmployee, setSignatureEmployee] = useState<string | null>(null);
+  const [signatureEmployeeOpen, setSignatureEmployeeOpen] = useState(false);
+
+
+  /* ------------------------------------------------------------------
      * Save service report in Local Storage
      * ------------------------------------------------------------------ */
   const STORAGE_KEY = "service_report_draft";
@@ -132,35 +146,49 @@ export default function TimeCalculator() {
 
   const draft = useMemo(
     () => ({
+      // header
       date,
       auftragsnummer,
       price,
 
+      // working time
       start,
       end,
 
+      // arrival / travel
       ankunftVon,
       ankunftBis,
       includeAbfahrt,
       abfahrtVon,
       abfahrtBis,
 
+      // employees & customer
       selectedEmployees,
       customer,
+
+      // signatures
+      signatureKunde,
+      signatureEmployee,
     }),
     [
       date,
       auftragsnummer,
       price,
+
       start,
       end,
+
       ankunftVon,
       ankunftBis,
       includeAbfahrt,
       abfahrtVon,
       abfahrtBis,
+
       selectedEmployees,
       customer,
+
+      signatureKunde,
+      signatureEmployee,
     ]
   );
 
@@ -169,6 +197,8 @@ export default function TimeCalculator() {
 
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) {
+      setSignatureKunde(null);
+      setSignatureEmployee(null);
       setIsHydrated(true);
       return;
     }
@@ -198,12 +228,16 @@ export default function TimeCalculator() {
       }
 
       setCustomer(parsed.customer ?? null);
+
+      setSignatureKunde(parsed.signatureKunde ?? null);
+      setSignatureEmployee(parsed.signatureEmployee ?? null);
     } catch {
       localStorage.removeItem(STORAGE_KEY);
     } finally {
       setIsHydrated(true);
     }
   }, [hydrateEmployees]);
+
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -213,32 +247,35 @@ export default function TimeCalculator() {
   }, [draft, isHydrated]);
 
 
- /* ------------------------------------------------------------------
-     * Function fur Reset Button
-     * ------------------------------------------------------------------ */
+  /* ------------------------------------------------------------------
+      * Function fur Reset Button
+      * ------------------------------------------------------------------ */
   const resetForm = () => {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem(STORAGE_KEY);
-  }
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(STORAGE_KEY);
+    }
 
-  setDate(getToday());
-  setAuftragsnummer(`${getToday()}- 001`);
-  setPrice("95");
+    setDate(getToday());
+    setAuftragsnummer(`${getToday()}- 001`);
+    setPrice("95");
 
-  setStart(getNowTime());
-  setEnd(getEndTime());
+    setStart(getNowTime());
+    setEnd(getEndTime());
 
-  setAnkunftVon(getNowTime());
-  setAnkunftBis(getNowTime());
+    setAnkunftVon(getNowTime());
+    setAnkunftBis(getNowTime());
 
-  setIncludeAbfahrt(false);
-  setAbfahrtVon(emptyTime);
-  setAbfahrtBis(emptyTime);
+    setIncludeAbfahrt(false);
+    setAbfahrtVon(emptyTime);
+    setAbfahrtBis(emptyTime);
 
-  setCustomer(null);
+    setCustomer(null);
 
-  hydrateEmployees([]);
-};
+    hydrateEmployees([]);
+
+    setSignatureKunde(null)
+    setSignatureEmployee(null)
+  };
 
 
   /* ------------------------------------------------------------------
@@ -310,7 +347,9 @@ export default function TimeCalculator() {
     brutto,
     employees: selectedEmployees,
     isIOS,
-    customer
+    customer,
+    signatureKunde,
+    signatureEmployee
   });
 
   /* ------------------------------------------------------------------
@@ -324,6 +363,28 @@ export default function TimeCalculator() {
     setUiError("");
     window.print();
   };
+
+  /* ------------------------------------------------------------------
+   * Kunden button
+   * ------------------------------------------------------------------ */
+
+  const hasCustomer = Boolean(customer);
+
+  const customerName = useMemo(() => {
+    if (!customer) return "";
+    const name = [customer.firstName, customer.lastName].filter(Boolean).join(" ").trim();
+    return name;
+  }, [customer]);
+
+  const customerButtonText = hasCustomer
+    ? `Kundendaten: ${customerName || "gespeichert"}`
+    : "Kundendaten hinzufügen";
+
+  /* ------------------------------------------------------------------
+* Kunden button
+* ------------------------------------------------------------------ */
+
+
 
 
   /* ==================================================================
@@ -357,9 +418,17 @@ export default function TimeCalculator() {
 
           <button
             onClick={() => setCustomerModalOpen(true)}
-            className="w-full bg-green-400 border border-gray-300 rounded-lg py-2 text-sm font-medium  hover:bg-green-600 active:bg-green-600 active:scale-[0.98]"
+            className={`
+    w-full rounded-lg py-2 text-sm font-medium border
+    transition-colors flex items-center justify-center gap-2
+    ${hasCustomer
+                ? "bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700"
+                : "bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-200"}
+    active:scale-[0.98]
+  `}
           >
-            Kundendaten hinzufügen
+            {hasCustomer && <span className="text-base leading-none">✔</span>}
+            <span className="truncate max-w-[85%]">{customerButtonText}</span>
           </button>
 
           {isCustomerModalOpen && (
@@ -451,6 +520,19 @@ export default function TimeCalculator() {
             onPreview={() => setShowPreview(true)}
             onDownloadPdf={downloadPdf}
             onReset={resetForm}
+
+            signatureKundeOpen={signatureKundeOpen}
+            onOpenKundeSignature={() => setSignatureKundeOpen(true)}
+            onCloseKundeSignature={() => setSignatureKundeOpen(false)}
+            signatureKunde={signatureKunde}
+            setSignatureKunde={setSignatureKunde}
+
+            signatureEmployeeOpen={signatureEmployeeOpen}
+            onOpenEmployeeSignature={() => setSignatureEmployeeOpen(true)}
+            onCloseEmployeeSignature={() => setSignatureEmployeeOpen(false)}
+            signatureEmployee={signatureEmployee}
+            setSignatureEmployee={setSignatureEmployee}
+
           />
         </div>
       </div>
@@ -482,6 +564,8 @@ export default function TimeCalculator() {
             employees={selectedEmployees}
             customer={customer}
             onBack={() => setShowPreview(false)}
+            signatureKunde={signatureKunde}
+            signatureEmployee={signatureEmployee}
           />
 
         </div>
