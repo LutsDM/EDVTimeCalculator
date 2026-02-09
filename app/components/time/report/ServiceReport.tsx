@@ -1,5 +1,6 @@
 "use client"
 
+import { LineItem } from "@/app/types/lineItem"
 import { Employee } from "../lib/employees"
 import { Customer } from "@/app/types/customer"
 
@@ -31,7 +32,11 @@ type ServiceReportProps = {
   signatureKunde: string | null
   signatureEmployee: string | null
 
-  orderDetails?: string  
+  orderDetails?: string
+
+  lineItems?: LineItem[]
+  extraBrutto?: string
+
 
 }
 
@@ -54,7 +59,10 @@ export default function ServiceReport({
   onBack,
   signatureKunde,
   signatureEmployee,
-  orderDetails
+  orderDetails,
+  lineItems,
+  extraBrutto,
+
 }: ServiceReportProps) {
   return (
     <div className="print-area max-w-[800px] mx-auto bg-white p-8 text-sm text-gray-900 leading-relaxed">
@@ -165,6 +173,20 @@ export default function ServiceReport({
             <td className="p-2">Mitarbeiteranzahl</td>
             <td className="p-2 text-right">{mitarbeiterAnzahl}</td>
           </tr>
+
+          {lineItems?.length ? (
+            <>
+              {lineItems.map((item) => (
+                <tr key={item.id} className="border border-gray-300">
+                  <td className="p-2">{item.title}</td>
+                  <td className="p-2 text-right">
+                    {(item.amountCents / 100).toFixed(2).replace(".", ",")} €
+                  </td>
+                </tr>
+              ))}
+            </>
+          ) : null}
+
         </tbody>
       </table>
 
@@ -178,18 +200,31 @@ export default function ServiceReport({
           <span>MwSt 19 %</span>
           <span>{mwst}</span>
         </div>
+        {extraBrutto ? (
+          <div className="flex justify-between">
+            <span>Zusatzpositionen</span>
+            <span>{extraBrutto}</span>
+          </div>
+        ) : null}
         <div className="flex justify-between font-semibold border-t pt-2">
           <span>Gesamtbetrag</span>
           <span>{brutto}</span>
         </div>
       </div>
 
+      {orderDetails?.trim() ? (
+        <div className="mt-4">
+          <div className="text-sm font-semibold">Auftragsdetails</div>
+          <div className="mt-1 whitespace-pre-wrap text-sm">{orderDetails}</div>
+        </div>
+      ) : null}
+
       {/* EMPLOYEES */}
       <div className="flex items-center gap-10">
 
-      <div className="mt-10 ml-auto max-w-[400px] text-xs break-inside-avoid">
-        
-           {/* EMPLOYEE SIGNATURE */}
+        <div className="mt-10 ml-auto max-w-[400px] text-xs break-inside-avoid">
+
+          {/* EMPLOYEE SIGNATURE */}
           <div className="text-center">
             <strong>Ausgeführt durch:</strong>
             <div className="bg-white flex items-center justify-center overflow-hidden h-[90px]">
@@ -210,36 +245,36 @@ export default function ServiceReport({
               {employees.length === 1 ? employees[0].name : "Mitarbeiter"}
             </div>
           </div>
-      </div>
+        </div>
 
-      {/* SIGNATURES */}
-      <div className="mt-10 text-xs break-inside-avoid">
-        <div>
-       
+        {/* SIGNATURES */}
+        <div className="mt-10 text-xs break-inside-avoid">
+          <div>
 
-          {/* CUSTOMER SIGNATURE */}
-          <div className="text-center">
-             <strong>Kunde:</strong>
-            <div className="bg-white flex items-center justify-center overflow-hidden h-[90px]">
-              {signatureKunde ? (
-                <img
-                  src={signatureKunde}
-                  alt="Unterschrift Kunde"
-                  className="max-h-[90px] max-w-full object-contain"
-                />
-              ) : (
-                <span className="text-gray-400">Bitte unterschreiben</span>
-              )}
-            </div>
 
-            <div className="border-b border-gray-500 h-2 mb-2" />
+            {/* CUSTOMER SIGNATURE */}
+            <div className="text-center">
+              <strong>Kunde:</strong>
+              <div className="bg-white flex items-center justify-center overflow-hidden h-[90px]">
+                {signatureKunde ? (
+                  <img
+                    src={signatureKunde}
+                    alt="Unterschrift Kunde"
+                    className="max-h-[90px] max-w-full object-contain"
+                  />
+                ) : (
+                  <span className="text-gray-400">Bitte unterschreiben</span>
+                )}
+              </div>
 
-            <div className="font-medium">
-              {customer ? `${customer.firstName} ${customer.lastName}` : "Kunde"}
+              <div className="border-b border-gray-500 h-2 mb-2" />
+
+              <div className="font-medium">
+                {customer ? `${customer.firstName} ${customer.lastName}` : "Kunde"}
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </div>
     </div>
   )

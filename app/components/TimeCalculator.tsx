@@ -40,6 +40,9 @@ import ActionsBlock from "./time/blocks/ActionsBlock";
 import ServiceReport from "./time/report/ServiceReport";
 import { Customer } from "../types/customer";
 import CustomerModal from "./time/blocks/CustomerModal";
+import OrderDetailsModal from "./time/blocks/OrderDetailsModal";
+import LineItemsModal from "./time/blocks/LineItemsModal";
+import { LineItem } from "../types/lineItem";
 
 export default function TimeCalculator() {
   /* ------------------------------------------------------------------
@@ -88,6 +91,25 @@ export default function TimeCalculator() {
     * ------------------------------------------------------------------ */
 
   const [orderDetails, setOrderDetails] = useState<string>("");
+  const [isOrderDetailsModalOpen, setOrderDetailsModalOpen] = useState(false);
+  /* ------------------------------------------------------------------
+      * Custom line items
+      * ------------------------------------------------------------------ */
+
+  const [lineItems, setLineItems] = useState<LineItem[]>([]);
+  const [isLineItemsModalOpen, setLineItemsModalOpen] = useState(false);
+
+  const hasLineItems = lineItems.length > 0;
+  const lineItemsButtonText = hasLineItems
+    ? `Zusatzpositionen: ${lineItems.length}`
+    : "Zusatzpositionen hinzufügen";
+
+  const lineItemsTotalCents = useMemo(
+    () => lineItems.reduce((sum, i) => sum + i.amountCents, 0),
+    [lineItems]
+  );
+
+  const lineItemsBrutto = lineItemsTotalCents / 100;
 
   /* ------------------------------------------------------------------
    * Employees selection logic
@@ -166,9 +188,15 @@ export default function TimeCalculator() {
       selectedEmployees,
       customer,
 
+      orderDetails,
+
       // signatures
       signatureKunde,
       signatureEmployee,
+
+      // custom line items
+      lineItems,
+
     }),
     [
       date,
@@ -189,6 +217,8 @@ export default function TimeCalculator() {
 
       signatureKunde,
       signatureEmployee,
+
+      lineItems,
     ]
   );
 
@@ -228,6 +258,26 @@ export default function TimeCalculator() {
       }
 
       setCustomer(parsed.customer ?? null);
+
+      if (typeof parsed.orderDetails === "string") {
+        setOrderDetails(parsed.orderDetails);
+      } else {
+        setOrderDetails("");
+      }
+      if (Array.isArray(parsed.lineItems)) {
+        setLineItems(
+          parsed.lineItems
+            .filter((x: any) => x && typeof x.title === "string")
+            .map((x: any) => ({
+              id: typeof x.id === "string" ? x.id : crypto.randomUUID(),
+              title: x.title,
+              amountCents:
+                typeof x.amountCents === "number" ? x.amountCents : 0,
+            }))
+        );
+      } else {
+        setLineItems([]);
+      }
 
       setSignatureKunde(parsed.signatureKunde ?? null);
       setSignatureEmployee(parsed.signatureEmployee ?? null);
@@ -275,6 +325,11 @@ export default function TimeCalculator() {
 
     setSignatureKunde(null)
     setSignatureEmployee(null)
+
+    setOrderDetails("");
+
+    setLineItems([]);
+
   };
 
 
@@ -306,10 +361,11 @@ export default function TimeCalculator() {
   /* ------------------------------------------------------------------
    * Price calculation (derived values only)
    * ------------------------------------------------------------------ */
-  const { brutto, netto, mwst, stundensatzText } = usePriceCalculation({
+  const { brutto, netto, mwst, stundensatzText, serviceBrutto, extraBrutto } = usePriceCalculation({
     report,
     price,
     employeeCount,
+    extraBruttoAmount: lineItemsBrutto,
   });
 
   /* ------------------------------------------------------------------
@@ -349,7 +405,11 @@ export default function TimeCalculator() {
     isIOS,
     customer,
     signatureKunde,
-    signatureEmployee
+    signatureEmployee,
+    orderDetails,
+    lineItems,
+    extraBrutto: lineItemsTotalCents / 100,
+    serviceBrutto,
   });
 
   /* ------------------------------------------------------------------
@@ -381,11 +441,14 @@ export default function TimeCalculator() {
     : "Kundendaten hinzufügen";
 
   /* ------------------------------------------------------------------
-* Kunden button
-* ------------------------------------------------------------------ */
+    * OrderDetails Modal
+    * ------------------------------------------------------------------ */
 
+  const hasOrderDetails = orderDetails.trim().length > 0;
 
-
+  const orderDetailsButtonText = hasOrderDetails
+    ? "Auftragsdetails: hinzugefügt"
+    : "Auftragsdetails hinzufügen";
 
   /* ==================================================================
    * RENDER
@@ -416,6 +479,57 @@ export default function TimeCalculator() {
             isIOS={isIOS}
           />
 
+          {/* Order Details*/}
+          <button
+            onClick={() => setOrderDetailsModalOpen(true)}
+            className={`
+    w-full rounded-lg py-2 text-sm font-medium border
+    transition-colors flex items-center justify-center gap-2
+    ${hasOrderDetails
+                ? "bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700"
+                : "bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-200"}
+    active:scale-[0.98]
+  `}
+          >
+            {hasOrderDetails && <span className="text-base leading-none">✔</span>}
+            <span className="truncate max-w-[85%]">{orderDetailsButtonText}</span>
+          </button>
+
+          {isOrderDetailsModalOpen && (
+            <OrderDetailsModal
+              initialValue={orderDetails}
+              onSave={setOrderDetails}
+              onClose={() => setOrderDetailsModalOpen(false)}
+            />
+          )}
+
+
+          {/* Custom line items button*/}
+          <button
+            onClick={() => setLineItemsModalOpen(true)}
+            className={`
+    w-full rounded-lg py-2 text-sm font-medium border
+    transition-colors flex items-center justify-center gap-2
+    ${hasLineItems
+                ? "bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700"
+                : "bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-200"}
+    active:scale-[0.98]
+  `}
+          >
+            {hasLineItems && <span className="text-base leading-none">✔</span>}
+            <span className="truncate max-w-[85%]">{lineItemsButtonText}</span>
+          </button>
+
+          {isLineItemsModalOpen && (
+            <LineItemsModal
+              initialValue={lineItems}
+              onSave={setLineItems}
+              onClose={() => setLineItemsModalOpen(false)}
+            />
+          )}
+
+
+          {/* Customer Modal*/}
           <button
             onClick={() => setCustomerModalOpen(true)}
             className={`
@@ -566,6 +680,9 @@ export default function TimeCalculator() {
             onBack={() => setShowPreview(false)}
             signatureKunde={signatureKunde}
             signatureEmployee={signatureEmployee}
+            orderDetails={orderDetails}
+            lineItems={lineItems}
+            extraBrutto={lineItems.length ? `${extraBrutto.toFixed(2)} €` : undefined}
           />
 
         </div>

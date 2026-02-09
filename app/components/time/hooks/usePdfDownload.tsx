@@ -2,6 +2,7 @@ import { Report } from "@/app/types/report"
 import { Employee } from "../lib/employees"
 import { formatDuration } from "../lib/time"
 import { Customer } from "@/app/types/customer"
+import { LineItem } from "@/app/types/lineItem"
 
 type Params = {
   report: Report | null
@@ -20,7 +21,13 @@ type Params = {
   customer?: Customer | null
   signatureKunde: string | null
   signatureEmployee: string | null
+  orderDetails: string | null
+  lineItems: LineItem[]
+  extraBrutto: number
+  serviceBrutto: number
 }
+
+const formatEuro = (value: number) => `${value.toFixed(2).replace(".", ",")} €`
 
 export function usePdfDownload({
   report,
@@ -38,7 +45,11 @@ export function usePdfDownload({
   isIOS,
   customer,
   signatureKunde,
-  signatureEmployee
+  signatureEmployee,
+  orderDetails,
+  lineItems,
+  extraBrutto,
+  serviceBrutto,
 }: Params) {
   return async function downloadPdf() {
     if (!report) return
@@ -53,20 +64,22 @@ export function usePdfDownload({
         auftragsnummer={auftragsnummer}
         arbeitszeitText={formatDuration(report.arbeitszeit)}
         arbeitszeitRange={arbeitszeitRange}
-        abfahrtText={
-          includeAbfahrt ? formatDuration(report.abfahrt) : undefined
-        }
+        abfahrtText={includeAbfahrt ? formatDuration(report.abfahrt) : undefined}
         abfahrtRange={abfahrtRange}
         gesamtzeitText={formatDuration(report.gesamtzeit)}
         stundensatz={stundensatzText}
         mitarbeiterAnzahl={employeeCount}
-        netto={`${netto.toFixed(2)} €`}
-        mwst={`${mwst.toFixed(2)} €`}
-        brutto={`${brutto.toFixed(2)} €`}
+        netto={formatEuro(netto)}
+        mwst={formatEuro(mwst)}
+        brutto={formatEuro(brutto)}
         employees={employees}
         customer={customer}
         signatureKunde={signatureKunde}
         signatureEmployee={signatureEmployee}
+        orderDetails={orderDetails}
+        lineItems={lineItems}
+        serviceBrutto={formatEuro(serviceBrutto)}
+        extraBrutto={extraBrutto > 0 ? formatEuro(extraBrutto) : undefined}
       />
     ).toBlob()
 

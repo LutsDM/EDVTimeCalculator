@@ -10,6 +10,7 @@ import {
 } from "@react-pdf/renderer"
 import { Employee } from "../lib/employees"
 import { Customer } from "@/app/types/customer"
+import { LineItem } from "@/app/types/lineItem"
 
 type Props = {
   arbeitsdatum: string
@@ -36,6 +37,14 @@ type Props = {
 
   signatureKunde: string | null
   signatureEmployee: string | null
+
+  orderDetails: string | null
+
+  lineItems?: LineItem[]
+  extraBrutto?: string
+
+  serviceBrutto?: string
+
 }
 
 const styles = StyleSheet.create({
@@ -88,8 +97,13 @@ const styles = StyleSheet.create({
 
   tableRow: {
     flexDirection: "row",
+    alignItems: "center",
     borderBottomWidth: 1,
     borderBottomColor: "#999",
+  },
+
+  tableRowNoBottom: {
+    borderBottomWidth: 0,
   },
 
   tableCellLeft: {
@@ -100,7 +114,7 @@ const styles = StyleSheet.create({
   tableCellRight: {
     width: 120,
     padding: 6,
-    textAlign: "right",
+    alignItems: "flex-end",
   },
 
   muted: {
@@ -112,16 +126,21 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
+  divider: {
+    height: 1,
+    backgroundColor: "#999",
+  },
+
   totals: {
-    width: "50%",
+    width: "45%",
     marginLeft: "auto",
-    marginBottom: 32,
+    marginBottom: 24,
   },
 
   totalsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 4,
+    marginBottom: 3,
   },
 
   totalsSum: {
@@ -132,88 +151,58 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
-  signatures: {
-    marginTop: 24,
+  orderDetailsBlock: {
+    marginTop: 12,
+    marginBottom: 28,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#bbb",
     fontSize: 9,
+    lineHeight: 1.4,
   },
 
-  signatureGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 24,
-    marginTop: 10,
-  },
-
-  signatureBox: {
-    width: "45%",
-    textAlign: "center",
-    paddingTop: 6,
-  },
-
-  signatureLine: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#555",
-    height: 18,
-    marginBottom: 6,
-  },
-
-  customerSignature: {
-    marginTop: 32,
-    width: "35%",
-    marginLeft: "auto",
-    textAlign: "center",
-  },
-
-  customerSignatureImageWrapper: {
-    height: 52,
-    justifyContent: "flex-end",
-    marginBottom: 0,
-  },
-  customerSignatureImage: {
-    width: "100%",
-    height: "100%",
-    objectFit: "contain",
-  },
-
-
-  customerLine: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#555",
-    height: 1,
-    marginTop: 4,
-    marginBottom: 6,
+  orderDetailsTitle: {
+    fontWeight: "bold",
+    marginBottom: 8,
   },
 
   footerSignatures: {
-    marginTop: 28,
+    marginTop: 36,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
   },
 
-  employeeSignature: {
+  signatureBox: {
     width: "35%",
     textAlign: "center",
   },
 
-  employeeSignatureImageWrapper: {
+  signatureImageWrapper: {
     height: 52,
     justifyContent: "flex-end",
-    marginBottom: 0,
   },
 
-  employeeSignatureImage: {
+  signatureImage: {
     width: "100%",
     height: "100%",
     objectFit: "contain",
   },
 
-  employeeLine: {
+  signatureLine: {
     borderBottomWidth: 1,
     borderBottomColor: "#555",
-    height: 1,
     marginTop: 4,
     marginBottom: 6,
+
+  },
+
+  totalsSubsum: {
+    borderTopWidth: 1,
+    borderTopColor: "#999",
+    paddingTop: 6,
+    marginTop: 6,
+    fontWeight: "bold",
   },
 
 })
@@ -237,16 +226,17 @@ export default function ServiceReportPdf(props: Props) {
     customer,
     signatureKunde,
     signatureEmployee,
+    orderDetails,
+    lineItems,
+    extraBrutto,
+    serviceBrutto
   } = props
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-
         {/* HEADER */}
         <View style={styles.headerRow}>
-
-          {/* LEFT COLUMN */}
           <View>
             <Text style={styles.address}>
               EDV SERVICE Samirae{"\n"}
@@ -276,14 +266,11 @@ export default function ServiceReportPdf(props: Props) {
                   {customer.postalCode} {customer.city}
                 </Text>
 
-                {customer.phone && (
-                  <Text>Tel. {customer.phone}</Text>
-                )}
+                {customer.phone && <Text>Tel. {customer.phone}</Text>}
               </View>
             )}
           </View>
 
-          {/* RIGHT COLUMN */}
           <Image src="/LOGO.png" style={styles.logo} />
         </View>
 
@@ -302,7 +289,9 @@ export default function ServiceReportPdf(props: Props) {
               <Text>Arbeitszeit</Text>
               <Text style={styles.muted}>({arbeitszeitRange})</Text>
             </View>
-            <Text style={styles.tableCellRight}>{arbeitszeitText}</Text>
+            <View style={styles.tableCellRight}>
+              <Text>{arbeitszeitText}</Text>
+            </View>
           </View>
 
           {abfahrtText && abfahrtRange && (
@@ -311,86 +300,142 @@ export default function ServiceReportPdf(props: Props) {
                 <Text>Fahrzeit</Text>
                 <Text style={styles.muted}>({abfahrtRange})</Text>
               </View>
-              <Text style={styles.tableCellRight}>{abfahrtText}</Text>
+              <View style={styles.tableCellRight}>
+                <Text>{abfahrtText}</Text>
+              </View>
             </View>
           )}
 
           <View style={styles.tableRow}>
-            <Text style={[styles.tableCellLeft, styles.bold]}>
-              Gesamtzeit
-            </Text>
-            <Text style={[styles.tableCellRight, styles.bold]}>
-              {gesamtzeitText}
-            </Text>
+            <Text style={[styles.tableCellLeft, styles.bold]}>Gesamtzeit</Text>
+            <View style={styles.tableCellRight}>
+              <Text style={styles.bold}>{gesamtzeitText}</Text>
+            </View>
           </View>
 
           <View style={styles.tableRow}>
             <Text style={styles.tableCellLeft}>Stundensatz</Text>
-            <Text style={styles.tableCellRight}>{stundensatz}</Text>
+            <View style={styles.tableCellRight}>
+              <Text>{stundensatz}</Text>
+            </View>
           </View>
 
-          <View style={styles.tableRow}>
+          <View
+            style={[
+              styles.tableRow,
+              ...(lineItems?.length ? [styles.tableRowNoBottom] : []),
+            ]}
+          >
             <Text style={styles.tableCellLeft}>Mitarbeiteranzahl</Text>
-            <Text style={styles.tableCellRight}>{mitarbeiterAnzahl}</Text>
+            <View style={styles.tableCellRight}>
+              <Text>{mitarbeiterAnzahl}</Text>
+            </View>
           </View>
+
+          {lineItems?.length ? (
+            <>
+              <View style={styles.divider} />
+
+              {lineItems.map((item, index) => {
+                const isLast = index === lineItems.length - 1
+
+                return (
+                  <View
+                    key={item.id}
+                    style={[
+                      styles.tableRow,
+                      ...(isLast ? [styles.tableRowNoBottom] : []),
+                    ]}
+                  >
+                    <Text style={styles.tableCellLeft}>{item.title}</Text>
+                    <View style={styles.tableCellRight}>
+                      <Text>
+                        {(item.amountCents / 100)
+                          .toFixed(2)
+                          .replace(".", ",")}{" "}
+                        €
+                      </Text>
+                    </View>
+                  </View>
+                )
+              })}
+            </>
+          ) : null}
         </View>
 
         {/* TOTALS */}
         <View style={styles.totals}>
+          {/* WORK */}
           <View style={styles.totalsRow}>
-            <Text>Nettobetrag</Text>
+            <Text>Nettobetrag (Arbeit)</Text>
             <Text>{netto}</Text>
           </View>
+
           <View style={styles.totalsRow}>
-            <Text>MwSt 19 %</Text>
+            <Text>MwSt 19 % (Arbeit)</Text>
             <Text>{mwst}</Text>
           </View>
+
+          {serviceBrutto ? (
+            <View style={[styles.totalsRow, styles.totalsSubsum]}>
+              <Text>Zwischensumme Arbeit</Text>
+              <Text>{serviceBrutto}</Text>
+            </View>
+          ) : null}
+
+          {/* EXTRAS */}
+          {extraBrutto ? (
+            <View style={[styles.totalsRow, { marginTop: 6 }]}>
+              <Text>Zusatzpositionen</Text>
+              <Text>{extraBrutto}</Text>
+            </View>
+          ) : null}
+
+          {/* TOTAL */}
           <View style={[styles.totalsRow, styles.totalsSum]}>
             <Text>Gesamtbetrag</Text>
             <Text>{brutto}</Text>
           </View>
         </View>
 
-        {/* SIGNATURES FOOTER */}
+
+        {/* ORDER DETAILS */}
+        {orderDetails?.trim() && (
+          <View style={styles.orderDetailsBlock}>
+            <Text style={styles.orderDetailsTitle}>Auftragsdetails</Text>
+            <Text>{orderDetails.replace(/\r\n/g, "\n")}</Text>
+          </View>
+        )}
+
+        {/* SIGNATURES */}
         <View style={styles.footerSignatures}>
-          {/* EMPLOYEE SIGNATURE */}
-          <View style={styles.employeeSignature}>
+          <View style={styles.signatureBox}>
             <Text style={styles.bold}>Ausgeführt durch:</Text>
-            {signatureEmployee ? (
-              <View style={styles.employeeSignatureImageWrapper}>
-                <Image
-                  src={signatureEmployee}
-                  style={styles.employeeSignatureImage}
-                />
-              </View>
-            ) : (
-              <Text style={styles.muted}>Bitte unterschreiben</Text>
-            )}
-
-            <View style={styles.employeeLine} />
-
-            <Text>
-              {employees?.[0]?.name ? employees[0].name : "Mitarbeiter"}
-            </Text>
+            <View style={styles.signatureImageWrapper}>
+              {signatureEmployee ? (
+                <Image src={signatureEmployee} style={styles.signatureImage} />
+              ) : (
+                <Text style={styles.muted}>Bitte unterschreiben</Text>
+              )}
+            </View>
+            <View style={styles.signatureLine} />
+            <Text>{employees?.[0]?.name || "Mitarbeiter"}</Text>
           </View>
 
-          {/* CUSTOMER SIGNATURE */}
-          <View style={styles.customerSignature}>
-            {signatureKunde ? (
-              <View style={styles.customerSignatureImageWrapper}>
-                <Image
-                  src={signatureKunde}
-                  style={styles.customerSignatureImage}
-                />
-              </View>
-            ) : (
-              <Text style={styles.muted}>Bitte unterschreiben</Text>
-            )}
-
-            <View style={styles.customerLine} />
-
+          <View style={styles.signatureBox}>
+            <Text style={styles.bold}>Kunde:</Text>
+            <View style={styles.signatureImageWrapper}>
+              {signatureKunde ? (
+                <Image src={signatureKunde} style={styles.signatureImage} />
+              ) : (
+                <Text style={styles.muted}>Bitte unterschreiben</Text>
+              )}
+            </View>
+            <View style={styles.signatureLine} />
             <Text>
-              {customer ? `${customer.firstName} ${customer.lastName}` : "Kunde"}
+              {customer
+                ? `${customer.firstName} ${customer.lastName}`
+                : "Kunde"}
             </Text>
           </View>
         </View>
