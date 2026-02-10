@@ -49,7 +49,7 @@ type Props = {
 
 const styles = StyleSheet.create({
   page: {
-    padding: 32,
+    padding: 24,
     fontSize: 10,
     fontFamily: "Helvetica",
     color: "#111",
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   table: {
     borderWidth: 1,
     borderColor: "#999",
-    marginBottom: 20,
+    marginBottom: 14,
   },
 
   tableRow: {
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
   totals: {
     width: "45%",
     marginLeft: "auto",
-    marginBottom: 24,
+    marginBottom: 14,
   },
 
   totalsRow: {
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
 
   orderDetailsBlock: {
     marginTop: 12,
-    marginBottom: 28,
+    marginBottom: 14,
     padding: 12,
     borderWidth: 1,
     borderColor: "#bbb",
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   },
 
   footerSignatures: {
-    marginTop: 36,
+    marginTop: 18,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
   },
 
   signatureImageWrapper: {
-    height: 52,
+    height: 40,
     justifyContent: "flex-end",
   },
 
