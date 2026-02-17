@@ -3,7 +3,6 @@ import { useMemo, useRef } from "react"
 
 type HeaderBlockProps = {
   date: string
-  onDateChange: (value: string) => void
   auftragsnummer: string
   onAuftragsnummerChange: (value: string) => void
   price: string
@@ -20,27 +19,18 @@ function toISODateLocal(d: Date) {
 
 export default function HeaderBlock({
   date,
-  onDateChange,
   auftragsnummer,
   onAuftragsnummerChange,
   price,
   onPriceChange,
   isIOS,
 }: HeaderBlockProps) {
+  const dateText = useMemo(
+    () => new Date(date).toLocaleDateString("de-DE"),
+    [date]
+  )
 
-  const dateInputRef = useRef<HTMLInputElement>(null)
-
-  const todayISO = useMemo(() => toISODateLocal(new Date()), [])
-
-  const handleDateChange = (next: string) => {
-    if (next !== todayISO) {
-      onDateChange(todayISO)
-      return
-    }
-    onDateChange(next)
-  }
-
-   return (
+  return (
     <>
       <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
         <label className="block text-xs font-medium text-gray-600 mb-1">
@@ -48,48 +38,37 @@ export default function HeaderBlock({
           {isIOS && <span className="ml-1">📅</span>}
         </label>
 
-        {isIOS ? (
-          <div className="relative">
-            <input
-              type="text"
-              readOnly
-              value={new Date(date).toLocaleDateString("de-DE")}
-              className="h-9 w-full rounded-md border border-gray-300 px-2 text-sm bg-gray-50 text-gray-800"
-            />
-
-            <input
-              ref={dateInputRef}
-              type="date"
-              value={date}
-              min={todayISO}
-              max={todayISO}
-              onChange={(e) => handleDateChange(e.target.value)}
-              className="absolute inset-0 opacity-0"
-            />
-          </div>
-        ) : (
-          <input
-            type="date"
-            lang="de"
-            value={date}
-            min={todayISO}
-            max={todayISO}
-            onChange={(e) => handleDateChange(e.target.value)}
-            className="h-9 w-full rounded-md border border-gray-300 px-2 text-sm bg-gray-50 text-gray-800"
-          />
-        )}
+        <input
+          type="text"
+          readOnly
+          value={dateText}
+          className="h-9 w-full rounded-md border border-gray-300 px-2 text-sm bg-gray-50 text-gray-800"
+        />
       </div>
 
       <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
         <label className="block text-xs font-medium text-gray-600 mb-1">
           Auftragsnummer
         </label>
-        <input
-          type="text"
-          value={auftragsnummer}
-          onChange={(e) => onAuftragsnummerChange(e.target.value)}
-          className="h-9 w-full rounded-md border border-gray-300 text-gray-800 px-2 text-sm bg-gray-50"
-        />
+
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-700 whitespace-nowrap">
+            {date}-
+          </span>
+
+          <input
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            value={auftragsnummer}
+            onChange={(e) => {
+              const onlyDigits = e.target.value.replace(/\D/g, "")
+              onAuftragsnummerChange(onlyDigits)
+            }}
+
+            className="h-9 w-full rounded-md border border-gray-300 text-gray-800 px-2 text-sm bg-gray-50"
+          />
+        </div>
       </div>
 
       <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">

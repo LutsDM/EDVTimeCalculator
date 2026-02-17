@@ -56,9 +56,12 @@ export default function TimeCalculator() {
    * Header state (date, order number, price)
    * ------------------------------------------------------------------ */
   const today = useMemo(() => getToday(), []);
-  const clampToToday = (value: string) => (value === today ? value : today);
-  const [date, setDate] = useState(today);
-  const [auftragsnummer, setAuftragsnummer] = useState<string>(`${today}- 001`);
+  const [date] = useState(today);
+
+  const [orderSuffix, setOrderSuffix] = useState<string>("001");
+
+  const auftragsnummer = useMemo(() => `${today}- ${orderSuffix}`, [today, orderSuffix]);
+
   const [price, setPrice] = useState<string>("95");
 
   /* ------------------------------------------------------------------
@@ -170,7 +173,7 @@ export default function TimeCalculator() {
     () => ({
       // header
       date,
-      auftragsnummer,
+      orderSuffix,
       price,
 
       // working time
@@ -197,6 +200,8 @@ export default function TimeCalculator() {
       // custom line items
       lineItems,
 
+      
+
     }),
     [
       date,
@@ -219,6 +224,8 @@ export default function TimeCalculator() {
       signatureEmployee,
 
       lineItems,
+      orderSuffix,
+      orderDetails,
     ]
   );
 
@@ -236,13 +243,15 @@ export default function TimeCalculator() {
     try {
       const parsed = JSON.parse(stored);
 
-      if (parsed.date) setDate(today);
-      if (parsed.auftragsnummer && typeof parsed.auftragsnummer === "string") {
-        const suffix = parsed.auftragsnummer.split("-").slice(1).join("-").trim();
-        setAuftragsnummer(`${today}- ${suffix || "001"}`);
+      if (typeof parsed.auftragsnummer === "string") {
+        const suffix = parsed.auftragsnummer.substring(12).trim();
+        setOrderSuffix(suffix || "001");
+      } else if (typeof parsed.orderSuffix === "string") {
+        setOrderSuffix(parsed.orderSuffix.trim() || "001");
       } else {
-        setAuftragsnummer(`${today}- 001`);
+        setOrderSuffix("001");
       }
+
       if (parsed.price) setPrice(parsed.price);
 
       if (parsed.start) setStart(parsed.start);
@@ -310,8 +319,7 @@ export default function TimeCalculator() {
       localStorage.removeItem(STORAGE_KEY);
     }
 
-    setDate(getToday());
-    setAuftragsnummer(`${getToday()}- 001`);
+    setOrderSuffix("001");
     setPrice("95");
 
     setStart(getNowTime());
@@ -476,9 +484,8 @@ export default function TimeCalculator() {
           {/* Header (date, order number, price) */}
           <HeaderBlock
             date={date}
-            onDateChange={(v) => setDate(clampToToday(v))}
-            auftragsnummer={auftragsnummer}
-            onAuftragsnummerChange={setAuftragsnummer}
+            auftragsnummer={orderSuffix}
+            onAuftragsnummerChange={setOrderSuffix}
             price={price}
             onPriceChange={setPrice}
             isIOS={isIOS}
