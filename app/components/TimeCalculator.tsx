@@ -55,10 +55,10 @@ export default function TimeCalculator() {
   /* ------------------------------------------------------------------
    * Header state (date, order number, price)
    * ------------------------------------------------------------------ */
-  const [date, setDate] = useState(getToday);
-  const [auftragsnummer, setAuftragsnummer] = useState<string>(
-    `${getToday()}- 001`
-  );
+  const today = useMemo(() => getToday(), []);
+  const clampToToday = (value: string) => (value === today ? value : today);
+  const [date, setDate] = useState(today);
+  const [auftragsnummer, setAuftragsnummer] = useState<string>(`${today}- 001`);
   const [price, setPrice] = useState<string>("95");
 
   /* ------------------------------------------------------------------
@@ -236,8 +236,13 @@ export default function TimeCalculator() {
     try {
       const parsed = JSON.parse(stored);
 
-      if (parsed.date) setDate(parsed.date);
-      if (parsed.auftragsnummer) setAuftragsnummer(parsed.auftragsnummer);
+      if (parsed.date) setDate(today);
+      if (parsed.auftragsnummer && typeof parsed.auftragsnummer === "string") {
+        const suffix = parsed.auftragsnummer.split("-").slice(1).join("-").trim();
+        setAuftragsnummer(`${today}- ${suffix || "001"}`);
+      } else {
+        setAuftragsnummer(`${today}- 001`);
+      }
       if (parsed.price) setPrice(parsed.price);
 
       if (parsed.start) setStart(parsed.start);
@@ -471,7 +476,7 @@ export default function TimeCalculator() {
           {/* Header (date, order number, price) */}
           <HeaderBlock
             date={date}
-            onDateChange={setDate}
+            onDateChange={(v) => setDate(clampToToday(v))}
             auftragsnummer={auftragsnummer}
             onAuftragsnummerChange={setAuftragsnummer}
             price={price}

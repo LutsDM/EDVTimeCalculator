@@ -1,4 +1,4 @@
-import { useRef } from "react"
+import { useMemo, useRef } from "react"
 
 
 type HeaderBlockProps = {
@@ -11,6 +11,12 @@ type HeaderBlockProps = {
   isIOS: boolean
 }
 
+function toISODateLocal(d: Date) {
+  const yyyy = d.getFullYear()
+  const mm = String(d.getMonth() + 1).padStart(2, "0")
+  const dd = String(d.getDate()).padStart(2, "0")
+  return `${yyyy}-${mm}-${dd}`
+}
 
 export default function HeaderBlock({
   date,
@@ -24,7 +30,17 @@ export default function HeaderBlock({
 
   const dateInputRef = useRef<HTMLInputElement>(null)
 
-  return (
+  const todayISO = useMemo(() => toISODateLocal(new Date()), [])
+
+  const handleDateChange = (next: string) => {
+    if (next !== todayISO) {
+      onDateChange(todayISO)
+      return
+    }
+    onDateChange(next)
+  }
+
+   return (
     <>
       <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
         <label className="block text-xs font-medium text-gray-600 mb-1">
@@ -41,12 +57,13 @@ export default function HeaderBlock({
               className="h-9 w-full rounded-md border border-gray-300 px-2 text-sm bg-gray-50 text-gray-800"
             />
 
-            {/* date picker */}
             <input
               ref={dateInputRef}
               type="date"
               value={date}
-              onChange={(e) => onDateChange(e.target.value)}
+              min={todayISO}
+              max={todayISO}
+              onChange={(e) => handleDateChange(e.target.value)}
               className="absolute inset-0 opacity-0"
             />
           </div>
@@ -55,11 +72,12 @@ export default function HeaderBlock({
             type="date"
             lang="de"
             value={date}
-            onChange={(e) => onDateChange(e.target.value)}
+            min={todayISO}
+            max={todayISO}
+            onChange={(e) => handleDateChange(e.target.value)}
             className="h-9 w-full rounded-md border border-gray-300 px-2 text-sm bg-gray-50 text-gray-800"
           />
         )}
-
       </div>
 
       <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
