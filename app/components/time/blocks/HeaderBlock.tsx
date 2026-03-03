@@ -62,7 +62,7 @@ export default function HeaderBlock({
             pattern="[0-9]*"
             value={auftragsnummer}
             onChange={(e) => {
-              const onlyDigits = e.target.value.replace(/\D/g, "")
+              const onlyDigits = e.target.value.replace(/\D/g, "").slice(0,3)
               onAuftragsnummerChange(onlyDigits)
             }}
 
