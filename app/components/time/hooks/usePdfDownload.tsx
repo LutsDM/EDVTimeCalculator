@@ -86,7 +86,7 @@ export function usePdfDownload({
     const url = URL.createObjectURL(blob)
 
     if (isIOS && navigator.share) {
-      const file = new File([blob], `Servicebericht_${date}.pdf`, {
+      const file = new File([blob], `Servicebericht_${date}_${customer?.lastName}.pdf`, {
         type: "application/pdf",
       })
 

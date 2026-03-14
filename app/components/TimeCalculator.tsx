@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 /* ------------------------------------------------------------------
  * Time helpers and types
@@ -22,6 +22,7 @@ import { useTimeCalculation } from "./time/hooks/useTimeCalculation";
 import { usePriceCalculation } from "@/app/components/time/hooks/usePriceCalculation";
 import { useEmployeesSelection } from "./time/hooks/useEmployeesSelection";
 import { usePdfDownload } from "./time/hooks/usePdfDownload";
+import { useOrderFormPdfDownload } from "./time/hooks/useOrderFormPdfDownload";
 import { useTimeRanges } from "./time/hooks/useTimeRange";
 
 /* ------------------------------------------------------------------
@@ -37,7 +38,15 @@ import ActionsBlock from "./time/blocks/ActionsBlock";
 /* ------------------------------------------------------------------
  * Print / Preview
  * ------------------------------------------------------------------ */
+import DocumentPreview from "./time/report/DocumentPreview";
 import ServiceReport from "./time/report/ServiceReport";
+import OrderFormReport from "./time/report/OrderFormReport";
+import {
+  emptyDocumentSignaturesMap,
+  hasAnySignature,
+  type DocumentType,
+} from "../types/documentTypes";
+import { SignatureModal } from "./time/Signature/SignatureModal";
 import { Customer } from "../types/customer";
 import CustomerModal from "./time/blocks/CustomerModal";
 import OrderDetailsModal from "./time/blocks/OrderDetailsModal";
@@ -60,7 +69,10 @@ export default function TimeCalculator() {
 
   const [orderSuffix, setOrderSuffix] = useState<string>("001");
 
-  const auftragsnummer = useMemo(() => `${today}- ${orderSuffix}`, [today, orderSuffix]);
+  const auftragsnummer = useMemo(
+    () => `${today}- ${orderSuffix}`,
+    [today, orderSuffix],
+  );
 
   const [price, setPrice] = useState<string>("95");
 
@@ -78,26 +90,26 @@ export default function TimeCalculator() {
   /* ------------------------------------------------------------------
    * Travel time (Abfahrt / Ankunft)
    * ------------------------------------------------------------------ */
-  const [ankunftVon, setAnkunftVon] = useState<TimeParts>(getNowTime)
-  const [ankunftBis, setAnkunftBis] = useState<TimeParts>(getNowTime)
+  const [ankunftVon, setAnkunftVon] = useState<TimeParts>(getNowTime);
+  const [ankunftBis, setAnkunftBis] = useState<TimeParts>(getNowTime);
   const [includeAbfahrt, setIncludeAbfahrt] = useState(false);
 
-  const [abfahrtVon, setAbfahrtVon] = useState<TimeParts>(emptyTime)
-  const [abfahrtBis, setAbfahrtBis] = useState<TimeParts>(emptyTime)
+  const [abfahrtVon, setAbfahrtVon] = useState<TimeParts>(emptyTime);
+  const [abfahrtBis, setAbfahrtBis] = useState<TimeParts>(emptyTime);
   /* ------------------------------------------------------------------
-    * Customer 
-    * ------------------------------------------------------------------ */
-  const [customer, setCustomer] = useState<Customer | null>(null)
-  const [isCustomerModalOpen, setCustomerModalOpen] = useState(false)
+   * Customer
+   * ------------------------------------------------------------------ */
+  const [customer, setCustomer] = useState<Customer | null>(null);
+  const [isCustomerModalOpen, setCustomerModalOpen] = useState(false);
   /* ------------------------------------------------------------------
-    * OrderDetails
-    * ------------------------------------------------------------------ */
+   * OrderDetails
+   * ------------------------------------------------------------------ */
 
   const [orderDetails, setOrderDetails] = useState<string>("");
   const [isOrderDetailsModalOpen, setOrderDetailsModalOpen] = useState(false);
   /* ------------------------------------------------------------------
-      * Custom line items
-      * ------------------------------------------------------------------ */
+   * Custom line items
+   * ------------------------------------------------------------------ */
 
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   const [isLineItemsModalOpen, setLineItemsModalOpen] = useState(false);
@@ -109,7 +121,7 @@ export default function TimeCalculator() {
 
   const lineItemsTotalCents = useMemo(
     () => lineItems.reduce((sum, i) => sum + i.amountCents, 0),
-    [lineItems]
+    [lineItems],
   );
 
   const lineItemsBrutto = lineItemsTotalCents / 100;
@@ -144,89 +156,124 @@ export default function TimeCalculator() {
     addCustomEmployee,
     removeEmployee,
 
-    hydrateEmployees
-  } = useEmployeesSelection()
-
+    hydrateEmployees,
+  } = useEmployeesSelection();
 
   /* ------------------------------------------------------------------
-   * Preview / print mode
+   * Preview: which document is shown (null = form view)
    * ------------------------------------------------------------------ */
-  const [showPreview, setShowPreview] = useState(false);
+  const [previewDocumentType, setPreviewDocumentType] =
+    useState<DocumentType | null>(null);
 
   /* ------------------------------------------------------------------
-   * Signature Modal
+   * Signatures per document (auftrag / service)
    * ------------------------------------------------------------------ */
-  const [signatureKunde, setSignatureKunde] = useState<string | null>(null);
-  const [signatureKundeOpen, setSignatureKundeOpen] = useState(false);
-  const [signatureEmployee, setSignatureEmployee] = useState<string | null>(null);
-  const [signatureEmployeeOpen, setSignatureEmployeeOpen] = useState(false);
-
+  const [signatures, setSignatures] = useState(() =>
+    emptyDocumentSignaturesMap(),
+  );
 
   /* ------------------------------------------------------------------
-     * Save service report in Local Storage
-     * ------------------------------------------------------------------ */
+   * Signature modal: which document + role is being edited
+   * ------------------------------------------------------------------ */
+  const [signatureModalTarget, setSignatureModalTarget] = useState<{
+    documentType: DocumentType;
+    role: "kunde" | "employee";
+  } | null>(null);
+
+  /* ------------------------------------------------------------------
+   * Save service report in Local Storage
+   * ------------------------------------------------------------------ */
   const STORAGE_KEY = "service_report_draft";
 
   const [isHydrated, setIsHydrated] = useState(false);
 
-  const draft = useMemo(
-    () => ({
-      // header
+  /* ------------------------------------------------------------------
+   * Form fingerprint: при изменении данных формы сбрасываем подписи
+   * ------------------------------------------------------------------ */
+  const formFingerprint = useMemo(
+    () =>
+      JSON.stringify({
+        date,
+        orderSuffix,
+        price,
+        start,
+        end,
+        ankunftVon,
+        ankunftBis,
+        includeAbfahrt,
+        abfahrtVon,
+        abfahrtBis,
+        selectedEmployees,
+        customer,
+        orderDetails,
+        lineItems,
+      }),
+    [
       date,
       orderSuffix,
       price,
-
-      // working time
       start,
       end,
-
-      // arrival / travel
       ankunftVon,
       ankunftBis,
       includeAbfahrt,
       abfahrtVon,
       abfahrtBis,
-
-      // employees & customer
       selectedEmployees,
       customer,
-
       orderDetails,
-
-      // signatures
-      signatureKunde,
-      signatureEmployee,
-
-      // custom line items
       lineItems,
+    ],
+  );
+  const prevFormFingerprintRef = useRef<string | null>(null);
 
-      
+  useEffect(() => {
+    if (!isHydrated) return;
+    if (
+      prevFormFingerprintRef.current !== null &&
+      prevFormFingerprintRef.current !== formFingerprint &&
+      hasAnySignature(signatures)
+    ) {
+      setSignatures(emptyDocumentSignaturesMap());
+    }
+    prevFormFingerprintRef.current = formFingerprint;
+  }, [formFingerprint, isHydrated, signatures]);
 
+  const draft = useMemo(
+    () => ({
+      date,
+      orderSuffix,
+      price,
+      start,
+      end,
+      ankunftVon,
+      ankunftBis,
+      includeAbfahrt,
+      abfahrtVon,
+      abfahrtBis,
+      selectedEmployees,
+      customer,
+      orderDetails,
+      signatures,
+      lineItems,
     }),
     [
       date,
-      auftragsnummer,
+      orderSuffix,
       price,
-
       start,
       end,
-
       ankunftVon,
       ankunftBis,
       includeAbfahrt,
       abfahrtVon,
       abfahrtBis,
-
       selectedEmployees,
       customer,
-
-      signatureKunde,
-      signatureEmployee,
-
-      lineItems,
-      orderSuffix,
       orderDetails,
-    ]
+      signatures,
+      lineItems,
+    ],
   );
 
   useEffect(() => {
@@ -234,8 +281,7 @@ export default function TimeCalculator() {
 
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) {
-      setSignatureKunde(null);
-      setSignatureEmployee(null);
+      setSignatures(emptyDocumentSignaturesMap());
       setIsHydrated(true);
       return;
     }
@@ -287,21 +333,38 @@ export default function TimeCalculator() {
               title: x.title,
               amountCents:
                 typeof x.amountCents === "number" ? x.amountCents : 0,
-            }))
+            })),
         );
       } else {
         setLineItems([]);
       }
 
-      setSignatureKunde(parsed.signatureKunde ?? null);
-      setSignatureEmployee(parsed.signatureEmployee ?? null);
+      if (parsed.signatures?.auftrag && parsed.signatures?.service) {
+        setSignatures({
+          auftrag: {
+            kunde: parsed.signatures.auftrag.kunde ?? null,
+            employee: parsed.signatures.auftrag.employee ?? null,
+          },
+          service: {
+            kunde: parsed.signatures.service.kunde ?? null,
+            employee: parsed.signatures.service.employee ?? null,
+          },
+        });
+      } else {
+        setSignatures({
+          ...emptyDocumentSignaturesMap(),
+          service: {
+            kunde: parsed.signatureKunde ?? null,
+            employee: parsed.signatureEmployee ?? null,
+          },
+        });
+      }
     } catch {
       localStorage.removeItem(STORAGE_KEY);
     } finally {
       setIsHydrated(true);
     }
   }, [hydrateEmployees]);
-
 
   useEffect(() => {
     if (!isHydrated) return;
@@ -310,10 +373,9 @@ export default function TimeCalculator() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
   }, [draft, isHydrated]);
 
-
   /* ------------------------------------------------------------------
-      * Function fur Reset Button
-      * ------------------------------------------------------------------ */
+   * Function fur Reset Button
+   * ------------------------------------------------------------------ */
   const resetForm = () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem(STORAGE_KEY);
@@ -336,15 +398,12 @@ export default function TimeCalculator() {
 
     hydrateEmployees([]);
 
-    setSignatureKunde(null)
-    setSignatureEmployee(null)
+    setSignatures(emptyDocumentSignaturesMap());
 
     setOrderDetails("");
 
     setLineItems([]);
-
   };
-
 
   /* ------------------------------------------------------------------
    * Time select options (memoized once)
@@ -354,9 +413,8 @@ export default function TimeCalculator() {
       hours: makeTimeOptions(24),
       minutes: makeTimeOptions(60),
     }),
-    []
+    [],
   );
-
 
   /* ------------------------------------------------------------------
    * Core business calculation (time validation + totals)
@@ -369,26 +427,23 @@ export default function TimeCalculator() {
     abfahrtVon,
     abfahrtBis,
     includeAbfahrt,
-  })
+  });
 
   /* ------------------------------------------------------------------
    * Price calculation (derived values only)
    * ------------------------------------------------------------------ */
-  const { brutto, netto, mwst, stundensatzText, serviceBrutto, extraBrutto } = usePriceCalculation({
-    report,
-    price,
-    employeeCount,
-    extraBruttoAmount: lineItemsBrutto,
-  });
+  const { brutto, netto, mwst, stundensatzText, serviceBrutto, extraBrutto } =
+    usePriceCalculation({
+      report,
+      price,
+      employeeCount,
+      extraBruttoAmount: lineItemsBrutto,
+    });
 
   /* ------------------------------------------------------------------
    * Formatted time ranges (for UI + PDF)
    * ------------------------------------------------------------------ */
-  const {
-    ankunftRange,
-    arbeitszeitRange,
-    abfahrtRange,
-  } = useTimeRanges({
+  const { ankunftRange, arbeitszeitRange, abfahrtRange } = useTimeRanges({
     report,
     ankunftVon,
     ankunftBis,
@@ -397,12 +452,12 @@ export default function TimeCalculator() {
     abfahrtVon,
     abfahrtBis,
     includeAbfahrt,
-  })
+  });
 
   /* ------------------------------------------------------------------
-   * PDF download handler (isolated side-effect)
+   * PDF download: Servicebericht (uses signatures.service)
    * ------------------------------------------------------------------ */
-  const downloadPdf = usePdfDownload({
+  const downloadServicePdf = usePdfDownload({
     report,
     date,
     auftragsnummer,
@@ -417,8 +472,8 @@ export default function TimeCalculator() {
     employees: selectedEmployees,
     isIOS,
     customer,
-    signatureKunde,
-    signatureEmployee,
+    signatureKunde: signatures.service.kunde,
+    signatureEmployee: signatures.service.employee,
     orderDetails,
     lineItems,
     extraBrutto: lineItemsTotalCents / 100,
@@ -426,16 +481,22 @@ export default function TimeCalculator() {
   });
 
   /* ------------------------------------------------------------------
-   * Print handler (desktop only)
+   * PDF download: Auftragsformular (uses signatures.auftrag)
    * ------------------------------------------------------------------ */
-  const handlePrint = () => {
-    if (!hasEmployees) {
-      setUiError("Bitte wählen Sie mindestens einen Mitarbeiter aus.");
-      return;
-    }
-    setUiError("");
-    window.print();
-  };
+  const downloadOrderFormPdf = useOrderFormPdfDownload({
+    date,
+    auftragsnummer,
+    preisProStunde: `${price.replace(".", ",")} €`,
+    mitarbeiterAnzahl: employeeCount,
+    employees: selectedEmployees,
+    customer,
+    signatureKunde: signatures.auftrag.kunde,
+    signatureEmployee: signatures.auftrag.employee,
+    orderDetails,
+    lineItems,
+    extraBrutto: lineItemsTotalCents / 100,
+    isIOS,
+  });
 
   /* ------------------------------------------------------------------
    * Kunden button
@@ -445,7 +506,10 @@ export default function TimeCalculator() {
 
   const customerName = useMemo(() => {
     if (!customer) return "";
-    const name = [customer.firstName, customer.lastName].filter(Boolean).join(" ").trim();
+    const name = [customer.firstName, customer.lastName]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
     return name;
   }, [customer]);
 
@@ -454,8 +518,8 @@ export default function TimeCalculator() {
     : "Kundendaten hinzufügen";
 
   /* ------------------------------------------------------------------
-    * OrderDetails Modal
-    * ------------------------------------------------------------------ */
+   * OrderDetails Modal
+   * ------------------------------------------------------------------ */
 
   const hasOrderDetails = orderDetails.trim().length > 0;
 
@@ -472,13 +536,13 @@ export default function TimeCalculator() {
       <div
         className={`
           min-h-screen bg-gray-50 p-4 sm:p-6
-          ${showPreview ? "hidden" : "block"}
+          ${previewDocumentType !== null ? "hidden" : "block"}
           print:hidden
         `}
       >
         <div className="max-w-md sm:max-w-sm mx-auto space-y-4">
           <h1 className="text-2xl font-semibold text-gray-900">
-            Servicebericht
+            Auftragsdokumentation
           </h1>
 
           {/* Header (date, order number, price) */}
@@ -497,14 +561,20 @@ export default function TimeCalculator() {
             className={`
     w-full rounded-lg py-2 text-sm font-medium border
     transition-colors flex items-center justify-center gap-2
-    ${hasOrderDetails
-                ? "bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700"
-                : "bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-200"}
+    ${
+      hasOrderDetails
+        ? "bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700"
+        : "bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-200"
+    }
     active:scale-[0.98]
   `}
           >
-            {hasOrderDetails && <span className="text-base leading-none">✔</span>}
-            <span className="truncate max-w-[85%]">{orderDetailsButtonText}</span>
+            {hasOrderDetails && (
+              <span className="text-base leading-none">✔</span>
+            )}
+            <span className="truncate max-w-[85%]">
+              {orderDetailsButtonText}
+            </span>
           </button>
 
           {isOrderDetailsModalOpen && (
@@ -515,16 +585,17 @@ export default function TimeCalculator() {
             />
           )}
 
-
           {/* Custom line items button*/}
           <button
             onClick={() => setLineItemsModalOpen(true)}
             className={`
     w-full rounded-lg py-2 text-sm font-medium border
     transition-colors flex items-center justify-center gap-2
-    ${hasLineItems
-                ? "bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700"
-                : "bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-200"}
+    ${
+      hasLineItems
+        ? "bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700"
+        : "bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-200"
+    }
     active:scale-[0.98]
   `}
           >
@@ -540,16 +611,17 @@ export default function TimeCalculator() {
             />
           )}
 
-
           {/* Customer Modal*/}
           <button
             onClick={() => setCustomerModalOpen(true)}
             className={`
     w-full rounded-lg py-2 text-sm font-medium border
     transition-colors flex items-center justify-center gap-2
-    ${hasCustomer
-                ? "bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700"
-                : "bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-200"}
+    ${
+      hasCustomer
+        ? "bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700"
+        : "bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-200"
+    }
     active:scale-[0.98]
   `}
           >
@@ -574,17 +646,13 @@ export default function TimeCalculator() {
             isAddingCustom={isAddingCustom}
             customEmployeeName={customEmployeeName}
             hasEmployees={hasEmployees}
-
             onStartAddFromList={startAddFromList}
             onStartAddCustom={startAddCustom}
             onCancelAdd={cancelAdd}
-
             onEmployeeToAddChange={setEmployeeToAdd}
             onCustomEmployeeNameChange={setCustomEmployeeName}
-
             onAddEmployeeFromList={addEmployeeFromList}
             onAddCustomEmployee={addCustomEmployee}
-
             onRemoveEmployee={removeEmployee}
           />
 
@@ -601,7 +669,6 @@ export default function TimeCalculator() {
             timeOptions={timeOptions}
           />
 
-
           {/* Travel time */}
           <TravelTimeBlock
             includeAbfahrt={includeAbfahrt}
@@ -612,7 +679,6 @@ export default function TimeCalculator() {
             onAbfahrtBisChange={setAbfahrtBis}
             timeOptions={timeOptions}
           />
-
 
           {/* Validation errors */}
           {error && (
@@ -641,63 +707,149 @@ export default function TimeCalculator() {
           {/* Actions */}
           <ActionsBlock
             hasEmployees={hasEmployees}
-            isIOS={isIOS}
-            onPrint={handlePrint}
-            onPreview={() => setShowPreview(true)}
-            onDownloadPdf={downloadPdf}
             onReset={resetForm}
-
-            signatureKundeOpen={signatureKundeOpen}
-            onOpenKundeSignature={() => setSignatureKundeOpen(true)}
-            onCloseKundeSignature={() => setSignatureKundeOpen(false)}
-            signatureKunde={signatureKunde}
-            setSignatureKunde={setSignatureKunde}
-
-            signatureEmployeeOpen={signatureEmployeeOpen}
-            onOpenEmployeeSignature={() => setSignatureEmployeeOpen(true)}
-            onCloseEmployeeSignature={() => setSignatureEmployeeOpen(false)}
-            signatureEmployee={signatureEmployee}
-            setSignatureEmployee={setSignatureEmployee}
-
+            onCreateAuftragsformular={() => setPreviewDocumentType("auftrag")}
+            onCreateServicebericht={() => setPreviewDocumentType("service")}
           />
         </div>
       </div>
 
-      {/* ===================== PRINT / PREVIEW ===================== */}
-      {report && (
+      {/* ===================== DOCUMENT PREVIEW ===================== */}
+      {previewDocumentType === "auftrag" && (
         <div
           id="print-preview"
-          className={`
-            ${showPreview ? "block" : "hidden"}
-            print:block
-          `}
+          className={previewDocumentType ? "block" : "hidden"}
         >
-          <ServiceReport
-            arbeitsdatum={date}
-            auftragsnummer={auftragsnummer}
-            arbeitszeitText={formatDuration(report.arbeitszeit)}
-            arbeitszeitRange={arbeitszeitRange}
-            abfahrtText={
-              includeAbfahrt ? formatDuration(report.abfahrt) : undefined
+          <DocumentPreview
+            documentType="auftrag"
+            onClose={() => setPreviewDocumentType(null)}
+            signatureKunde={signatures.auftrag.kunde}
+            signatureEmployee={signatures.auftrag.employee}
+            onOpenKundeSignature={() =>
+              setSignatureModalTarget({
+                documentType: "auftrag",
+                role: "kunde",
+              })
             }
-            abfahrtRange={abfahrtRange}
-            gesamtzeitText={formatDuration(report.gesamtzeit)}
-            stundensatz={stundensatzText}
-            mitarbeiterAnzahl={employeeCount}
-            netto={`${netto.toFixed(2)} €`}
-            mwst={`${mwst.toFixed(2)} €`}
-            brutto={`${brutto.toFixed(2)} €`}
-            employees={selectedEmployees}
-            customer={customer}
-            onBack={() => setShowPreview(false)}
-            signatureKunde={signatureKunde}
-            signatureEmployee={signatureEmployee}
-            orderDetails={orderDetails}
-            lineItems={lineItems}
-            extraBrutto={lineItems.length ? `${extraBrutto.toFixed(2)} €` : undefined}
-          />
-
+            onOpenEmployeeSignature={() =>
+              setSignatureModalTarget({
+                documentType: "auftrag",
+                role: "employee",
+              })
+            }
+            onDownloadPdf={downloadOrderFormPdf}
+          >
+            <OrderFormReport
+              arbeitsdatum={date}
+              auftragsnummer={auftragsnummer}
+              preisProStunde={`${price.replace(".", ",")} €`}
+              mitarbeiterAnzahl={employeeCount}
+              orderDetails={orderDetails}
+              lineItems={lineItems}
+              extraBrutto={
+                lineItems.length
+                  ? `${extraBrutto.toFixed(2).replace(".", ",")} €`
+                  : undefined
+              }
+              employees={selectedEmployees}
+              customer={customer}
+              signatureKunde={signatures.auftrag.kunde}
+              signatureEmployee={signatures.auftrag.employee}
+            />
+          </DocumentPreview>
         </div>
+      )}
+
+      {previewDocumentType === "service" && report && (
+        <div
+          id="print-preview"
+          className={previewDocumentType ? "block" : "hidden"}
+        >
+          <DocumentPreview
+            documentType="service"
+            onClose={() => setPreviewDocumentType(null)}
+            signatureKunde={signatures.service.kunde}
+            signatureEmployee={signatures.service.employee}
+            onOpenKundeSignature={() =>
+              setSignatureModalTarget({
+                documentType: "service",
+                role: "kunde",
+              })
+            }
+            onOpenEmployeeSignature={() =>
+              setSignatureModalTarget({
+                documentType: "service",
+                role: "employee",
+              })
+            }
+            onDownloadPdf={downloadServicePdf}
+          >
+            <ServiceReport
+              arbeitsdatum={date}
+              auftragsnummer={auftragsnummer}
+              arbeitszeitText={formatDuration(report.arbeitszeit)}
+              arbeitszeitRange={arbeitszeitRange}
+              abfahrtText={
+                includeAbfahrt ? formatDuration(report.abfahrt) : undefined
+              }
+              abfahrtRange={abfahrtRange}
+              gesamtzeitText={formatDuration(report.gesamtzeit)}
+              stundensatz={stundensatzText}
+              mitarbeiterAnzahl={employeeCount}
+              netto={`${netto.toFixed(2)} €`}
+              mwst={`${mwst.toFixed(2)} €`}
+              brutto={`${brutto.toFixed(2)} €`}
+              employees={selectedEmployees}
+              customer={customer}
+              showBackButton={false}
+              signatureKunde={signatures.service.kunde}
+              signatureEmployee={signatures.service.employee}
+              orderDetails={orderDetails}
+              lineItems={lineItems}
+              extraBrutto={
+                lineItems.length ? `${extraBrutto.toFixed(2)} €` : undefined
+              }
+            />
+          </DocumentPreview>
+        </div>
+      )}
+
+      {previewDocumentType === "service" && !report && (
+        <div className="p-4 max-w-md mx-auto">
+          <p className="text-amber-800 bg-amber-50 border border-amber-200 rounded-md p-3">
+            Bitte Zeitangaben (Ankunft, Arbeitszeit, ggf. Abfahrt) prüfen, um
+            den Servicebericht anzuzeigen.
+          </p>
+          <button
+            type="button"
+            onClick={() => setPreviewDocumentType(null)}
+            className="mt-3 rounded-lg border px-3 py-2 text-sm hover:bg-gray-50"
+          >
+            Zurück
+          </button>
+        </div>
+      )}
+
+      {/* Signature modal (shared for both document types) */}
+      {signatureModalTarget && (
+        <SignatureModal
+          open={true}
+          onClose={() => setSignatureModalTarget(null)}
+          signature={
+            signatures[signatureModalTarget.documentType][
+              signatureModalTarget.role
+            ]
+          }
+          setSignature={(v) =>
+            setSignatures((prev) => ({
+              ...prev,
+              [signatureModalTarget.documentType]: {
+                ...prev[signatureModalTarget.documentType],
+                [signatureModalTarget.role]: v,
+              },
+            }))
+          }
+        />
       )}
     </>
   );
