@@ -33,10 +33,10 @@ export default function OrderDetailsBlock({ value, onSave }: Props) {
   }
 
   return (
-    <div className="rounded-2xl border p-4">
+    <div className="rounded-2xl border-2 border-gray-200 bg-gray-50/50 p-4">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <div className="text-base font-semibold">Auftragsdetails</div>
+          <div className="text-lg font-bold text-gray-900">Auftragsdetails</div>
           <div className="text-sm opacity-70">
             Freitext für den Auftrag, erscheint im Bericht.
           </div>
@@ -64,7 +64,7 @@ export default function OrderDetailsBlock({ value, onSave }: Props) {
           />
 
           <div className="relative w-full max-w-xl rounded-2xl bg-white p-4 shadow-xl">
-            <div className="text-lg font-semibold">Auftragsdetails</div>
+            <div className="text-xl font-bold text-gray-900">Auftragsdetails</div>
             <div className="mt-1 text-sm opacity-70">
               Schreibe hier einen beliebigen Text.
             </div>

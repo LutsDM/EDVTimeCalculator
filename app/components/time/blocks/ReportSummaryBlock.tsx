@@ -6,14 +6,15 @@ type ReportSummaryBlockProps = {
   report: Report
   includeAbfahrt: boolean
   employeeCount: number
-  brutto: number
+  /** Сумма только по формуле: (Ankunft + Arbeitszeit + Abfahrt) × Stundensatz × Mitarbeiteranzahl, без доп. позиций */
+  serviceBrutto: number
 }
 
 export default function ReportSummaryBlock({
   report,
   includeAbfahrt,
   employeeCount,
-  brutto,
+  serviceBrutto,
 }: ReportSummaryBlockProps) {
 
   if (employeeCount === 0) {
@@ -79,7 +80,7 @@ export default function ReportSummaryBlock({
         </div>
 
         <div className="font-semibold text-gray-800">
-          {brutto.toFixed(2)} €
+          {serviceBrutto.toFixed(2)} €
         </div>
       </div>
     </div>

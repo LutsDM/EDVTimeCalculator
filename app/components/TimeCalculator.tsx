@@ -693,7 +693,7 @@ export default function TimeCalculator() {
               report={report}
               includeAbfahrt={includeAbfahrt}
               employeeCount={employeeCount}
-              brutto={brutto}
+              serviceBrutto={serviceBrutto}
             />
           )}
 

@@ -50,7 +50,7 @@ type Props = {
 const styles = StyleSheet.create({
   page: {
     padding: 24,
-    fontSize: 10,
+    fontSize: 11,
     fontFamily: "Helvetica",
     color: "#111",
   },
@@ -62,12 +62,12 @@ const styles = StyleSheet.create({
   },
 
   address: {
-    fontSize: 9,
+    fontSize: 10,
     lineHeight: 1.4,
   },
 
   customerBlock: {
-    fontSize: 9,
+    fontSize: 10,
     lineHeight: 1.4,
     marginTop: 12,
   },
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
     marginBottom: 6,
   },
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   },
 
   muted: {
-    fontSize: 9,
+    fontSize: 10,
     color: "#666",
   },
 
@@ -154,14 +154,16 @@ const styles = StyleSheet.create({
   orderDetailsBlock: {
     marginTop: 12,
     marginBottom: 14,
-    padding: 12,
+    padding: 14,
     borderWidth: 1,
-    borderColor: "#bbb",
-    fontSize: 9,
+    borderColor: "#999",
+    backgroundColor: "#f5f5f5",
+    fontSize: 10,
     lineHeight: 1.4,
   },
 
   orderDetailsTitle: {
+    fontSize: 12,
     fontWeight: "bold",
     marginBottom: 8,
   },

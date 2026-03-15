@@ -67,7 +67,7 @@ export default function ServiceReport({
 
 }: ServiceReportProps) {
   return (
-    <div className="print-area max-w-[800px] mx-auto bg-white p-8 text-sm text-gray-900 leading-relaxed">
+    <div className="print-area max-w-[800px] mx-auto bg-white p-8 text-base text-gray-900 leading-relaxed">
       {showBackButton && onBack && (
         <button
           type="button"
@@ -83,7 +83,7 @@ export default function ServiceReport({
         <div className="flex flex-col sm:flex-row sm:justify-between gap-6">
 
           {/* LEFT COLUMN */}
-          <div className="text-[10px] leading-relaxed">
+          <div className="text-xs leading-relaxed">
             EDV SERVICE Samirae<br />
             Schloßstr. 33<br />
             51427 Bergisch Gladbach<br />
@@ -131,8 +131,8 @@ export default function ServiceReport({
       </div>
 
       {/* TITLE — крупнее и жирнее */}
-      <div className="text-right text-xs leading-relaxed mb-4">
-        <strong className="text-xl font-bold block mb-1">Servicebericht</strong>
+      <div className="text-right text-sm leading-relaxed mb-4">
+        <strong className="text-2xl font-bold block mb-1">Servicebericht</strong>
         Arbeitsdatum: {arbeitsdatum}<br />
         Auftragsnummer: {auftragsnummer}<br />
         {kundenNr && <>Kunden Nr: {kundenNr}<br /></>}
@@ -217,16 +217,16 @@ export default function ServiceReport({
       </div>
 
       {orderDetails?.trim() ? (
-        <div className="mt-4">
-          <div className="text-sm font-semibold">Auftragsdetails</div>
-          <div className="mt-1 whitespace-pre-wrap text-sm">{orderDetails}</div>
+        <div className="mt-4 rounded-lg border border-gray-300 bg-gray-50 p-4">
+          <div className="text-base font-bold text-gray-800">Auftragsdetails</div>
+          <div className="mt-2 whitespace-pre-wrap text-base">{orderDetails}</div>
         </div>
       ) : null}
 
       {/* EMPLOYEES */}
       <div className="flex items-center gap-10">
 
-        <div className="mt-10 ml-auto max-w-[400px] text-xs break-inside-avoid">
+        <div className="mt-10 ml-auto max-w-[400px] text-sm break-inside-avoid">
 
           {/* EMPLOYEE SIGNATURE */}
           <div className="text-center">
@@ -252,7 +252,7 @@ export default function ServiceReport({
         </div>
 
         {/* SIGNATURES */}
-        <div className="mt-10 text-xs break-inside-avoid">
+        <div className="mt-10 text-sm break-inside-avoid">
           <div>
 
 
