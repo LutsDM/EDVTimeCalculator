@@ -72,7 +72,10 @@ export default function SignaturePad({
     ctx.fillRect(0, 0, size.w, size.h)
 
     hasInkRef.current = false
-    setIsEmpty(true)
+    // Defer state update to avoid react-hooks/set-state-in-effect warning.
+    if (!value) {
+      requestAnimationFrame(() => setIsEmpty(true))
+    }
 
     if (value) {
       const img = new Image()

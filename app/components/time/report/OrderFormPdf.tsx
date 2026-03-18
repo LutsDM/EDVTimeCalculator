@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
   },
   address: { fontSize: 10, lineHeight: 1.4 },
   customerBlock: { fontSize: 10, lineHeight: 1.4, marginTop: 12 },
-  logo: { width: 140, height: 60, objectFit: "contain" },
+  logo: { width: 168, height: 72, objectFit: "contain" },
   titleBlock: { textAlign: "right", marginBottom: 16 },
   title: { fontSize: 22, fontWeight: "bold", marginBottom: 6 },
   bold: { fontWeight: "bold" },

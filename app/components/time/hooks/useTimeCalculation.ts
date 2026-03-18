@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import { TimeParts, timeToMinutes } from "../lib/time"
 import { Report } from "@/app/types/report"
 
@@ -26,83 +26,59 @@ export function useTimeCalculation({
   abfahrtBis,
   includeAbfahrt,
 }: Params) {
-  const [report, setReport] = useState<Report | null>(null)
-  const [error, setError] = useState("")
-
-  useEffect(() => {
+  return useMemo(() => {
     const ankunftVonMin = timeToMinutes(ankunftVon)
     const ankunftBisMin = timeToMinutes(ankunftBis)
     const startMin = timeToMinutes(start)
     const endMin = timeToMinutes(end)
 
     /* ---------------- Ankunft validation ---------------- */
-
     if (ankunftVonMin > ankunftBisMin) {
-      setError("Ankunft: Von darf nicht später als Bis sein.")
-      setReport(null)
-      return
+      return { report: null, error: "Ankunft: Von darf nicht später als Bis sein." }
     }
 
     if (ankunftBisMin > startMin) {
-      setError("Arbeitsbeginn darf nicht vor dem Ende der Ankunft liegen.")
-      setReport(null)
-      return
+      return {
+        report: null,
+        error: "Arbeitsbeginn darf nicht vor dem Ende der Ankunft liegen.",
+      }
     }
 
     /* ---------------- Arbeitszeit validation ---------------- */
-
     if (startMin >= endMin) {
-      setError("Arbeitsbeginn muss vor dem Arbeitsende liegen.")
-      setReport(null)
-      return
+      return { report: null, error: "Arbeitsbeginn muss vor dem Arbeitsende liegen." }
     }
 
     /* ---------------- Abfahrt validation ---------------- */
-
     let abfahrtZeit = 0
-
     if (includeAbfahrt) {
       const abfahrtVonMin = timeToMinutes(abfahrtVon)
       const abfahrtBisMin = timeToMinutes(abfahrtBis)
 
       if (abfahrtVonMin > abfahrtBisMin) {
-        setError("Abfahrt: Von darf nicht später als Bis sein.")
-        setReport(null)
-        return
+        return { report: null, error: "Abfahrt: Von darf nicht später als Bis sein." }
       }
 
       if (abfahrtVonMin < endMin) {
-        setError("Abfahrt darf nicht vor dem Arbeitsende beginnen.")
-        setReport(null)
-        return
+        return { report: null, error: "Abfahrt darf nicht vor dem Arbeitsende beginnen." }
       }
 
       abfahrtZeit = abfahrtBisMin - abfahrtVonMin
     }
 
     /* ---------------- Durations ---------------- */
-
     const ankunftZeit = ankunftBisMin - ankunftVonMin
     const arbeitszeit = endMin - startMin
 
     /* ---------------- Result ---------------- */
-
-    setError("")
-    setReport({
-      arbeitszeit,
-      abfahrt: abfahrtZeit,
-      gesamtzeit: ankunftZeit + arbeitszeit + abfahrtZeit,
-      ankunftzeit: ankunftZeit
-    })
-  }, [
-    ankunftVon,
-    ankunftBis,
-    start,
-    end,
-    abfahrtVon,
-    abfahrtBis,
-    includeAbfahrt,
-  ])
-
-  return { report, error }
+    return {
+      report: {
+        arbeitszeit,
+        abfahrt: abfahrtZeit,
+        gesamtzeit: ankunftZeit + arbeitszeit + abfahrtZeit,
+        ankunftzeit: ankunftZeit,
+      } satisfies Report,
+      error: "",
+    }
+  }, [ankunftVon, ankunftBis, start, end, abfahrtVon, abfahrtBis, includeAbfahrt])
 }

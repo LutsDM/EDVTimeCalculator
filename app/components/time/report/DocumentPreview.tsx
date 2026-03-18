@@ -45,10 +45,7 @@ export default function DocumentPreview({
           >
             Zurück
           </button>
-          <span className="text-sm font-medium text-gray-700">
-            {DOCUMENT_TITLES[documentType]}
-          </span>
-        </div>
+         </div>
 
         <div className="flex flex-wrap gap-2">
           <button

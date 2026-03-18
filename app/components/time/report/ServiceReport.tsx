@@ -122,8 +122,8 @@ export default function ServiceReport({
             <img
               src="/LOGO.png"
               alt="EDV Service Samirae"
-              width={160}
-              height={80}
+              width={192}
+              height={96}
               style={{ objectFit: "contain" }}
             />
           </div>
@@ -132,7 +132,7 @@ export default function ServiceReport({
 
       {/* TITLE — крупнее и жирнее */}
       <div className="text-right text-sm leading-relaxed mb-4">
-        <strong className="text-2xl font-bold block mb-1">Servicebericht</strong>
+        <strong className="text-xl font-bold block mb-1">Servicebericht</strong>
         Arbeitsdatum: {arbeitsdatum}<br />
         Auftragsnummer: {auftragsnummer}<br />
         {kundenNr && <>Kunden Nr: {kundenNr}<br /></>}

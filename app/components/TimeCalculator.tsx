@@ -326,13 +326,18 @@ export default function TimeCalculator() {
       }
       if (Array.isArray(parsed.lineItems)) {
         setLineItems(
-          parsed.lineItems
-            .filter((x: any) => x && typeof x.title === "string")
-            .map((x: any) => ({
+          (
+            parsed.lineItems as unknown[]
+          )
+            .filter((x): x is { id?: unknown; title: string; amountCents?: unknown } => {
+              if (!x || typeof x !== "object") return false;
+              const obj = x as { id?: unknown; title?: unknown; amountCents?: unknown };
+              return typeof obj.title === "string";
+            })
+            .map((x) => ({
               id: typeof x.id === "string" ? x.id : crypto.randomUUID(),
               title: x.title,
-              amountCents:
-                typeof x.amountCents === "number" ? x.amountCents : 0,
+              amountCents: typeof x.amountCents === "number" ? x.amountCents : 0,
             })),
         );
       } else {
