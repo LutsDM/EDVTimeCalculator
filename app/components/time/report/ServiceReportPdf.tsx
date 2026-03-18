@@ -417,7 +417,7 @@ export default function ServiceReportPdf(props: Props) {
               {signatureEmployee ? (
                 <Image src={signatureEmployee} style={styles.signatureImage} />
               ) : (
-                <Text style={styles.muted}>Bitte unterschreiben</Text>
+                <Text style={styles.muted}></Text>
               )}
             </View>
             <View style={styles.signatureLine} />
@@ -430,7 +430,7 @@ export default function ServiceReportPdf(props: Props) {
               {signatureKunde ? (
                 <Image src={signatureKunde} style={styles.signatureImage} />
               ) : (
-                <Text style={styles.muted}>Bitte unterschreiben</Text>
+                <Text style={styles.muted}></Text>
               )}
             </View>
             <View style={styles.signatureLine} />

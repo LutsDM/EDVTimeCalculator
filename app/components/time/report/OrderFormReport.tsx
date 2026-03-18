@@ -127,7 +127,7 @@ export default function OrderFormReport({
                   className="max-h-[90px] max-w-full object-contain"
                 />
               ) : (
-                <span className="text-gray-400">Bitte unterschreiben</span>
+                <span className="text-gray-400"></span>
               )}
             </div>
             <div className="border-b border-gray-500 h-2 mb-1" />
@@ -147,7 +147,7 @@ export default function OrderFormReport({
                   className="max-h-[90px] max-w-full object-contain"
                 />
               ) : (
-                <span className="text-gray-400">Bitte unterschreiben</span>
+                <span className="text-gray-400"></span>
               )}
             </div>
             <div className="border-b border-gray-500 h-2 mb-2" />

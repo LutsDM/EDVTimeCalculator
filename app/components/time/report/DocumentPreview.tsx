@@ -93,20 +93,20 @@ export default function DocumentPreview({
 
           <button
             type="button"
-            disabled={!canDownload}
+            // disabled={!canDownload}
             onClick={onDownloadPdf}
             className={`touch-manipulation min-h-11 px-4 rounded-lg text-sm font-medium transition-colors
               ${
                 canDownload
                   ? "bg-green-700 text-white hover:bg-green-600"
-                  : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                  : "bg-green-700 text-white hover:bg-green-600" //bg-gray-200 text-gray-500 cursor-not-allowed"
               }`}
           >
             PDF herunterladen
           </button>
         </div>
 
-        {!canDownload && (
+        {/* {!canDownload && (
           <p className="text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-md p-2">
             PDF steht erst nach beiden Unterschriften zur Verfügung.
             {missingEmployee && missingKunde && (
@@ -125,7 +125,7 @@ export default function DocumentPreview({
               <span className="block mt-1"> Es fehlt: Unterschrift Kunde.</span>
             )}
           </p>
-        )}
+        )} */}
       </div>
 
       <div className="print:block">{children}</div>

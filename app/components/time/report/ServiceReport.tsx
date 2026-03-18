@@ -239,7 +239,7 @@ export default function ServiceReport({
                   className="max-h-[90px] max-w-full object-contain"
                 />
               ) : (
-                <span className="text-gray-400">Bitte unterschreiben</span>
+                <span className="text-gray-400"></span>
               )}
             </div>
 
@@ -267,7 +267,7 @@ export default function ServiceReport({
                     className="max-h-[90px] max-w-full object-contain"
                   />
                 ) : (
-                  <span className="text-gray-400">Bitte unterschreiben</span>
+                  <span className="text-gray-400"></span>
                 )}
               </div>
 
