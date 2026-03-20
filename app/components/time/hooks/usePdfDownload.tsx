@@ -103,7 +103,7 @@ export function usePdfDownload({
 
     const a = document.createElement("a")
     a.href = url
-    a.download = `Servicebericht_${date}.pdf`
+    a.download = `Servicebericht_${date}_${customer?.lastName}.pdf`
     a.click()
     URL.revokeObjectURL(url)
   }
