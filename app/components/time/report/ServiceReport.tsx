@@ -122,8 +122,8 @@ export default function ServiceReport({
             <img
               src="/LOGO.png"
               alt="EDV Service Samirae"
-              width={221}
-              height={110}
+              width={265}
+              height={132}
               style={{ objectFit: "contain" }}
             />
           </div>

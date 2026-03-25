@@ -73,8 +73,8 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 193,
-    height: 83,
+    width: 232,
+    height: 100,
     objectFit: "contain",
   },
 
@@ -119,6 +119,16 @@ const styles = StyleSheet.create({
 
   muted: {
     fontSize: 10,
+    color: "#666",
+  },
+
+  /** Table + totals: one step smaller than page (11 → 10) */
+  ledgerText: {
+    fontSize: 10,
+  },
+
+  ledgerMuted: {
+    fontSize: 9,
     color: "#666",
   },
 
@@ -293,37 +303,41 @@ export default function ServiceReportPdf(props: Props) {
         <View style={styles.table}>
           <View style={styles.tableRow}>
             <View style={styles.tableCellLeft}>
-              <Text>Arbeitszeit</Text>
-              <Text style={styles.muted}>({arbeitszeitRange})</Text>
+              <Text style={styles.ledgerText}>Arbeitszeit</Text>
+              <Text style={styles.ledgerMuted}>({arbeitszeitRange})</Text>
             </View>
             <View style={styles.tableCellRight}>
-              <Text>{arbeitszeitText}</Text>
+              <Text style={styles.ledgerText}>{arbeitszeitText}</Text>
             </View>
           </View>
 
           {abfahrtText && abfahrtRange && (
             <View style={styles.tableRow}>
               <View style={styles.tableCellLeft}>
-                <Text>Fahrzeit</Text>
-                <Text style={styles.muted}>({abfahrtRange})</Text>
+                <Text style={styles.ledgerText}>Fahrzeit</Text>
+                <Text style={styles.ledgerMuted}>({abfahrtRange})</Text>
               </View>
               <View style={styles.tableCellRight}>
-                <Text>{abfahrtText}</Text>
+                <Text style={styles.ledgerText}>{abfahrtText}</Text>
               </View>
             </View>
           )}
 
           <View style={styles.tableRow}>
-            <Text style={[styles.tableCellLeft, styles.bold]}>Gesamtzeit</Text>
+            <Text style={[styles.tableCellLeft, styles.ledgerText, styles.bold]}>
+              Gesamtzeit
+            </Text>
             <View style={styles.tableCellRight}>
-              <Text style={styles.bold}>{gesamtzeitText}</Text>
+              <Text style={[styles.ledgerText, styles.bold]}>{gesamtzeitText}</Text>
             </View>
           </View>
 
           <View style={styles.tableRow}>
-            <Text style={styles.tableCellLeft}>Stundensatz</Text>
+            <Text style={[styles.tableCellLeft, styles.ledgerText]}>
+              Stundensatz
+            </Text>
             <View style={styles.tableCellRight}>
-              <Text>{stundensatz}</Text>
+              <Text style={styles.ledgerText}>{stundensatz}</Text>
             </View>
           </View>
 
@@ -333,9 +347,11 @@ export default function ServiceReportPdf(props: Props) {
               ...(lineItems?.length ? [styles.tableRowNoBottom] : []),
             ]}
           >
-            <Text style={styles.tableCellLeft}>Mitarbeiteranzahl</Text>
+            <Text style={[styles.tableCellLeft, styles.ledgerText]}>
+              Mitarbeiteranzahl
+            </Text>
             <View style={styles.tableCellRight}>
-              <Text>{mitarbeiterAnzahl}</Text>
+              <Text style={styles.ledgerText}>{mitarbeiterAnzahl}</Text>
             </View>
           </View>
 
@@ -354,9 +370,11 @@ export default function ServiceReportPdf(props: Props) {
                       ...(isLast ? [styles.tableRowNoBottom] : []),
                     ]}
                   >
-                    <Text style={styles.tableCellLeft}>{item.title}</Text>
+                    <Text style={[styles.tableCellLeft, styles.ledgerText]}>
+                      {item.title}
+                    </Text>
                     <View style={styles.tableCellRight}>
-                      <Text>
+                      <Text style={styles.ledgerText}>
                         {(item.amountCents / 100)
                           .toFixed(2)
                           .replace(".", ",")}{" "}
@@ -374,34 +392,34 @@ export default function ServiceReportPdf(props: Props) {
         <View style={styles.totals}>
           {/* WORK */}
           <View style={styles.totalsRow}>
-            <Text>Nettobetrag (Arbeit)</Text>
-            <Text>{netto}</Text>
+            <Text style={styles.ledgerText}>Nettobetrag (Arbeit)</Text>
+            <Text style={styles.ledgerText}>{netto}</Text>
           </View>
 
           <View style={styles.totalsRow}>
-            <Text>MwSt 19 % (Arbeit)</Text>
-            <Text>{mwst}</Text>
+            <Text style={styles.ledgerText}>MwSt 19 % (Arbeit)</Text>
+            <Text style={styles.ledgerText}>{mwst}</Text>
           </View>
 
           {serviceBrutto ? (
             <View style={[styles.totalsRow, styles.totalsSubsum]}>
-              <Text>Zwischensumme Arbeit</Text>
-              <Text>{serviceBrutto}</Text>
+              <Text style={styles.ledgerText}>Zwischensumme Arbeit</Text>
+              <Text style={styles.ledgerText}>{serviceBrutto}</Text>
             </View>
           ) : null}
 
           {/* EXTRAS */}
           {extraBrutto ? (
             <View style={[styles.totalsRow, { marginTop: 6 }]}>
-              <Text>Zusatzpositionen</Text>
-              <Text>{extraBrutto}</Text>
+              <Text style={styles.ledgerText}>Zusatzpositionen</Text>
+              <Text style={styles.ledgerText}>{extraBrutto}</Text>
             </View>
           ) : null}
 
           {/* TOTAL */}
           <View style={[styles.totalsRow, styles.totalsSum]}>
-            <Text>Gesamtbetrag</Text>
-            <Text>{brutto}</Text>
+            <Text style={[styles.ledgerText, styles.bold]}>Gesamtbetrag</Text>
+            <Text style={[styles.ledgerText, styles.bold]}>{brutto}</Text>
           </View>
         </View>
 
