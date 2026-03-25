@@ -545,7 +545,7 @@ export default function TimeCalculator() {
           print:hidden
         `}
       >
-        <div className="max-w-md sm:max-w-sm mx-auto space-y-4">
+        <div className="w-full max-w-md md:max-w-2xl mx-auto space-y-4">
           <h1 className="text-2xl font-semibold text-gray-900">
             Auftragsdokumentation
           </h1>
@@ -820,7 +820,7 @@ export default function TimeCalculator() {
       )}
 
       {previewDocumentType === "service" && !report && (
-        <div className="p-4 max-w-md mx-auto">
+        <div className="p-4 w-full max-w-md md:max-w-2xl mx-auto">
           <p className="text-amber-800 bg-amber-50 border border-amber-200 rounded-md p-3">
             Bitte Zeitangaben (Ankunft, Arbeitszeit, ggf. Abfahrt) prüfen, um
             den Servicebericht anzuzeigen.
