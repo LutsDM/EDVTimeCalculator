@@ -1,6 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import {
+  ORDER_DETAILS_MAX_CHARS,
+  clampOrderDetails,
+} from "../lib/orderDetailsLimits";
 
 type Props = {
   value: string;
@@ -17,7 +21,7 @@ export default function OrderDetailsBlock({ value, onSave }: Props) {
   );
 
   function handleOpen() {
-    setText(value);
+    setText(clampOrderDetails(value));
     setIsOpen(true);
   }
 
@@ -71,11 +75,26 @@ export default function OrderDetailsBlock({ value, onSave }: Props) {
 
             <textarea
               value={text}
-              onChange={(e) => setText(e.target.value)}
+              onChange={(e) => setText(clampOrderDetails(e.target.value))}
               rows={6}
+              maxLength={ORDER_DETAILS_MAX_CHARS}
               className="mt-3 w-full rounded-xl border p-3 text-sm outline-none focus:ring-2"
               placeholder="z.B. Kunde wünscht Datenübernahme, E-Mail wurde neu eingerichtet..."
             />
+
+            <div className="mt-2 flex justify-end text-xs">
+              <span
+                className={
+                  text.length >= ORDER_DETAILS_MAX_CHARS
+                    ? "font-medium text-red-600"
+                    : text.length >= ORDER_DETAILS_MAX_CHARS * 0.9
+                      ? "text-amber-600"
+                      : "text-gray-500"
+                }
+              >
+                {text.length} / {ORDER_DETAILS_MAX_CHARS}
+              </span>
+            </div>
 
             <div className="mt-4 flex justify-end gap-2">
               <button

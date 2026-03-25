@@ -122,8 +122,8 @@ export default function ServiceReport({
             <img
               src="/LOGO.png"
               alt="EDV Service Samirae"
-              width={192}
-              height={96}
+              width={221}
+              height={110}
               style={{ objectFit: "contain" }}
             />
           </div>
@@ -132,7 +132,7 @@ export default function ServiceReport({
 
       {/* TITLE — крупнее и жирнее */}
       <div className="text-right text-sm leading-relaxed mb-4">
-        <strong className="text-xl font-bold block mb-1">Servicebericht</strong>
+        <strong className="text-lg font-bold block mb-1">Servicebericht</strong>
         Arbeitsdatum: {arbeitsdatum}<br />
         Auftragsnummer: {auftragsnummer}<br />
         {kundenNr && <>Kunden Nr: {kundenNr}<br /></>}
@@ -218,7 +218,7 @@ export default function ServiceReport({
 
       {orderDetails?.trim() ? (
         <div className="mt-4 rounded-lg border border-gray-300 bg-gray-50 p-4">
-          <div className="text-base font-bold text-gray-800">Auftragsdetails</div>
+          <div className="text-sm font-bold text-gray-800">Ausführung der Arbeiten</div>
           <div className="mt-2 whitespace-pre-wrap text-base">{orderDetails}</div>
         </div>
       ) : null}

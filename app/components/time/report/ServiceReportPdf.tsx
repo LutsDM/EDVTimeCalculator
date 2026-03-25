@@ -73,8 +73,8 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: 168,
-    height: 72,
+    width: 193,
+    height: 83,
     objectFit: "contain",
   },
 
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: "bold",
     marginBottom: 6,
   },
@@ -163,9 +163,14 @@ const styles = StyleSheet.create({
   },
 
   orderDetailsTitle: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "bold",
     marginBottom: 8,
+  },
+
+  orderDetailsBody: {
+    fontSize: 10,
+    lineHeight: 1.4,
   },
 
   footerSignatures: {
@@ -401,16 +406,18 @@ export default function ServiceReportPdf(props: Props) {
         </View>
 
 
-        {/* ORDER DETAILS */}
-        {orderDetails?.trim() && (
+        {/* ORDER DETAILS — Text wraps across pages by default (no minPresenceAhead, it blocked breaks) */}
+        {orderDetails?.trim() ? (
           <View style={styles.orderDetailsBlock}>
-            <Text style={styles.orderDetailsTitle}>Auftragsdetails</Text>
-            <Text>{orderDetails.replace(/\r\n/g, "\n")}</Text>
+            <Text style={styles.orderDetailsTitle}>Ausführung der Arbeiten</Text>
+            <Text style={styles.orderDetailsBody}>
+              {orderDetails.replace(/\r\n/g, "\n")}
+            </Text>
           </View>
-        )}
+        ) : null}
 
         {/* SIGNATURES */}
-        <View style={styles.footerSignatures}>
+        <View style={styles.footerSignatures} wrap={false}>
           <View style={styles.signatureBox}>
             <Text style={styles.bold}>Ausgeführt durch:</Text>
             <View style={styles.signatureImageWrapper}>

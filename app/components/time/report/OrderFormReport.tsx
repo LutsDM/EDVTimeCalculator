@@ -67,8 +67,8 @@ export default function OrderFormReport({
             <img
               src="/LOGO.png"
               alt="EDV Service Samirae"
-              width={192}
-              height={96}
+              width={221}
+              height={110}
               style={{ objectFit: "contain" }}
             />
           </div>
@@ -76,7 +76,7 @@ export default function OrderFormReport({
       </div>
 
     <div className="text-right text-sm leading-relaxed mb-4">
-        <strong className="text-xl font-bold block mb-1">Auftragsformular</strong>
+        <strong className="text-lg font-bold block mb-1">Auftragsformular</strong>
         Arbeitsdatum: {arbeitsdatum}<br />
         Auftragsnummer: {auftragsnummer}<br />
         {kundenNr && <>Kunden Nr: {kundenNr}<br /></>}
@@ -108,7 +108,7 @@ export default function OrderFormReport({
 
       {orderDetails?.trim() ? (
         <div className="mt-4 mb-6 rounded-lg border border-gray-300 bg-gray-50 p-4">
-          <div className="text-base font-bold text-gray-800">Auftragsdetails</div>
+          <div className="text-sm font-bold text-gray-800">Auftragsdetails</div>
           <div className="mt-2 whitespace-pre-wrap text-base">{orderDetails}</div>
         </div>
       ) : null}

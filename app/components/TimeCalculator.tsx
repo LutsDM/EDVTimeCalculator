@@ -52,6 +52,7 @@ import CustomerModal from "./time/blocks/CustomerModal";
 import OrderDetailsModal from "./time/blocks/OrderDetailsModal";
 import LineItemsModal from "./time/blocks/LineItemsModal";
 import { LineItem } from "../types/lineItem";
+import { clampOrderDetails } from "./time/lib/orderDetailsLimits";
 
 export default function TimeCalculator() {
   /* ------------------------------------------------------------------
@@ -320,7 +321,7 @@ export default function TimeCalculator() {
       setCustomer(parsed.customer ?? null);
 
       if (typeof parsed.orderDetails === "string") {
-        setOrderDetails(parsed.orderDetails);
+        setOrderDetails(clampOrderDetails(parsed.orderDetails));
       } else {
         setOrderDetails("");
       }

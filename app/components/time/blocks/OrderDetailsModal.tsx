@@ -1,6 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import {
+  ORDER_DETAILS_MAX_CHARS,
+  clampOrderDetails,
+} from "../lib/orderDetailsLimits";
 
 type Props = {
   initialValue: string;
@@ -9,7 +13,7 @@ type Props = {
 };
 
 export default function OrderDetailsModal({ initialValue, onSave, onClose }: Props) {
-  const [value, setValue] = useState(initialValue);
+  const [value, setValue] = useState(() => clampOrderDetails(initialValue));
 
   function handleSave() {
     onSave(value);
@@ -32,11 +36,26 @@ export default function OrderDetailsModal({ initialValue, onSave, onClose }: Pro
 
         <textarea
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => setValue(clampOrderDetails(e.target.value))}
           rows={6}
+          maxLength={ORDER_DETAILS_MAX_CHARS}
           className="mt-3 w-full rounded-xl border p-3 text-sm outline-none focus:ring-2"
           placeholder="z.B. Datenübernahme, Einrichtung von E-Mail, Backup, neue SSD..."
         />
+
+        <div className="mt-2 flex justify-end text-xs">
+          <span
+            className={
+              value.length >= ORDER_DETAILS_MAX_CHARS
+                ? "font-medium text-red-600"
+                : value.length >= ORDER_DETAILS_MAX_CHARS * 0.9
+                  ? "text-amber-600"
+                  : "text-gray-500"
+            }
+          >
+            {value.length} / {ORDER_DETAILS_MAX_CHARS}
+          </span>
+        </div>
 
         <div className="mt-4 flex justify-end gap-2">
           <button

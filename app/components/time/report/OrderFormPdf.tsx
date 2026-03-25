@@ -41,9 +41,9 @@ const styles = StyleSheet.create({
   },
   address: { fontSize: 10, lineHeight: 1.4 },
   customerBlock: { fontSize: 10, lineHeight: 1.4, marginTop: 12 },
-  logo: { width: 168, height: 72, objectFit: "contain" },
+  logo: { width: 193, height: 83, objectFit: "contain" },
   titleBlock: { textAlign: "right", marginBottom: 16 },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 6 },
+  title: { fontSize: 20, fontWeight: "bold", marginBottom: 6 },
   bold: { fontWeight: "bold" },
   muted: { fontSize: 10, color: "#666" },
   table: { borderWidth: 1, borderColor: "#999", marginBottom: 14 },
@@ -66,7 +66,8 @@ const styles = StyleSheet.create({
     fontSize: 10,
     lineHeight: 1.4,
   },
-  orderDetailsTitle: { fontSize: 12, fontWeight: "bold", marginBottom: 8 },
+  orderDetailsTitle: { fontSize: 11, fontWeight: "bold", marginBottom: 8 },
+  orderDetailsBody: { fontSize: 10, lineHeight: 1.4 },
   footerSignatures: {
     marginTop: 18,
     flexDirection: "row",
@@ -183,14 +184,16 @@ export default function OrderFormPdf(props: OrderFormPdfProps) {
           ) : null}
         </View>
 
-        {orderDetails?.trim() && (
+        {orderDetails?.trim() ? (
           <View style={styles.orderDetailsBlock}>
             <Text style={styles.orderDetailsTitle}>Auftragsdetails</Text>
-            <Text>{orderDetails.replace(/\r\n/g, "\n")}</Text>
+            <Text style={styles.orderDetailsBody}>
+              {orderDetails.replace(/\r\n/g, "\n")}
+            </Text>
           </View>
-        )}
+        ) : null}
 
-        <View style={styles.footerSignatures}>
+        <View style={styles.footerSignatures} wrap={false}>
           <View style={styles.signatureBox}>
             <Text style={styles.bold}>Ausgeführt durch:</Text>
             <View style={styles.signatureImageWrapper}>
