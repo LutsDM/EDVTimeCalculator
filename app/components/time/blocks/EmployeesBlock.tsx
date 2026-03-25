@@ -50,16 +50,16 @@ export default function EmployeesBlock({
 }: Props) {
   return (
     <div
-      className={`bg-white border rounded-lg p-4 shadow-sm space-y-3
+      className={`bg-white border rounded-lg p-4 shadow-sm space-y-3 md:text-center
         ${!hasEmployees ? "border-amber-300" : "border-gray-200"}
       `}
     >
-      <label className="block text-xs font-medium text-gray-600 mb-1">
+      <label className="block text-xs font-medium text-gray-600 mb-1 md:text-center">
         Mitarbeiter
       </label>
 
       {!isAdding && !isAddingCustom && (
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4 md:justify-center">
           <button
             type="button"
             onClick={onStartAddFromList}
@@ -81,88 +81,89 @@ export default function EmployeesBlock({
       )}
 
       {!hasEmployees && (
-        <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-2">
+        <div className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-2 md:mx-auto md:max-w-xl">
           Bitte wählen Sie mindestens einen Mitarbeiter aus, um den Servicebericht zu erstellen.
         </div>
       )}
 
       {/* add from list */}
       {isAdding && (
-        <div className="flex flex-col gap-2">
-        <div className="flex flex-wrap gap-2">
-          <select
-            value={employeeToAdd}
-            onChange={(e) =>
-              onEmployeeToAddChange(
-                e.target.value ? Number(e.target.value) : ""
-              )
-            }
-            className="h-9 flex-1 rounded-md border border-gray-300 px-2 text-sm bg-gray-50 text-gray-800"
-          >
-            
-            <option value="">Mitarbeiter auswählen</option>
-            {availableEmployees.map((e) => (
-              <option key={e.id} value={e.id}>
-                {e.name}
-              </option>
-            ))}
-          </select>
-</div>
-          <button
-            type="button"
-            disabled={!employeeToAdd}
-            onClick={onAddEmployeeFromList}
-            className="h-9 px-3 rounded-md bg-green-600 text-white text-sm disabled:opacity-50"
-          >
-            Hinzufügen
-          </button>
+        <div className="flex flex-col gap-2 md:items-center">
+          <div className="w-full max-w-md">
+            <select
+              value={employeeToAdd}
+              onChange={(e) =>
+                onEmployeeToAddChange(
+                  e.target.value ? Number(e.target.value) : ""
+                )
+              }
+              className="h-9 w-full rounded-md border border-gray-300 px-2 text-sm bg-gray-50 text-gray-800"
+            >
+              <option value="">Mitarbeiter auswählen</option>
+              {availableEmployees.map((e) => (
+                <option key={e.id} value={e.id}>
+                  {e.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-wrap gap-2 md:justify-center">
+            <button
+              type="button"
+              disabled={!employeeToAdd}
+              onClick={onAddEmployeeFromList}
+              className="h-9 px-3 rounded-md bg-green-600 text-white text-sm disabled:opacity-50"
+            >
+              Hinzufügen
+            </button>
 
-          <button
-            type="button"
-            onClick={onCancelAdd}
-            className="h-9 px-3 rounded-md border border-gray-300 text-sm bg-gray-50 text-gray-800"
-          >
-            Abbrechen
-          </button>
+            <button
+              type="button"
+              onClick={onCancelAdd}
+              className="h-9 px-3 rounded-md border border-gray-300 text-sm bg-gray-50 text-gray-800"
+            >
+              Abbrechen
+            </button>
+          </div>
         </div>
       )}
 
       {/* Manual add */}
       {isAddingCustom && (
-        <div className="flex flex-col gap-2">
-
-          <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col gap-2 md:items-center">
+          <div className="w-full max-w-md">
             <input
               type="text"
               placeholder="Name des Mitarbeiters"
               value={customEmployeeName}
               onChange={(e) => onCustomEmployeeNameChange(e.target.value)}
-              className="h-9 flex-1 rounded-md border border-gray-300 px-2 text-sm bg-gray-50 text-gray-800"
+              className="h-9 w-full rounded-md border border-gray-300 px-2 text-sm bg-gray-50 text-gray-800"
             />
           </div>
-          <button
-            type="button"
-            disabled={!customEmployeeName.trim()}
-            onClick={onAddCustomEmployee}
-            className="h-9 px-3 rounded-md bg-blue-600 text-white text-sm disabled:opacity-50"
-          >
-            Hinzufügen
-          </button>
+          <div className="flex flex-wrap gap-2 md:justify-center">
+            <button
+              type="button"
+              disabled={!customEmployeeName.trim()}
+              onClick={onAddCustomEmployee}
+              className="h-9 px-3 rounded-md bg-blue-600 text-white text-sm disabled:opacity-50"
+            >
+              Hinzufügen
+            </button>
 
-          <button
-            type="button"
-            onClick={onCancelAdd}
-            className="h-9 px-3 rounded-md border border-gray-300 text-sm text-gray-800"
-          >
-            Abbrechen
-          </button>
-
+            <button
+              type="button"
+              onClick={onCancelAdd}
+              className="h-9 px-3 rounded-md border border-gray-300 text-sm text-gray-800"
+            >
+              Abbrechen
+            </button>
+          </div>
         </div>
       )}
 
       {/* Employees from databank */}
       {selectedEmployees.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 md:justify-center">
           {selectedEmployees.map((employee) => (
             <div
               key={employee.id}
