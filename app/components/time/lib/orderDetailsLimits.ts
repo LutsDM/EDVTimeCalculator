@@ -1,5 +1,5 @@
 /** Hard maximum — input is blocked at this length. */
-export const ORDER_DETAILS_MAX_CHARS = 1000
+export const ORDER_DETAILS_MAX_CHARS = 700
 
 export function clampOrderDetails(value: string): string {
   if (value.length <= ORDER_DETAILS_MAX_CHARS) return value
