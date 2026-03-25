@@ -23,6 +23,7 @@ type OrderFormPdfProps = {
   extraBrutto?: string;
   employees: Employee[];
   customer?: Customer | null;
+  auftragPasswort: string;
   signatureKunde: string | null;
   signatureEmployee: string | null;
 };
@@ -41,6 +42,7 @@ const styles = StyleSheet.create({
   },
   address: { fontSize: 10, lineHeight: 1.4 },
   customerBlock: { fontSize: 10, lineHeight: 1.4, marginTop: 12 },
+  passwortBlock: { marginTop: 10, fontSize: 10, lineHeight: 1.35 },
   logo: { width: 232, height: 100, objectFit: "contain" },
   titleBlock: { textAlign: "right", marginBottom: 16 },
   title: { fontSize: 20, fontWeight: "bold", marginBottom: 6 },
@@ -97,6 +99,7 @@ export default function OrderFormPdf(props: OrderFormPdfProps) {
     extraBrutto,
     employees,
     customer,
+    auftragPasswort,
     signatureKunde,
     signatureEmployee,
   } = props;
@@ -131,6 +134,12 @@ export default function OrderFormPdf(props: OrderFormPdfProps) {
                 {customer.phone && <Text>Tel. {customer.phone}</Text>}
               </View>
             )}
+            {auftragPasswort?.trim() ? (
+              <View style={styles.passwortBlock}>
+                <Text style={styles.bold}>Passwort</Text>
+                <Text>{auftragPasswort}</Text>
+              </View>
+            ) : null}
           </View>
           <Image src="/LOGO.png" style={styles.logo} />
         </View>

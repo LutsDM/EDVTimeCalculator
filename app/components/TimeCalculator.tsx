@@ -49,6 +49,7 @@ import {
 import { SignatureModal } from "./time/Signature/SignatureModal";
 import { Customer } from "../types/customer";
 import CustomerModal from "./time/blocks/CustomerModal";
+import PasswordModal from "./time/blocks/PasswordModal";
 import OrderDetailsModal from "./time/blocks/OrderDetailsModal";
 import LineItemsModal from "./time/blocks/LineItemsModal";
 import { LineItem } from "../types/lineItem";
@@ -102,6 +103,9 @@ export default function TimeCalculator() {
    * ------------------------------------------------------------------ */
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [isCustomerModalOpen, setCustomerModalOpen] = useState(false);
+  /** Nur Auftragsformular (nicht Servicebericht) */
+  const [auftragPasswort, setAuftragPasswort] = useState("");
+  const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
   /* ------------------------------------------------------------------
    * OrderDetails
    * ------------------------------------------------------------------ */
@@ -206,6 +210,7 @@ export default function TimeCalculator() {
         abfahrtBis,
         selectedEmployees,
         customer,
+        auftragPasswort,
         orderDetails,
         lineItems,
       }),
@@ -222,6 +227,7 @@ export default function TimeCalculator() {
       abfahrtBis,
       selectedEmployees,
       customer,
+      auftragPasswort,
       orderDetails,
       lineItems,
     ],
@@ -254,6 +260,7 @@ export default function TimeCalculator() {
       abfahrtBis,
       selectedEmployees,
       customer,
+      auftragPasswort,
       orderDetails,
       signatures,
       lineItems,
@@ -271,6 +278,7 @@ export default function TimeCalculator() {
       abfahrtBis,
       selectedEmployees,
       customer,
+      auftragPasswort,
       orderDetails,
       signatures,
       lineItems,
@@ -319,6 +327,12 @@ export default function TimeCalculator() {
       }
 
       setCustomer(parsed.customer ?? null);
+
+      if (typeof parsed.auftragPasswort === "string") {
+        setAuftragPasswort(parsed.auftragPasswort);
+      } else {
+        setAuftragPasswort("");
+      }
 
       if (typeof parsed.orderDetails === "string") {
         setOrderDetails(clampOrderDetails(parsed.orderDetails));
@@ -401,6 +415,7 @@ export default function TimeCalculator() {
     setAbfahrtBis(emptyTime);
 
     setCustomer(null);
+    setAuftragPasswort("");
 
     hydrateEmployees([]);
 
@@ -496,6 +511,7 @@ export default function TimeCalculator() {
     mitarbeiterAnzahl: employeeCount,
     employees: selectedEmployees,
     customer,
+    auftragPasswort,
     signatureKunde: signatures.auftrag.kunde,
     signatureEmployee: signatures.auftrag.employee,
     orderDetails,
@@ -522,6 +538,11 @@ export default function TimeCalculator() {
   const customerButtonText = hasCustomer
     ? `Kundendaten: ${customerName || "gespeichert"}`
     : "Kundendaten hinzufügen";
+
+  const hasPasswort = auftragPasswort.trim().length > 0;
+  const passwortButtonText = hasPasswort
+    ? "Passwort: gespeichert"
+    : "Passwort hinzufügen";
 
   /* ------------------------------------------------------------------
    * OrderDetails Modal
@@ -643,6 +664,33 @@ export default function TimeCalculator() {
             />
           )}
 
+          {/* Passwort — nur Auftragsformular */}
+          <button
+            type="button"
+            onClick={() => setPasswordModalOpen(true)}
+            className={`
+    w-full rounded-lg py-2 text-sm font-medium border
+    transition-colors flex items-center justify-center gap-2
+    ${
+      hasPasswort
+        ? "bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700"
+        : "bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-200"
+    }
+    active:scale-[0.98]
+  `}
+          >
+            {hasPasswort && <span className="text-base leading-none">✔</span>}
+            <span className="truncate max-w-[85%]">{passwortButtonText}</span>
+          </button>
+
+          {isPasswordModalOpen && (
+            <PasswordModal
+              initialValue={auftragPasswort}
+              onSave={setAuftragPasswort}
+              onClose={() => setPasswordModalOpen(false)}
+            />
+          )}
+
           {/* Employees selection */}
           <EmployeesBlock
             selectedEmployees={selectedEmployees}
@@ -759,6 +807,7 @@ export default function TimeCalculator() {
               }
               employees={selectedEmployees}
               customer={customer}
+              auftragPasswort={auftragPasswort}
               signatureKunde={signatures.auftrag.kunde}
               signatureEmployee={signatures.auftrag.employee}
             />

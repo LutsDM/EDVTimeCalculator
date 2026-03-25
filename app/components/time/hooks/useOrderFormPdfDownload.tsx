@@ -9,6 +9,7 @@ type Params = {
   mitarbeiterAnzahl: number;
   employees: Employee[];
   customer?: Customer | null;
+  auftragPasswort: string;
   signatureKunde: string | null;
   signatureEmployee: string | null;
   orderDetails: string | null;
@@ -27,6 +28,7 @@ export function useOrderFormPdfDownload({
   mitarbeiterAnzahl,
   employees,
   customer,
+  auftragPasswort,
   signatureKunde,
   signatureEmployee,
   orderDetails,
@@ -52,6 +54,7 @@ export function useOrderFormPdfDownload({
         extraBrutto={extraBruttoStr}
         employees={employees}
         customer={customer}
+        auftragPasswort={auftragPasswort}
         signatureKunde={signatureKunde}
         signatureEmployee={signatureEmployee}
       />

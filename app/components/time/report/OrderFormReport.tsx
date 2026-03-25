@@ -15,6 +15,8 @@ type OrderFormReportProps = {
   extraBrutto?: string;
   employees: Employee[];
   customer?: Customer | null;
+  /** Nur Auftragsformular */
+  auftragPasswort?: string;
   signatureKunde: string | null;
   signatureEmployee: string | null;
 };
@@ -30,6 +32,7 @@ export default function OrderFormReport({
   extraBrutto,
   employees,
   customer,
+  auftragPasswort,
   signatureKunde,
   signatureEmployee,
 }: OrderFormReportProps) {
@@ -62,6 +65,12 @@ export default function OrderFormReport({
                 {customer.phone && <div>Tel. {customer.phone}</div>}
               </div>
             )}
+            {auftragPasswort?.trim() ? (
+              <div className="mt-3 text-xs leading-relaxed">
+                <div className="font-semibold">Passwort</div>
+                <div className="break-all text-gray-800">{auftragPasswort}</div>
+              </div>
+            ) : null}
           </div>
           <div className="self-start">
             <img
