@@ -29,7 +29,7 @@ export default function OrderDetailsModal({ initialValue, onSave, onClose }: Pro
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative w-full max-w-xl rounded-2xl bg-white p-4 shadow-xl">
-        <div className="text-lg font-semibold">Auftragsdetails</div>
+        <div className="text-lg font-semibold">Auftragsdetails/Servicedetails</div>
         <div className="mt-1 text-sm opacity-70">
           Schreibe hier einen beliebigen Text, der im Bericht erscheint.
         </div>

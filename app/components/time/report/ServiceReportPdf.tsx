@@ -258,7 +258,7 @@ export default function ServiceReportPdf(props: Props) {
             <Text style={styles.address}>
               EDV SERVICE Samirae{"\n"}
               Schloßstr. 33{"\n"}
-              51427 Bergisch Gladbach{"\n"}
+              51429 Bergisch Gladbach{"\n"}
               Tel. 02204 9670720{"\n"}
               Mobil 0163 2496741
             </Text>
