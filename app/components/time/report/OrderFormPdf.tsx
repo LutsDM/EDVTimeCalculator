@@ -40,6 +40,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 24,
   },
+  disclaimerBlock: {
+    marginBottom: 14,
+    padding: 0,
+    fontSize: 6,
+    lineHeight: 1.3,
+  },
+  disclaimerTitle: { fontWeight: "bold", marginBottom: 2 },
+  disclaimerIntro: { marginBottom: 2 },
+  disclaimerItem: { marginBottom: 2 },
   address: { fontSize: 10, lineHeight: 1.4 },
   customerBlock: { fontSize: 10, lineHeight: 1.4, marginTop: 12 },
   passwortBlock: { marginTop: 10, fontSize: 10, lineHeight: 1.35 },
@@ -70,13 +79,15 @@ const styles = StyleSheet.create({
   },
   orderDetailsTitle: { fontSize: 11, fontWeight: "bold", marginBottom: 8 },
   orderDetailsBody: { fontSize: 10, lineHeight: 1.4 },
-  footerSignatures: {
+  footerBlock: {
     marginTop: 18,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-end",
   },
-  signatureBox: { width: "35%", textAlign: "center" },
+  signaturesRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "flex-start",
+  },
+  signatureBox: { width: "48%", textAlign: "center" },
   signatureImageWrapper: { height: 40, justifyContent: "flex-end" },
   signatureImage: { width: "100%", height: "100%", objectFit: "contain" },
   signatureLine: {
@@ -202,34 +213,63 @@ export default function OrderFormPdf(props: OrderFormPdfProps) {
           </View>
         ) : null}
 
-        <View style={styles.footerSignatures} wrap={false}>
-          <View style={styles.signatureBox}>
-            <Text style={styles.bold}>Ausgeführt durch:</Text>
-            <View style={styles.signatureImageWrapper}>
-              {signatureEmployee ? (
-                <Image src={signatureEmployee} style={styles.signatureImage} />
-              ) : (
-                <Text style={styles.muted}>Bitte unterschreiben</Text>
-              )}
-            </View>
-            <View style={styles.signatureLine} />
-            <Text>{employees?.[0]?.name || "Mitarbeiter"}</Text>
-          </View>
-          <View style={styles.signatureBox}>
-            <Text style={styles.bold}>Kunde:</Text>
-            <View style={styles.signatureImageWrapper}>
-              {signatureKunde ? (
-                <Image src={signatureKunde} style={styles.signatureImage} />
-              ) : (
-                <Text style={styles.muted}>Bitte unterschreiben</Text>
-              )}
-            </View>
-            <View style={styles.signatureLine} />
-            <Text>
-              {customer
-                ? `${customer.firstName} ${customer.lastName}`
-                : "Kunde"}
+        <View style={styles.footerBlock} wrap={false}>
+          <View style={styles.disclaimerBlock}>
+            <Text style={styles.disclaimerTitle}>
+              Verbrauchererklärung über Beginn der Arbeiten vor Ablauf der
+              Widerrufsfrist
             </Text>
+            <Text style={styles.disclaimerIntro}>
+              Hiermit bestätige ich (der Auftraggeber / Kunde):
+            </Text>
+            <Text style={styles.disclaimerItem}>
+              1. Dass ich darüber belehrt wurde, dass mir ein 14-tägiges
+              Widerrufsrecht zusteht. Eine entsprechende Widerrufsbelehrung und ein
+              Muster-Widerrufsformular wurden mir ausgehändigt.
+            </Text>
+            <Text style={styles.disclaimerItem}>
+              2. Dass ich ausdrücklich zustimme, dass die beauftragten Arbeiten vor
+              Ablauf der Widerrufsfrist beginnen.
+            </Text>
+            <Text style={styles.disclaimerItem}>
+              3. Dass ich darüber in Kenntnis gesetzt wurde, dass ich mein
+              Widerrufsrecht bei vollständiger Vertragserfüllung verliere.
+            </Text>
+            <Text>
+              4. Dass ich für den Fall, dass ich vor vollständiger
+              Vertragserfüllung den Vertrag widerrufe, für die bis zum Widerruf
+              erbrachten Leistungen einen Wertersatz zu leisten habe.
+            </Text>
+          </View>
+          <View style={styles.signaturesRow}>
+            <View style={styles.signatureBox}>
+              <Text style={styles.bold}>Ausgeführt durch:</Text>
+              <View style={styles.signatureImageWrapper}>
+                {signatureEmployee ? (
+                  <Image src={signatureEmployee} style={styles.signatureImage} />
+                ) : (
+                  <Text style={styles.muted}>Bitte unterschreiben</Text>
+                )}
+              </View>
+              <View style={styles.signatureLine} />
+              <Text>{employees?.[0]?.name || "Mitarbeiter"}</Text>
+            </View>
+            <View style={styles.signatureBox}>
+              <Text style={styles.bold}>Kunde:</Text>
+              <View style={styles.signatureImageWrapper}>
+                {signatureKunde ? (
+                  <Image src={signatureKunde} style={styles.signatureImage} />
+                ) : (
+                  <Text style={styles.muted}>Bitte unterschreiben</Text>
+                )}
+              </View>
+              <View style={styles.signatureLine} />
+              <Text>
+                {customer
+                  ? `${customer.firstName} ${customer.lastName}`
+                  : "Kunde"}
+              </Text>
+            </View>
           </View>
         </View>
       </Page>

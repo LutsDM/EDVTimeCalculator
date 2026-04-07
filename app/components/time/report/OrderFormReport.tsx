@@ -123,44 +123,70 @@ export default function OrderFormReport({
       ) : null}
 
       {/* SIGNATURES */}
-      <div className="flex items-center gap-10 mt-10">
-        <div className="ml-auto max-w-[400px] text-sm break-inside-avoid">
-          <div className="text-center">
-            <strong>Ausgeführt durch:</strong>
-            <div className="bg-white flex items-center justify-center overflow-hidden h-[90px]">
-              {signatureEmployee ? (
-                <img
-                  src={signatureEmployee}
-                  alt="Unterschrift Mitarbeiter"
-                  className="max-h-[90px] max-w-full object-contain"
-                />
-              ) : (
-                <span className="text-gray-400"></span>
-              )}
-            </div>
-            <div className="border-b border-gray-500 h-2 mb-1" />
-            <div className="font-medium">
-              {employees.length === 1 ? employees[0].name : "Mitarbeiter"}
-            </div>
+      <div className="mt-10 w-full">
+        <div className="w-full break-inside-avoid">
+          <div className="mb-4 p-1 text-[10px] leading-snug text-gray-800">
+            <strong className="mb-1 block font-bold">
+              Verbrauchererklärung über Beginn der Arbeiten vor Ablauf der Widerrufsfrist
+            </strong>
+            <div>Hiermit bestätige ich (der Auftraggeber / Kunde):</div>
+            <ol className="mt-1 list-decimal pl-4">
+              <li>
+                Dass ich darüber belehrt wurde, dass mir ein 14-tägiges
+                Widerrufsrecht zusteht. Eine entsprechende Widerrufsbelehrung und ein
+                Muster-Widerrufsformular wurden mir ausgehändigt.
+              </li>
+              <li>
+                Dass ich ausdrücklich zustimme, dass die beauftragten Arbeiten vor
+                Ablauf der Widerrufsfrist beginnen.
+              </li>
+              <li>
+                Dass ich darüber in Kenntnis gesetzt wurde, dass ich mein
+                Widerrufsrecht bei vollständiger Vertragserfüllung verliere.
+              </li>
+              <li>
+                Dass ich für den Fall, dass ich vor vollständiger Vertragserfüllung
+                den Vertrag widerrufe, für die bis zum Widerruf erbrachten Leistungen
+                einen Wertersatz zu leisten habe.
+              </li>
+            </ol>
           </div>
-        </div>
-        <div className="text-xs break-inside-avoid">
-          <div className="text-center">
-            <strong>Kunde:</strong>
-            <div className="bg-white flex items-center justify-center overflow-hidden h-[90px]">
-              {signatureKunde ? (
-                <img
-                  src={signatureKunde}
-                  alt="Unterschrift Kunde"
-                  className="max-h-[90px] max-w-full object-contain"
-                />
-              ) : (
-                <span className="text-gray-400"></span>
-              )}
+          <div className="grid grid-cols-2 gap-8 text-sm">
+            <div className="text-center">
+              <strong>Ausgeführt durch:</strong>
+              <div className="bg-white flex items-center justify-center overflow-hidden h-[90px]">
+                {signatureEmployee ? (
+                  <img
+                    src={signatureEmployee}
+                    alt="Unterschrift Mitarbeiter"
+                    className="max-h-[90px] max-w-full object-contain"
+                  />
+                ) : (
+                  <span className="text-gray-400"></span>
+                )}
+              </div>
+              <div className="border-b border-gray-500 h-2 mb-1" />
+              <div className="font-medium">
+                {employees.length === 1 ? employees[0].name : "Mitarbeiter"}
+              </div>
             </div>
-            <div className="border-b border-gray-500 h-2 mb-2" />
-            <div className="font-medium">
-              {customer ? `${customer.firstName} ${customer.lastName}` : "Kunde"}
+            <div className="text-center">
+              <strong>Kunde:</strong>
+              <div className="bg-white flex items-center justify-center overflow-hidden h-[90px]">
+                {signatureKunde ? (
+                  <img
+                    src={signatureKunde}
+                    alt="Unterschrift Kunde"
+                    className="max-h-[90px] max-w-full object-contain"
+                  />
+                ) : (
+                  <span className="text-gray-400"></span>
+                )}
+              </div>
+              <div className="border-b border-gray-500 h-2 mb-2" />
+              <div className="font-medium">
+                {customer ? `${customer.firstName} ${customer.lastName}` : "Kunde"}
+              </div>
             </div>
           </div>
         </div>
