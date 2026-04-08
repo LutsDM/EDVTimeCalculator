@@ -50,6 +50,7 @@ type Props = {
 const styles = StyleSheet.create({
   page: {
     padding: 24,
+    paddingBottom: 104,
     fontSize: 11,
     fontFamily: "Helvetica",
     color: "#111",
@@ -85,9 +86,17 @@ const styles = StyleSheet.create({
     lineHeight: 1.22,
   },
   headerDivider: {
-    marginTop: 6,
     borderBottomWidth: 1,
     borderBottomColor: "#999",
+  },
+  contactsFooter: {
+    position: "absolute",
+    left: 24,
+    right: 24,
+    bottom: 20,
+  },
+  contactsContent: {
+    marginTop: 8,
   },
 
   address: {
@@ -115,12 +124,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     columnGap: 2,
-    height: 32,
+    height: 44,
     marginTop: 2,
   },
   titleLogo: {
-    width: 76,
-    height: 32,
+    width: 100,
+    height: 44,
     objectFit: "contain",
   },
   brandTextBlock: {
@@ -139,7 +148,7 @@ const styles = StyleSheet.create({
     fontFamily: "Helvetica",
   },
   brandLine: {
-    width: 56,
+    width: 82,
   },
 
   title: {
@@ -525,9 +534,9 @@ export default function ServiceReportPdf(props: Props) {
             </Text>
           </View>
         </View>
-        <View style={{ marginTop: 12 }}>
+        <View style={styles.contactsFooter} fixed>
           <View style={styles.headerDivider} />
-          <View style={styles.headerBlocksRow}>
+          <View style={[styles.headerBlocksRow, styles.contactsContent]}>
             <View style={styles.headerBlock}>
               <Text style={styles.blockTitle}>Standort Monheim:</Text>
               <Text style={styles.companyLine}>EDV-SERVICE Samirae</Text>

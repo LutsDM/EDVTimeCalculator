@@ -31,6 +31,7 @@ type OrderFormPdfProps = {
 const styles = StyleSheet.create({
   page: {
     padding: 24,
+    paddingBottom: 104,
     fontSize: 11,
     fontFamily: "Helvetica",
     color: "#111",
@@ -50,9 +51,17 @@ const styles = StyleSheet.create({
   blockTitle: { fontSize: 8.5, fontWeight: "bold", marginBottom: 1 },
   companyLine: { fontSize: 7.8, lineHeight: 1.22 },
   headerDivider: {
-    marginTop: 6,
     borderBottomWidth: 1,
     borderBottomColor: "#999",
+  },
+  contactsFooter: {
+    position: "absolute",
+    left: 24,
+    right: 24,
+    bottom: 20,
+  },
+  contactsContent: {
+    marginTop: 8,
   },
   disclaimerBlock: {
     marginBottom: 14,
@@ -72,14 +81,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     columnGap: 2,
-    height: 32,
+    height: 44,
     marginTop: 2,
   },
-  titleLogo: { width: 76, height: 32, objectFit: "contain" },
+  titleLogo: { width: 100, height: 44, objectFit: "contain" },
   brandTextBlock: { justifyContent: "center", paddingTop: 10 },
   brandService: { fontSize: 13, fontWeight: 900, lineHeight: 1.05, fontFamily: "Helvetica" },
   brandSamirae: { fontSize: 13, lineHeight: 1.05, fontFamily: "Helvetica" },
-  brandLine: { width: 56 },
+  brandLine: { width: 82 },
   title: { fontSize: 20, fontWeight: "bold", marginBottom: 6 },
   bold: { fontWeight: "bold" },
   muted: { fontSize: 10, color: "#666" },
@@ -299,9 +308,9 @@ export default function OrderFormPdf(props: OrderFormPdfProps) {
             </View>
           </View>
         </View>
-        <View style={{ marginTop: 12 }}>
+        <View style={styles.contactsFooter} fixed>
           <View style={styles.headerDivider} />
-          <View style={styles.headerBlocksRow}>
+          <View style={[styles.headerBlocksRow, styles.contactsContent]}>
             <View style={styles.headerBlock}>
               <Text style={styles.blockTitle}>Standort Monheim:</Text>
               <Text style={styles.companyLine}>EDV-SERVICE Samirae</Text>
