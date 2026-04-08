@@ -123,18 +123,19 @@ const styles = StyleSheet.create({
   titleLeft: {
     flexDirection: "row",
     alignItems: "center",
-    columnGap: 2,
-    height: 44,
+    columnGap: 0,
+    height: 132,
     marginTop: 2,
   },
   titleLogo: {
-    width: 100,
-    height: 44,
+    width: 300,
+    height: 132,
     objectFit: "contain",
   },
   brandTextBlock: {
     justifyContent: "center",
-    paddingTop: 10,
+    paddingTop: 0,
+    marginLeft: -6,
   },
   brandService: {
     fontSize: 13,
