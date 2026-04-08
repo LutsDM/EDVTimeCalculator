@@ -56,9 +56,38 @@ const styles = StyleSheet.create({
   },
 
   headerRow: {
+    flexDirection: "column",
+    marginBottom: 10,
+  },
+  headerTopRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 24,
+    alignItems: "center",
+  },
+  headerBlocksRow: {
+    flexDirection: "row",
+    columnGap: 2,
+  },
+  headerBlock: {
+    width: "23%",
+    minHeight: 70,
+  },
+  headerBlockWide: {
+    width: "29%",
+  },
+  blockTitle: {
+    fontSize: 8.5,
+    fontWeight: "bold",
+    marginBottom: 1,
+  },
+  companyLine: {
+    fontSize: 7.8,
+    lineHeight: 1.22,
+  },
+  headerDivider: {
+    marginTop: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: "#999",
   },
 
   address: {
@@ -67,7 +96,7 @@ const styles = StyleSheet.create({
   },
 
   customerBlock: {
-    fontSize: 10,
+    fontSize: 11,
     lineHeight: 1.4,
     marginTop: 12,
   },
@@ -81,6 +110,36 @@ const styles = StyleSheet.create({
   titleBlock: {
     textAlign: "right",
     marginBottom: 16,
+  },
+  titleLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    columnGap: 2,
+    height: 32,
+    marginTop: 2,
+  },
+  titleLogo: {
+    width: 76,
+    height: 32,
+    objectFit: "contain",
+  },
+  brandTextBlock: {
+    justifyContent: "center",
+    paddingTop: 10,
+  },
+  brandService: {
+    fontSize: 13,
+    fontWeight: 900,
+    lineHeight: 1.05,
+    fontFamily: "Helvetica",
+  },
+  brandSamirae: {
+    fontSize: 13,
+    lineHeight: 1.05,
+    fontFamily: "Helvetica",
+  },
+  brandLine: {
+    width: 56,
   },
 
   title: {
@@ -108,12 +167,12 @@ const styles = StyleSheet.create({
 
   tableCellLeft: {
     flex: 1,
-    padding: 6,
+    padding: 4,
   },
 
   tableCellRight: {
-    width: 120,
-    padding: 6,
+    width: 110,
+    padding: 4,
     alignItems: "flex-end",
   },
 
@@ -124,11 +183,11 @@ const styles = StyleSheet.create({
 
   /** Table + totals: one step smaller than page (11 → 10) */
   ledgerText: {
-    fontSize: 10,
+    fontSize: 9,
   },
 
   ledgerMuted: {
-    fontSize: 9,
+    fontSize: 8,
     color: "#666",
   },
 
@@ -254,15 +313,8 @@ export default function ServiceReportPdf(props: Props) {
       <Page size="A4" style={styles.page}>
         {/* HEADER */}
         <View style={styles.headerRow}>
-          <View>
-            <Text style={styles.address}>
-              EDV SERVICE Samirae{"\n"}
-              Schloßstr. 33{"\n"}
-              51429 Bergisch Gladbach{"\n"}
-              Tel. 02204 9670720{"\n"}
-              Mobil 0163 2496741
-            </Text>
-
+          <View style={styles.headerTopRow}>
+            <View>
             {customer && (
               <View style={styles.customerBlock}>
                 <Text style={styles.bold}>Kunde</Text>
@@ -286,9 +338,16 @@ export default function ServiceReportPdf(props: Props) {
                 {customer.phone && <Text>Tel. {customer.phone}</Text>}
               </View>
             )}
+            </View>
+            <View style={styles.titleLeft}>
+              <Image src="/LOGO.png" style={styles.titleLogo} />
+              <View style={styles.brandTextBlock}>
+                <Text style={[styles.brandService, styles.brandLine]}>SERVICE</Text>
+                <Text style={[styles.brandSamirae, styles.brandLine]}>SAMIRAE</Text>
+              </View>
+            </View>
           </View>
 
-          <Image src="/LOGO.png" style={styles.logo} />
         </View>
 
         {/* TITLE */}
@@ -464,6 +523,38 @@ export default function ServiceReportPdf(props: Props) {
                 ? `${customer.firstName} ${customer.lastName}`
                 : "Kunde"}
             </Text>
+          </View>
+        </View>
+        <View style={{ marginTop: 12 }}>
+          <View style={styles.headerDivider} />
+          <View style={styles.headerBlocksRow}>
+            <View style={styles.headerBlock}>
+              <Text style={styles.blockTitle}>Standort Monheim:</Text>
+              <Text style={styles.companyLine}>EDV-SERVICE Samirae</Text>
+              <Text style={styles.companyLine}>Frank Samirae</Text>
+              <Text style={styles.companyLine}>Franz-Boehm-Str. 3</Text>
+              <Text style={styles.companyLine}>40789 Monheim</Text>
+            </View>
+            <View style={styles.headerBlock}>
+              <Text style={styles.blockTitle}>Standort Bergisch Gladbach:</Text>
+              <Text style={styles.companyLine}>EDV-SERVICE Samirae</Text>
+              <Text style={styles.companyLine}>Frank Samirae</Text>
+              <Text style={styles.companyLine}>Schloßstrasse 33</Text>
+              <Text style={styles.companyLine}>51429 Bergisch Gladbach</Text>
+            </View>
+            <View style={styles.headerBlock}>
+              <Text style={styles.companyLine}>Telefon: 02173 / 9939835</Text>
+              <Text style={styles.companyLine}>Telefon: 02204 / 96 70 720</Text>
+              <Text style={styles.companyLine}>Mobil: 0221 / 677 744 67</Text>
+              <Text style={styles.companyLine}>E-Mail: mail@edvsamirae.de</Text>
+              <Text style={styles.companyLine}>Web: www.edvsamirae.de</Text>
+            </View>
+            <View style={[styles.headerBlock, styles.headerBlockWide]}>
+              <Text style={styles.companyLine}>Umsatzsteuer-ID: DE288598216</Text>
+              <Text style={styles.companyLine}>Steuer-Nr.: 135 5247 4113</Text>
+              <Text style={styles.companyLine}>IBAN: DE62 1001 1001 2623 2363 37</Text>
+              <Text style={styles.companyLine}>BIC: NTSBDEB1XXX</Text>
+            </View>
           </View>
         </View>
       </Page>

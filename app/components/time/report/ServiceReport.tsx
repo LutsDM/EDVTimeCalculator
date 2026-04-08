@@ -80,16 +80,8 @@ export default function ServiceReport({
 
       {/* HEADER */}
       <div className="mb-8">
-        <div className="flex flex-col sm:flex-row sm:justify-between gap-6">
-
-          {/* LEFT COLUMN */}
-          <div className="text-xs leading-relaxed">
-            EDV SERVICE Samirae<br />
-            Schloßstr. 33<br />
-            51427 Bergisch Gladbach<br />
-            Tel. 02204 96 70 720<br />
-            Mobil 0163 2496741
-
+        <div className="flex items-start justify-between gap-4">
+          <div className="text-[12px] leading-relaxed">
             {customer && (
               <div className="mt-4">
                 <div className="font-semibold">Kunde</div>
@@ -116,74 +108,76 @@ export default function ServiceReport({
               </div>
             )}
           </div>
-
-          {/* LOGO */}
-          <div className="self-start">
+          <div className="self-center flex items-center gap-0.5 h-[40px]">
             <img
               src="/LOGO.png"
               alt="EDV Service Samirae"
-              width={265}
-              height={132}
+              width={88}
+              height={40}
               style={{ objectFit: "contain" }}
             />
+            <div className="leading-tight pt-5">
+              <div className="font-extrabold text-base w-[78px]">SERVICE</div>
+              <div className="text-base w-[78px]">SAMIRAE</div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* TITLE — крупнее и жирнее */}
-      <div className="text-right text-sm leading-relaxed mb-4">
-        <strong className="text-lg font-bold block mb-1">Servicebericht</strong>
-        Arbeitsdatum: {arbeitsdatum}<br />
-        Auftragsnummer: {auftragsnummer}<br />
-        {kundenNr && <>Kunden Nr: {kundenNr}<br /></>}
+      <div className="mb-4 text-right text-sm leading-relaxed">
+          <strong className="text-lg font-bold block mb-1">Servicebericht</strong>
+          Arbeitsdatum: {arbeitsdatum}<br />
+          Auftragsnummer: {auftragsnummer}<br />
+          {kundenNr && <>Kunden Nr: {kundenNr}<br /></>}
       </div>
 
       {/* LEISTUNGEN */}
-      <table className="w-full border border-gray-300 mb-6">
+      <table className="w-full border border-gray-300 mb-6 text-sm">
         <tbody>
           <tr className="border border-gray-300">
-            <td className="p-2">
+            <td className="p-1">
               Arbeitszeit<br />
               <span className="text-xs text-gray-500">
                 ({arbeitszeitRange})
               </span>
             </td>
-            <td className="p-2 text-right">{arbeitszeitText}</td>
+            <td className="p-1 text-right">{arbeitszeitText}</td>
           </tr>
 
           {abfahrtText && abfahrtRange && (
             <tr className="border border-gray-300">
-              <td className="p-2">
+              <td className="p-1">
                 Fahrzeit<br />
                 <span className="text-xs text-gray-500">
                   ({abfahrtRange})
                 </span>
               </td>
-              <td className="p-2 text-right">{abfahrtText}</td>
+              <td className="p-1 text-right">{abfahrtText}</td>
             </tr>
           )}
 
           <tr className="border border-gray-300 font-bold">
-            <td className="p-2">Gesamtzeit</td>
-            <td className="p-2 text-right">{gesamtzeitText}</td>
+            <td className="p-1">Gesamtzeit</td>
+            <td className="p-1 text-right">{gesamtzeitText}</td>
           </tr>
 
           <tr className="border border-gray-300">
-            <td className="p-2">Stundensatz</td>
-            <td className="p-2 text-right">{stundensatz}</td>
+            <td className="p-1">Stundensatz</td>
+            <td className="p-1 text-right">{stundensatz}</td>
           </tr>
 
           <tr className="border border-gray-300">
-            <td className="p-2">Mitarbeiteranzahl</td>
-            <td className="p-2 text-right">{mitarbeiterAnzahl}</td>
+            <td className="p-1">Mitarbeiteranzahl</td>
+            <td className="p-1 text-right">{mitarbeiterAnzahl}</td>
           </tr>
 
           {lineItems?.length ? (
             <>
               {lineItems.map((item) => (
                 <tr key={item.id} className="border border-gray-300">
-                  <td className="p-2">{item.title}</td>
-                  <td className="p-2 text-right">
+                  <td className="p-1">{item.title}</td>
+                  <td className="p-1 text-right">
                     {(item.amountCents / 100).toFixed(2).replace(".", ",")} €
                   </td>
                 </tr>
@@ -277,6 +271,38 @@ export default function ServiceReport({
                 {customer ? `${customer.firstName} ${customer.lastName}` : "Kunde"}
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+      <div className="mt-6 text-[10px] leading-relaxed">
+        <div className="mb-2 border-b border-gray-300" />
+        <div className="grid grid-cols-[1fr_1fr_1fr_1.25fr] gap-x-0.5 items-stretch">
+          <div className="h-full">
+            <div className="font-semibold">Standort Monheim:</div>
+            <div>EDV-SERVICE Samirae</div>
+            <div>Frank Samirae</div>
+            <div>Franz-Boehm-Str. 3</div>
+            <div>40789 Monheim</div>
+          </div>
+          <div className="h-full">
+            <div className="font-semibold">Standort Bergisch Gladbach:</div>
+            <div>EDV-SERVICE Samirae</div>
+            <div>Frank Samirae</div>
+            <div>Schloßstrasse 33</div>
+            <div>51429 Bergisch Gladbach</div>
+          </div>
+          <div className="h-full">
+            <div>Telefon: 02173 / 9939835</div>
+            <div>Telefon: 02204 / 96 70 720</div>
+            <div>Mobil: 0221 / 677 744 67</div>
+            <div>E-Mail: mail@edvsamirae.de</div>
+            <div>Web: www.edvsamirae.de</div>
+          </div>
+          <div className="h-full">
+            <div>Umsatzsteuer-ID: DE288598216</div>
+            <div>Steuer-Nr.: 135 5247 4113</div>
+            <div className="whitespace-nowrap">IBAN: DE62 1001 1001 2623 2363 37</div>
+            <div>BIC: NTSBDEB1XXX</div>
           </div>
         </div>
       </div>
