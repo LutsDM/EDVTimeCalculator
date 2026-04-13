@@ -47,6 +47,43 @@ type Props = {
 
 }
 
+const ORDER_DETAILS_FIRST_PAGE_TARGET_CHARS = 600
+const ORDER_DETAILS_MIN_KEEP_ON_FIRST_PAGE = 450
+
+function splitOrderDetailsForPdf(orderDetails: string | null): {
+  firstPart: string | null
+  secondPart: string | null
+} {
+  const normalized = orderDetails?.replace(/\r\n/g, "\n").trim() ?? ""
+  if (!normalized) {
+    return { firstPart: null, secondPart: null }
+  }
+
+  if (normalized.length <= ORDER_DETAILS_FIRST_PAGE_TARGET_CHARS) {
+    return { firstPart: normalized, secondPart: null }
+  }
+
+  const splitAtNewline = normalized.lastIndexOf(
+    "\n",
+    ORDER_DETAILS_FIRST_PAGE_TARGET_CHARS
+  )
+  const splitAtSpace = normalized.lastIndexOf(
+    " ",
+    ORDER_DETAILS_FIRST_PAGE_TARGET_CHARS
+  )
+  const candidateSplit = Math.max(splitAtNewline, splitAtSpace)
+
+  const splitIndex =
+    candidateSplit >= ORDER_DETAILS_MIN_KEEP_ON_FIRST_PAGE
+      ? candidateSplit
+      : ORDER_DETAILS_FIRST_PAGE_TARGET_CHARS
+
+  return {
+    firstPart: normalized.slice(0, splitIndex).trim(),
+    secondPart: normalized.slice(splitIndex).trim(),
+  }
+}
+
 const styles = StyleSheet.create({
   page: {
     padding: 24,
@@ -124,17 +161,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     columnGap: 0,
-    height: 132,
+    height: 66,
     marginTop: 2,
   },
   titleLogo: {
-    width: 300,
-    height: 132,
+    width: 150,
+    height: 66,
+    marginRight: -36,
     objectFit: "contain",
   },
   brandTextBlock: {
     justifyContent: "center",
-    paddingTop: 0,
+    paddingTop: 14,
     marginLeft: -6,
   },
   brandService: {
@@ -317,6 +355,8 @@ export default function ServiceReportPdf(props: Props) {
     extraBrutto,
     serviceBrutto
   } = props
+  const { firstPart: orderDetailsFirstPart, secondPart: orderDetailsSecondPart } =
+    splitOrderDetailsForPdf(orderDetails)
 
   return (
     <Document>
@@ -493,13 +533,21 @@ export default function ServiceReportPdf(props: Props) {
         </View>
 
 
-        {/* ORDER DETAILS — Text wraps across pages by default (no minPresenceAhead, it blocked breaks) */}
-        {orderDetails?.trim() ? (
+        {/* ORDER DETAILS (first page part) */}
+        {orderDetailsFirstPart ? (
           <View style={styles.orderDetailsBlock}>
             <Text style={styles.orderDetailsTitle}>Ausführung der Arbeiten</Text>
-            <Text style={styles.orderDetailsBody}>
-              {orderDetails.replace(/\r\n/g, "\n")}
+            <Text style={styles.orderDetailsBody}>{orderDetailsFirstPart}</Text>
+          </View>
+        ) : null}
+
+        {/* ORDER DETAILS (continued on next page to avoid signatures alone) */}
+        {orderDetailsSecondPart ? (
+          <View break style={styles.orderDetailsBlock}>
+            <Text style={styles.orderDetailsTitle}>
+              Ausführung der Arbeiten (Fortsetzung)
             </Text>
+            <Text style={styles.orderDetailsBody}>{orderDetailsSecondPart}</Text>
           </View>
         ) : null}
 
