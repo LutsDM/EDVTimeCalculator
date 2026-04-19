@@ -23,6 +23,7 @@ export default function CustomerModal({
     firstName: initialValue?.firstName ?? "",
     lastName: initialValue?.lastName ?? "",
     phone: initialValue?.phone ?? "",
+    mobilePhone: initialValue?.mobilePhone ?? "",
     postalCode: initialValue?.postalCode ?? "",
     city: initialValue?.city ?? "",
     street: initialValue?.street ?? "",
@@ -100,6 +101,13 @@ export default function CustomerModal({
           className="border rounded-md p-2 text-sm bg-gray-50 text-gray-800"
           value={form.phone}
           onChange={e => update("phone", e.target.value)}
+        />
+
+<input
+          placeholder="Mobiltelefon"
+          className="border rounded-md p-2 text-sm bg-gray-50 text-gray-800"
+          value={form.mobilePhone}
+          onChange={e => update("mobilePhone", e.target.value)}
         />
 
         <div className="grid grid-cols-3 gap-2">

@@ -3,6 +3,10 @@
 import { LineItem } from "@/app/types/lineItem";
 import { Employee } from "../lib/employees";
 import { Customer } from "@/app/types/customer";
+import {
+  ORDER_FORM_AGB_TITLE,
+  parseOrderFormAgbLines,
+} from "./orderFormAgbContent";
 
 type OrderFormReportProps = {
   arbeitsdatum: string;
@@ -29,7 +33,6 @@ export default function OrderFormReport({
   mitarbeiterAnzahl,
   orderDetails,
   lineItems,
-  extraBrutto,
   employees,
   customer,
   auftragPasswort,
@@ -58,6 +61,7 @@ export default function OrderFormReport({
                   {customer.postalCode} {customer.city}
                 </div>
                 {customer.phone && <div>Tel. {customer.phone}</div>}
+                {customer.mobilePhone && <div>Mobil: {customer.mobilePhone}</div>}
               </div>
             )}
             {auftragPasswort?.trim() ? (
@@ -75,9 +79,9 @@ export default function OrderFormReport({
               height={40}
               style={{ objectFit: "contain" }}
             />
-            <div className="leading-tight pt-4">
-              <div className="font-extrabold text-base">SERVICE</div>
-              <div className="text-base">SAMIRAE</div>
+            <div className="leading-tight pt-5">
+              <div className="font-extrabold text-base w-[78px]">SERVICE</div>
+              <div className="text-base w-[78px]">SAMIRAE</div>
             </div>
           </div>
         </div>
@@ -150,6 +154,9 @@ export default function OrderFormReport({
               </li>
             </ol>
           </div>
+          <p className="mb-4 text-sm leading-snug text-gray-900">
+          Auftragserteilung. Es gelten unsere AGB siehe nächste Seite.
+          </p>
           <div className="grid grid-cols-2 gap-8 text-sm">
             <div className="text-center">
               <strong>Ausgeführt durch:</strong>
@@ -222,6 +229,34 @@ export default function OrderFormReport({
           </div>
         </div>
       </div>
+
+      {/* AGB — immer neue Seite beim Drucken */}
+      <section
+        className="mt-16 border-t-2 border-gray-300 pt-6 print:mt-0 print:border-t-0 print:pt-3 break-before-page print:break-before-page"
+        style={{ pageBreakBefore: "always", breakBefore: "page" }}
+      >
+        <h2 className="text-center text-xl font-bold leading-tight text-gray-900 print:text-lg">
+          {ORDER_FORM_AGB_TITLE}
+        </h2>
+        <div className="mt-4 text-justify text-sm leading-relaxed text-gray-900 print:text-[12px] print:leading-snug">
+          {parseOrderFormAgbLines().map((line, i) =>
+            line.text === "" ? (
+              <div key={i} className="h-2" aria-hidden />
+            ) : (
+              <div
+                key={i}
+                className={
+                  line.bold
+                    ? "mt-3 font-bold first:mt-0 print:mt-2"
+                    : undefined
+                }
+              >
+                {line.text}
+              </div>
+            )
+          )}
+        </div>
+      </section>
     </div>
   );
 }

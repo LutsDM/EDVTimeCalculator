@@ -11,6 +11,10 @@ import {
 import { Employee } from "../lib/employees";
 import { Customer } from "@/app/types/customer";
 import { LineItem } from "@/app/types/lineItem";
+import {
+  ORDER_FORM_AGB_TITLE,
+  splitOrderFormAgbSectionsIntoColumns,
+} from "./orderFormAgbContent";
 
 type OrderFormPdfProps = {
   arbeitsdatum: string;
@@ -81,12 +85,26 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     columnGap: 0,
-    height: 132,
+    height: 66,
     marginTop: 2,
   },
-  titleLogo: { width: 300, height: 132, objectFit: "contain" },
-  brandTextBlock: { justifyContent: "center", paddingTop: 0, marginLeft: -6 },
-  brandService: { fontSize: 13, fontWeight: 900, lineHeight: 1.05, fontFamily: "Helvetica" },
+  titleLogo: {
+    width: 150,
+    height: 66,
+    marginRight: -36,
+    objectFit: "contain",
+  },
+  brandTextBlock: {
+    justifyContent: "center",
+    paddingTop: 14,
+    marginLeft: -6,
+  },
+  brandService: {
+    fontSize: 13,
+    fontWeight: 900,
+    lineHeight: 1.05,
+    fontFamily: "Helvetica",
+  },
   brandSamirae: { fontSize: 13, lineHeight: 1.05, fontFamily: "Helvetica" },
   brandLine: { width: 82 },
   title: { fontSize: 20, fontWeight: "bold", marginBottom: 6 },
@@ -122,6 +140,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     alignItems: "flex-start",
   },
+  agbNotice: {
+    fontSize: 11,
+    lineHeight: 1.4,
+    marginBottom: 12,
+  },
   signatureBox: { width: "48%", textAlign: "center" },
   signatureImageWrapper: { height: 40, justifyContent: "flex-end" },
   signatureImage: { width: "100%", height: "100%", objectFit: "contain" },
@@ -131,7 +154,88 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 6,
   },
+  agbPage: {
+    paddingTop: 12,
+    paddingHorizontal: 10,
+    paddingBottom: 8,
+    fontFamily: "Helvetica",
+    color: "#111",
+  },
+  agbDocumentTitle: {
+    fontSize: 8,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 2,
+  },
+  agbBody: {
+    fontSize: 5,
+    lineHeight: 1.12,
+    textAlign: "justify",
+  },
+
+  agbHeadingLine: {
+    fontSize: 5,
+    lineHeight: 1.12,
+    textAlign: "justify",
+    fontWeight: "bold",
+    marginTop: 1,
+    marginBottom: 1,
+  },
+  agbColumns: {
+    flexDirection: "row",
+    columnGap: 10,
+    alignItems: "flex-start",
+  },
+
+  agbColumn: {
+    flex: 1,
+  },
+
+  agbSection: {
+    marginBottom: 2,
+  },
 });
+
+const [agbLeftColumn, agbRightColumn] = splitOrderFormAgbSectionsIntoColumns();
+
+function OrderFormContactsFooter() {
+  return (
+    <View style={styles.contactsFooter} fixed>
+      <View style={styles.headerDivider} />
+      <View style={[styles.headerBlocksRow, styles.contactsContent]}>
+        <View style={styles.headerBlock}>
+          <Text style={styles.blockTitle}>Standort Monheim:</Text>
+          <Text style={styles.companyLine}>EDV-SERVICE Samirae</Text>
+          <Text style={styles.companyLine}>Frank Samirae</Text>
+          <Text style={styles.companyLine}>Franz-Boehm-Str. 3</Text>
+          <Text style={styles.companyLine}>40789 Monheim</Text>
+        </View>
+        <View style={styles.headerBlock}>
+          <Text style={styles.blockTitle}>Standort Bergisch Gladbach:</Text>
+          <Text style={styles.companyLine}>EDV-SERVICE Samirae</Text>
+          <Text style={styles.companyLine}>Frank Samirae</Text>
+          <Text style={styles.companyLine}>Schloßstrasse 33</Text>
+          <Text style={styles.companyLine}>51429 Bergisch Gladbach</Text>
+        </View>
+        <View style={styles.headerBlock}>
+          <Text style={styles.companyLine}>Telefon: 02173 / 9939835</Text>
+          <Text style={styles.companyLine}>Telefon: 02204 / 96 70 720</Text>
+          <Text style={styles.companyLine}>Mobil: 0221 / 677 744 67</Text>
+          <Text style={styles.companyLine}>E-Mail: mail@edvsamirae.de</Text>
+          <Text style={styles.companyLine}>Web: www.edvsamirae.de</Text>
+        </View>
+        <View style={[styles.headerBlock, styles.headerBlockWide]}>
+          <Text style={styles.companyLine}>Umsatzsteuer-ID: DE288598216</Text>
+          <Text style={styles.companyLine}>Steuer-Nr.: 135 5247 4113</Text>
+          <Text style={styles.companyLine}>
+            IBAN: DE62 1001 1001 2623 2363 37
+          </Text>
+          <Text style={styles.companyLine}>BIC: NTSBDEB1XXX</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
 
 export default function OrderFormPdf(props: OrderFormPdfProps) {
   const {
@@ -156,36 +260,43 @@ export default function OrderFormPdf(props: OrderFormPdfProps) {
         <View style={styles.headerRow}>
           <View style={styles.headerTopRow}>
             <View>
-            {customer && (
-              <View style={styles.customerBlock}>
-                <Text style={styles.bold}>Kunde</Text>
-                {customer.type === "company" && customer.companyName && (
-                  <Text>{customer.companyName}</Text>
-                )}
-                <Text>
-                  {customer.firstName} {customer.lastName}
-                </Text>
-                <Text>
-                  {customer.street} {customer.houseNumber}
-                </Text>
-                <Text>
-                  {customer.postalCode} {customer.city}
-                </Text>
-                {customer.phone && <Text>Tel. {customer.phone}</Text>}
-              </View>
-            )}
-            {auftragPasswort?.trim() ? (
-              <View style={styles.passwortBlock}>
-                <Text style={styles.bold}>Passwort</Text>
-                <Text>{auftragPasswort}</Text>
-              </View>
-            ) : null}
+              {customer && (
+                <View style={styles.customerBlock}>
+                  <Text style={styles.bold}>Kunde</Text>
+                  {customer.type === "company" && customer.companyName && (
+                    <Text>{customer.companyName}</Text>
+                  )}
+                  <Text>
+                    {customer.firstName} {customer.lastName}
+                  </Text>
+                  <Text>
+                    {customer.street} {customer.houseNumber}
+                  </Text>
+                  <Text>
+                    {customer.postalCode} {customer.city}
+                  </Text>
+                  {customer.phone && <Text>Tel. {customer.phone}</Text>}
+                  {customer.mobilePhone && (
+                    <Text>Mobil: {customer.mobilePhone}</Text>
+                  )}
+                </View>
+              )}
+              {auftragPasswort?.trim() ? (
+                <View style={styles.passwortBlock}>
+                  <Text style={styles.bold}>Passwort</Text>
+                  <Text>{auftragPasswort}</Text>
+                </View>
+              ) : null}
             </View>
             <View style={styles.titleLeft}>
               <Image src="/LOGO.png" style={styles.titleLogo} />
               <View style={styles.brandTextBlock}>
-                <Text style={[styles.brandService, styles.brandLine]}>SERVICE</Text>
-                <Text style={[styles.brandSamirae, styles.brandLine]}>SAMIRAE</Text>
+                <Text style={[styles.brandService, styles.brandLine]}>
+                  SERVICE
+                </Text>
+                <Text style={[styles.brandSamirae, styles.brandLine]}>
+                  SAMIRAE
+                </Text>
               </View>
             </View>
           </View>
@@ -225,7 +336,9 @@ export default function OrderFormPdf(props: OrderFormPdfProps) {
                   key={item.id}
                   style={[
                     styles.tableRow,
-                    ...(index === lineItems.length - 1 ? [styles.tableRowNoBottom] : []),
+                    ...(index === lineItems.length - 1
+                      ? [styles.tableRowNoBottom]
+                      : []),
                   ]}
                 >
                   <Text style={styles.tableCellLeft}>{item.title}</Text>
@@ -260,12 +373,12 @@ export default function OrderFormPdf(props: OrderFormPdfProps) {
             </Text>
             <Text style={styles.disclaimerItem}>
               1. Dass ich darüber belehrt wurde, dass mir ein 14-tägiges
-              Widerrufsrecht zusteht. Eine entsprechende Widerrufsbelehrung und ein
-              Muster-Widerrufsformular wurden mir ausgehändigt.
+              Widerrufsrecht zusteht. Eine entsprechende Widerrufsbelehrung und
+              ein Muster-Widerrufsformular wurden mir ausgehändigt.
             </Text>
             <Text style={styles.disclaimerItem}>
-              2. Dass ich ausdrücklich zustimme, dass die beauftragten Arbeiten vor
-              Ablauf der Widerrufsfrist beginnen.
+              2. Dass ich ausdrücklich zustimme, dass die beauftragten Arbeiten
+              vor Ablauf der Widerrufsfrist beginnen.
             </Text>
             <Text style={styles.disclaimerItem}>
               3. Dass ich darüber in Kenntnis gesetzt wurde, dass ich mein
@@ -277,12 +390,18 @@ export default function OrderFormPdf(props: OrderFormPdfProps) {
               erbrachten Leistungen einen Wertersatz zu leisten habe.
             </Text>
           </View>
+          <Text style={styles.agbNotice}>
+            Auftragserteilung. Es gelten unsere AGB siehe nächste Seite.
+          </Text>
           <View style={styles.signaturesRow}>
             <View style={styles.signatureBox}>
               <Text style={styles.bold}>Ausgeführt durch:</Text>
               <View style={styles.signatureImageWrapper}>
                 {signatureEmployee ? (
-                  <Image src={signatureEmployee} style={styles.signatureImage} />
+                  <Image
+                    src={signatureEmployee}
+                    style={styles.signatureImage}
+                  />
                 ) : (
                   <Text style={styles.muted}>Bitte unterschreiben</Text>
                 )}
@@ -308,36 +427,55 @@ export default function OrderFormPdf(props: OrderFormPdfProps) {
             </View>
           </View>
         </View>
-        <View style={styles.contactsFooter} fixed>
-          <View style={styles.headerDivider} />
-          <View style={[styles.headerBlocksRow, styles.contactsContent]}>
-            <View style={styles.headerBlock}>
-              <Text style={styles.blockTitle}>Standort Monheim:</Text>
-              <Text style={styles.companyLine}>EDV-SERVICE Samirae</Text>
-              <Text style={styles.companyLine}>Frank Samirae</Text>
-              <Text style={styles.companyLine}>Franz-Boehm-Str. 3</Text>
-              <Text style={styles.companyLine}>40789 Monheim</Text>
-            </View>
-            <View style={styles.headerBlock}>
-              <Text style={styles.blockTitle}>Standort Bergisch Gladbach:</Text>
-              <Text style={styles.companyLine}>EDV-SERVICE Samirae</Text>
-              <Text style={styles.companyLine}>Frank Samirae</Text>
-              <Text style={styles.companyLine}>Schloßstrasse 33</Text>
-              <Text style={styles.companyLine}>51429 Bergisch Gladbach</Text>
-            </View>
-            <View style={styles.headerBlock}>
-              <Text style={styles.companyLine}>Telefon: 02173 / 9939835</Text>
-              <Text style={styles.companyLine}>Telefon: 02204 / 96 70 720</Text>
-              <Text style={styles.companyLine}>Mobil: 0221 / 677 744 67</Text>
-              <Text style={styles.companyLine}>E-Mail: mail@edvsamirae.de</Text>
-              <Text style={styles.companyLine}>Web: www.edvsamirae.de</Text>
-            </View>
-            <View style={[styles.headerBlock, styles.headerBlockWide]}>
-              <Text style={styles.companyLine}>Umsatzsteuer-ID: DE288598216</Text>
-              <Text style={styles.companyLine}>Steuer-Nr.: 135 5247 4113</Text>
-              <Text style={styles.companyLine}>IBAN: DE62 1001 1001 2623 2363 37</Text>
-              <Text style={styles.companyLine}>BIC: NTSBDEB1XXX</Text>
-            </View>
+        <OrderFormContactsFooter />
+      </Page>
+
+      <Page size="A4" style={styles.agbPage}>
+        <Text style={styles.agbDocumentTitle}>{ORDER_FORM_AGB_TITLE}</Text>
+
+        <View style={styles.agbColumns}>
+          <View style={styles.agbColumn}>
+            {agbLeftColumn.map((section, sectionIndex) => (
+              <View key={`left-${sectionIndex}`} style={styles.agbSection}>
+                {section.lines.map((line, lineIndex) =>
+                  line.text === "" ? (
+                    <Text key={lineIndex} style={styles.agbBody}>
+                      {"\n"}
+                    </Text>
+                  ) : (
+                    <Text
+                      key={lineIndex}
+                      style={line.bold ? styles.agbHeadingLine : styles.agbBody}
+                    >
+                      {line.text}
+                      
+                    </Text>
+                  ),
+                )}
+              </View>
+            ))}
+          </View>
+
+          <View style={styles.agbColumn}>
+            {agbRightColumn.map((section, sectionIndex) => (
+              <View key={`right-${sectionIndex}`} style={styles.agbSection}>
+                {section.lines.map((line, lineIndex) =>
+                  line.text === "" ? (
+                    <Text key={lineIndex} style={styles.agbBody}>
+                      {"\n"}
+                    </Text>
+                  ) : (
+                    <Text
+                      key={lineIndex}
+                      style={line.bold ? styles.agbHeadingLine : styles.agbBody}
+                    >
+                      {line.text}
+                      {"\n"}
+                    </Text>
+                  ),
+                )}
+              </View>
+            ))}
           </View>
         </View>
       </Page>

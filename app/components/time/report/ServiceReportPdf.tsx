@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   Document,
@@ -7,81 +7,80 @@ import {
   View,
   StyleSheet,
   Image,
-} from "@react-pdf/renderer"
-import { Employee } from "../lib/employees"
-import { Customer } from "@/app/types/customer"
-import { LineItem } from "@/app/types/lineItem"
+} from "@react-pdf/renderer";
+import { Employee } from "../lib/employees";
+import { Customer } from "@/app/types/customer";
+import { LineItem } from "@/app/types/lineItem";
 
 type Props = {
-  arbeitsdatum: string
-  auftragsnummer: string
-  kundenNr?: string
+  arbeitsdatum: string;
+  auftragsnummer: string;
+  kundenNr?: string;
 
-  arbeitszeitText: string
-  arbeitszeitRange: string
+  arbeitszeitText: string;
+  arbeitszeitRange: string;
 
-  abfahrtText?: string
-  abfahrtRange?: string
+  abfahrtText?: string;
+  abfahrtRange?: string;
 
-  gesamtzeitText: string
+  gesamtzeitText: string;
 
-  stundensatz: string
-  mitarbeiterAnzahl: number
+  stundensatz: string;
+  mitarbeiterAnzahl: number;
 
-  netto: string
-  mwst: string
-  brutto: string
+  netto: string;
+  mwst: string;
+  brutto: string;
 
-  employees: Employee[]
-  customer?: Customer | null
+  employees: Employee[];
+  customer?: Customer | null;
 
-  signatureKunde: string | null
-  signatureEmployee: string | null
+  signatureKunde: string | null;
+  signatureEmployee: string | null;
 
-  orderDetails: string | null
+  orderDetails: string | null;
 
-  lineItems?: LineItem[]
-  extraBrutto?: string
+  lineItems?: LineItem[];
+  extraBrutto?: string;
 
-  serviceBrutto?: string
+  serviceBrutto?: string;
+};
 
-}
-
-const ORDER_DETAILS_FIRST_PAGE_TARGET_CHARS = 600
-const ORDER_DETAILS_MIN_KEEP_ON_FIRST_PAGE = 450
+const ORDER_DETAILS_FIRST_PAGE_TARGET_CHARS = 600;
+const ORDER_DETAILS_MIN_KEEP_ON_FIRST_PAGE = 450;
 
 function splitOrderDetailsForPdf(orderDetails: string | null): {
-  firstPart: string | null
-  secondPart: string | null
+  firstPart: string | null;
+  secondPart: string | null;
 } {
-  const normalized = orderDetails?.replace(/\r\n/g, "\n").trim() ?? ""
+  const normalized = orderDetails?.replace(/\r\n/g, "\n").trim() ?? "";
   if (!normalized) {
-    return { firstPart: null, secondPart: null }
+    return { firstPart: null, secondPart: null };
   }
 
   if (normalized.length <= ORDER_DETAILS_FIRST_PAGE_TARGET_CHARS) {
-    return { firstPart: normalized, secondPart: null }
+    return { firstPart: normalized, secondPart: null };
   }
 
   const splitAtNewline = normalized.lastIndexOf(
     "\n",
-    ORDER_DETAILS_FIRST_PAGE_TARGET_CHARS
-  )
+    ORDER_DETAILS_FIRST_PAGE_TARGET_CHARS,
+  );
   const splitAtSpace = normalized.lastIndexOf(
     " ",
-    ORDER_DETAILS_FIRST_PAGE_TARGET_CHARS
-  )
-  const candidateSplit = Math.max(splitAtNewline, splitAtSpace)
+    ORDER_DETAILS_FIRST_PAGE_TARGET_CHARS,
+  );
+  const candidateSplit = Math.max(splitAtNewline, splitAtSpace);
 
   const splitIndex =
     candidateSplit >= ORDER_DETAILS_MIN_KEEP_ON_FIRST_PAGE
       ? candidateSplit
-      : ORDER_DETAILS_FIRST_PAGE_TARGET_CHARS
+      : ORDER_DETAILS_FIRST_PAGE_TARGET_CHARS;
 
   return {
     firstPart: normalized.slice(0, splitIndex).trim(),
     secondPart: normalized.slice(splitIndex).trim(),
-  }
+  };
 }
 
 const styles = StyleSheet.create({
@@ -293,12 +292,12 @@ const styles = StyleSheet.create({
   footerSignatures: {
     marginTop: 18,
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-end",
+    justifyContent: "space-around",
+    alignItems: "flex-start",
   },
 
   signatureBox: {
-    width: "35%",
+    width: "48%",
     textAlign: "center",
   },
 
@@ -318,7 +317,6 @@ const styles = StyleSheet.create({
     borderBottomColor: "#555",
     marginTop: 4,
     marginBottom: 6,
-
   },
 
   totalsSubsum: {
@@ -328,8 +326,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
     fontWeight: "bold",
   },
-
-})
+});
 
 export default function ServiceReportPdf(props: Props) {
   const {
@@ -353,10 +350,12 @@ export default function ServiceReportPdf(props: Props) {
     orderDetails,
     lineItems,
     extraBrutto,
-    serviceBrutto
-  } = props
-  const { firstPart: orderDetailsFirstPart, secondPart: orderDetailsSecondPart } =
-    splitOrderDetailsForPdf(orderDetails)
+    serviceBrutto,
+  } = props;
+  const {
+    firstPart: orderDetailsFirstPart,
+    secondPart: orderDetailsSecondPart,
+  } = splitOrderDetailsForPdf(orderDetails);
 
   return (
     <Document>
@@ -365,39 +364,45 @@ export default function ServiceReportPdf(props: Props) {
         <View style={styles.headerRow}>
           <View style={styles.headerTopRow}>
             <View>
-            {customer && (
-              <View style={styles.customerBlock}>
-                <Text style={styles.bold}>Kunde</Text>
+              {customer && (
+                <View style={styles.customerBlock}>
+                  <Text style={styles.bold}>Kunde</Text>
 
-                {customer.type === "company" && customer.companyName && (
-                  <Text>{customer.companyName}</Text>
-                )}
+                  {customer.type === "company" && customer.companyName && (
+                    <Text>{customer.companyName}</Text>
+                  )}
 
-                <Text>
-                  {customer.firstName} {customer.lastName}
-                </Text>
+                  <Text>
+                    {customer.firstName} {customer.lastName}
+                  </Text>
 
-                <Text>
-                  {customer.street} {customer.houseNumber}
-                </Text>
+                  <Text>
+                    {customer.street} {customer.houseNumber}
+                  </Text>
 
-                <Text>
-                  {customer.postalCode} {customer.city}
-                </Text>
+                  <Text>
+                    {customer.postalCode} {customer.city}
+                  </Text>
 
-                {customer.phone && <Text>Tel. {customer.phone}</Text>}
-              </View>
-            )}
+                  {customer.phone && <Text>Tel. {customer.phone}</Text>}
+                  {customer.mobilePhone && (
+                    <Text>Mobil: {customer.mobilePhone}</Text>
+                  )}
+                </View>
+              )}
             </View>
             <View style={styles.titleLeft}>
               <Image src="/LOGO.png" style={styles.titleLogo} />
               <View style={styles.brandTextBlock}>
-                <Text style={[styles.brandService, styles.brandLine]}>SERVICE</Text>
-                <Text style={[styles.brandSamirae, styles.brandLine]}>SAMIRAE</Text>
+                <Text style={[styles.brandService, styles.brandLine]}>
+                  SERVICE
+                </Text>
+                <Text style={[styles.brandSamirae, styles.brandLine]}>
+                  SAMIRAE
+                </Text>
               </View>
             </View>
           </View>
-
         </View>
 
         {/* TITLE */}
@@ -433,11 +438,15 @@ export default function ServiceReportPdf(props: Props) {
           )}
 
           <View style={styles.tableRow}>
-            <Text style={[styles.tableCellLeft, styles.ledgerText, styles.bold]}>
+            <Text
+              style={[styles.tableCellLeft, styles.ledgerText, styles.bold]}
+            >
               Gesamtzeit
             </Text>
             <View style={styles.tableCellRight}>
-              <Text style={[styles.ledgerText, styles.bold]}>{gesamtzeitText}</Text>
+              <Text style={[styles.ledgerText, styles.bold]}>
+                {gesamtzeitText}
+              </Text>
             </View>
           </View>
 
@@ -469,7 +478,7 @@ export default function ServiceReportPdf(props: Props) {
               <View style={styles.divider} />
 
               {lineItems.map((item, index) => {
-                const isLast = index === lineItems.length - 1
+                const isLast = index === lineItems.length - 1;
 
                 return (
                   <View
@@ -484,14 +493,12 @@ export default function ServiceReportPdf(props: Props) {
                     </Text>
                     <View style={styles.tableCellRight}>
                       <Text style={styles.ledgerText}>
-                        {(item.amountCents / 100)
-                          .toFixed(2)
-                          .replace(".", ",")}{" "}
+                        {(item.amountCents / 100).toFixed(2).replace(".", ",")}{" "}
                         €
                       </Text>
                     </View>
                   </View>
-                )
+                );
               })}
             </>
           ) : null}
@@ -532,11 +539,12 @@ export default function ServiceReportPdf(props: Props) {
           </View>
         </View>
 
-
         {/* ORDER DETAILS (first page part) */}
         {orderDetailsFirstPart ? (
           <View style={styles.orderDetailsBlock}>
-            <Text style={styles.orderDetailsTitle}>Ausführung der Arbeiten</Text>
+            <Text style={styles.orderDetailsTitle}>
+              Ausführung der Arbeiten
+            </Text>
             <Text style={styles.orderDetailsBody}>{orderDetailsFirstPart}</Text>
           </View>
         ) : null}
@@ -547,7 +555,9 @@ export default function ServiceReportPdf(props: Props) {
             <Text style={styles.orderDetailsTitle}>
               Ausführung der Arbeiten (Fortsetzung)
             </Text>
-            <Text style={styles.orderDetailsBody}>{orderDetailsSecondPart}</Text>
+            <Text style={styles.orderDetailsBody}>
+              {orderDetailsSecondPart}
+            </Text>
           </View>
         ) : null}
 
@@ -608,14 +618,18 @@ export default function ServiceReportPdf(props: Props) {
               <Text style={styles.companyLine}>Web: www.edvsamirae.de</Text>
             </View>
             <View style={[styles.headerBlock, styles.headerBlockWide]}>
-              <Text style={styles.companyLine}>Umsatzsteuer-ID: DE288598216</Text>
+              <Text style={styles.companyLine}>
+                Umsatzsteuer-ID: DE288598216
+              </Text>
               <Text style={styles.companyLine}>Steuer-Nr.: 135 5247 4113</Text>
-              <Text style={styles.companyLine}>IBAN: DE62 1001 1001 2623 2363 37</Text>
+              <Text style={styles.companyLine}>
+                IBAN: DE62 1001 1001 2623 2363 37
+              </Text>
               <Text style={styles.companyLine}>BIC: NTSBDEB1XXX</Text>
             </View>
           </View>
         </View>
       </Page>
     </Document>
-  )
+  );
 }

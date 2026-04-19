@@ -7,6 +7,7 @@ export type Customer = {
   lastName: string
 
   phone?: string
+  mobilePhone?: string
 
   postalCode: string
   city: string
