@@ -581,6 +581,31 @@ export default function TimeCalculator() {
             onPriceChange={setPrice}
             isIOS={isIOS}
           />
+          {/* Customer Modal*/}
+          <button
+            onClick={() => setCustomerModalOpen(true)}
+            className={`
+      w-full rounded-lg py-2 text-sm font-medium border
+      transition-colors flex items-center justify-center gap-2
+      ${
+      hasCustomer
+        ? "bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700"
+        : "bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-200"
+      }
+      active:scale-[0.98]
+      `}
+          >
+            {hasCustomer && <span className="text-base leading-none">✔</span>}
+            <span className="truncate max-w-[85%]">{customerButtonText}</span>
+          </button>
+      
+          {isCustomerModalOpen && (
+            <CustomerModal
+              initialValue={customer}
+              onSave={setCustomer}
+              onClose={() => setCustomerModalOpen(false)}
+            />
+          )}
 
           {/* Order Details*/}
           <button
@@ -611,6 +636,33 @@ export default function TimeCalculator() {
               onClose={() => setOrderDetailsModalOpen(false)}
             />
           )}
+          
+          {/* Passwort — nur Auftragsformular */}
+          <button
+            type="button"
+            onClick={() => setPasswordModalOpen(true)}
+            className={`
+      w-full rounded-lg py-2 text-sm font-medium border
+      transition-colors flex items-center justify-center gap-2
+      ${
+      hasPasswort
+        ? "bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700"
+        : "bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-200"
+      }
+      active:scale-[0.98]
+      `}
+          >
+            {hasPasswort && <span className="text-base leading-none">✔</span>}
+            <span className="truncate max-w-[85%]">{passwortButtonText}</span>
+          </button>
+      
+          {isPasswordModalOpen && (
+            <PasswordModal
+              initialValue={auftragPasswort}
+              onSave={setAuftragPasswort}
+              onClose={() => setPasswordModalOpen(false)}
+            />
+          )}
 
           {/* Custom line items button*/}
           <button
@@ -638,58 +690,7 @@ export default function TimeCalculator() {
             />
           )}
 
-          {/* Customer Modal*/}
-          <button
-            onClick={() => setCustomerModalOpen(true)}
-            className={`
-    w-full rounded-lg py-2 text-sm font-medium border
-    transition-colors flex items-center justify-center gap-2
-    ${
-      hasCustomer
-        ? "bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700"
-        : "bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-200"
-    }
-    active:scale-[0.98]
-  `}
-          >
-            {hasCustomer && <span className="text-base leading-none">✔</span>}
-            <span className="truncate max-w-[85%]">{customerButtonText}</span>
-          </button>
 
-          {isCustomerModalOpen && (
-            <CustomerModal
-              initialValue={customer}
-              onSave={setCustomer}
-              onClose={() => setCustomerModalOpen(false)}
-            />
-          )}
-
-          {/* Passwort — nur Auftragsformular */}
-          <button
-            type="button"
-            onClick={() => setPasswordModalOpen(true)}
-            className={`
-    w-full rounded-lg py-2 text-sm font-medium border
-    transition-colors flex items-center justify-center gap-2
-    ${
-      hasPasswort
-        ? "bg-emerald-600 text-white border-emerald-700 hover:bg-emerald-700"
-        : "bg-gray-100 text-gray-900 border-gray-300 hover:bg-gray-200"
-    }
-    active:scale-[0.98]
-  `}
-          >
-            {hasPasswort && <span className="text-base leading-none">✔</span>}
-            <span className="truncate max-w-[85%]">{passwortButtonText}</span>
-          </button>
-
-          {isPasswordModalOpen && (
-            <PasswordModal
-              initialValue={auftragPasswort}
-              onSave={setAuftragPasswort}
-              onClose={() => setPasswordModalOpen(false)}
-            />
-          )}
 
           {/* Employees selection */}
           <EmployeesBlock
