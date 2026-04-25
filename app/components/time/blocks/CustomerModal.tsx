@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { Customer } from "@/app/types/customer"
-import { useState } from "react"
+import { Customer } from "@/app/types/customer";
+import { useState } from "react";
 
 type Props = {
-  initialValue: Customer | null
-  onSave: (customer: Customer) => void
-  onClose: () => void
-}
+  initialValue: Customer | null;
+  onSave: (customer: Customer) => void;
+  onClose: () => void;
+};
 
 export default function CustomerModal({
   initialValue,
@@ -15,8 +15,8 @@ export default function CustomerModal({
   onClose,
 }: Props) {
   const [type, setType] = useState<Customer["type"]>(
-    initialValue?.type ?? "private"
-  )
+    initialValue?.type ?? "private",
+  );
 
   const [form, setForm] = useState<Customer>({
     type: initialValue?.type ?? "private",
@@ -29,10 +29,10 @@ export default function CustomerModal({
     street: initialValue?.street ?? "",
     houseNumber: initialValue?.houseNumber ?? "",
     companyName: initialValue?.companyName ?? "",
-  })
+  });
 
   function update<K extends keyof Customer>(key: K, value: Customer[K]) {
-    setForm(prev => ({ ...prev, [key]: value }))
+    setForm((prev) => ({ ...prev, [key]: value }));
   }
 
   function handleSave() {
@@ -40,8 +40,8 @@ export default function CustomerModal({
       ...form,
       type,
       companyName: type === "company" ? form.companyName : undefined,
-    })
-    onClose()
+    });
+    onClose();
   }
 
   return (
@@ -77,7 +77,7 @@ export default function CustomerModal({
             className="w-full border rounded-md p-2 text-sm bg-gray-50 text-gray-800"
             placeholder="Firmenname"
             value={form.companyName}
-            onChange={e => update("companyName", e.target.value)}
+            onChange={(e) => update("companyName", e.target.value)}
           />
         )}
 
@@ -86,42 +86,43 @@ export default function CustomerModal({
             placeholder="Vorname"
             className="border rounded-md p-2 text-sm bg-gray-50 text-gray-800"
             value={form.firstName}
-            onChange={e => update("firstName", e.target.value)}
+            onChange={(e) => update("firstName", e.target.value)}
           />
           <input
             placeholder="Nachname"
             className="border rounded-md p-2 text-sm bg-gray-50 text-gray-800"
             value={form.lastName}
-            onChange={e => update("lastName", e.target.value)}
+            onChange={(e) => update("lastName", e.target.value)}
           />
         </div>
 
-        <input
-          placeholder="Telefon"
-          className="border rounded-md p-2 text-sm bg-gray-50 text-gray-800"
-          value={form.phone}
-          onChange={e => update("phone", e.target.value)}
-        />
+        <div className="grid grid-cols-2 gap-2">
+          <input
+            placeholder="Telefon"
+            className="border rounded-md p-2 text-sm bg-gray-50 text-gray-800"
+            value={form.phone}
+            onChange={(e) => update("phone", e.target.value)}
+          />
 
-<input
-          placeholder="Mobiltelefon"
-          className="border rounded-md p-2 text-sm bg-gray-50 text-gray-800"
-          value={form.mobilePhone}
-          onChange={e => update("mobilePhone", e.target.value)}
-        />
-
+          <input
+            placeholder="Mobiltelefon"
+            className="border rounded-md p-2 text-sm bg-gray-50 text-gray-800"
+            value={form.mobilePhone}
+            onChange={(e) => update("mobilePhone", e.target.value)}
+          />
+        </div>
         <div className="grid grid-cols-3 gap-2">
           <input
             placeholder="PLZ"
             className="border rounded-md p-2 text- bg-gray-50 text-gray-800"
             value={form.postalCode}
-            onChange={e => update("postalCode", e.target.value)}
+            onChange={(e) => update("postalCode", e.target.value)}
           />
           <input
             placeholder="Ort"
             className="border rounded-md p-2 text-sm col-span-2 bg-gray-50 text-gray-800"
             value={form.city}
-            onChange={e => update("city", e.target.value)}
+            onChange={(e) => update("city", e.target.value)}
           />
         </div>
 
@@ -130,13 +131,13 @@ export default function CustomerModal({
             placeholder="Straße"
             className="border rounded-md p-2 text-sm col-span-2 bg-gray-50 text-gray-800"
             value={form.street}
-            onChange={e => update("street", e.target.value)}
+            onChange={(e) => update("street", e.target.value)}
           />
           <input
             placeholder="Nr."
             className="border rounded-md p-2 text-sm bg-gray-50 text-gray-800"
             value={form.houseNumber}
-            onChange={e => update("houseNumber", e.target.value)}
+            onChange={(e) => update("houseNumber", e.target.value)}
           />
         </div>
 
@@ -153,5 +154,5 @@ export default function CustomerModal({
         </div>
       </div>
     </div>
-  )
+  );
 }
