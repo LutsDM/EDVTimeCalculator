@@ -2,6 +2,15 @@
 
 import { useMemo, useState } from "react";
 import type { LineItem } from "@/app/types/lineItem";
+import {
+  cleanLineItemsForSave,
+  createEmptyLineItem,
+  formatCents,
+  parseEuroToCents,
+  parseQuantity,
+  sumLineItemsCents,
+  withLineItemTotal,
+} from "../lib/lineItemUtils";
 
 type Props = {
   initialValue: LineItem[];
@@ -9,41 +18,34 @@ type Props = {
   onClose: () => void;
 };
 
-function parseEuroToCents(input: string): number {
-  const normalized = input.trim().replace(",", ".");
-  const value = Number(normalized);
-  if (!Number.isFinite(value)) return 0;
-  return Math.round(value * 100);
-}
-
-function formatCents(cents: number): string {
-  const euros = (cents / 100).toFixed(2);
-  return euros.replace(".", ",");
-}
-
 export default function LineItemsModal({ initialValue, onSave, onClose }: Props) {
   const [items, setItems] = useState<LineItem[]>(initialValue);
 
-  const totalCents = useMemo(
-    () => items.reduce((sum, i) => sum + (i.amountCents || 0), 0),
-    [items]
-  );
+  const totalCents = useMemo(() => sumLineItemsCents(items), [items]);
 
   function addItem() {
-    setItems((prev) => [
-      ...prev,
-      { id: crypto.randomUUID(), title: "", amountCents: 0 },
-    ]);
+    setItems((prev) => [...prev, createEmptyLineItem()]);
   }
 
   function updateTitle(id: string, title: string) {
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, title } : i)));
   }
 
-  function updateAmount(id: string, amountText: string) {
-    const cents = parseEuroToCents(amountText);
+  function updateQuantity(id: string, quantityText: string) {
+    const quantity = parseQuantity(quantityText);
     setItems((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, amountCents: cents } : i))
+      prev.map((i) =>
+        i.id === id ? withLineItemTotal({ ...i, quantity }) : i,
+      ),
+    );
+  }
+
+  function updateUnitPrice(id: string, amountText: string) {
+    const unitPriceCents = parseEuroToCents(amountText);
+    setItems((prev) =>
+      prev.map((i) =>
+        i.id === id ? withLineItemTotal({ ...i, unitPriceCents }) : i,
+      ),
     );
   }
 
@@ -52,14 +54,7 @@ export default function LineItemsModal({ initialValue, onSave, onClose }: Props)
   }
 
   function handleSave() {
-    const cleaned = items
-      .map((i) => ({
-        ...i,
-        title: i.title.trim(),
-      }))
-      .filter((i) => i.title.length > 0 && i.amountCents > 0);
-
-    onSave(cleaned);
+    onSave(cleanLineItemsForSave(items));
     onClose();
   }
 
@@ -84,14 +79,24 @@ export default function LineItemsModal({ initialValue, onSave, onClose }: Props)
               <input
                 value={item.title}
                 onChange={(e) => updateTitle(item.id, e.target.value)}
-                className="col-span-7 rounded-xl border px-3 py-2 text-sm"
+                className="col-span-5 rounded-xl border px-3 py-2 text-sm"
                 placeholder="Titel (z.B. Norton Antivirus)"
               />
 
               <input
                 inputMode="decimal"
-                defaultValue={item.amountCents ? formatCents(item.amountCents) : ""}
-                onChange={(e) => updateAmount(item.id, e.target.value)}
+                defaultValue={item.quantity > 0 ? String(item.quantity) : ""}
+                onChange={(e) => updateQuantity(item.id, e.target.value)}
+                className="col-span-2 rounded-xl border px-3 py-2 text-sm text-right"
+                placeholder="Menge"
+              />
+
+              <input
+                inputMode="decimal"
+                defaultValue={
+                  item.unitPriceCents ? formatCents(item.unitPriceCents) : ""
+                }
+                onChange={(e) => updateUnitPrice(item.id, e.target.value)}
                 className="col-span-4 rounded-xl border px-3 py-2 text-sm text-right"
                 placeholder="Preis € (z.B. 40,00)"
               />
@@ -118,7 +123,8 @@ export default function LineItemsModal({ initialValue, onSave, onClose }: Props)
           </button>
 
           <div className="text-sm">
-            Summe: <span className="font-semibold">{formatCents(totalCents)} €</span>
+            Summe:{" "}
+            <span className="font-semibold">{formatCents(totalCents)} €</span>
           </div>
         </div>
 

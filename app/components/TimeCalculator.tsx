@@ -53,6 +53,10 @@ import CustomerModal from "./time/blocks/CustomerModal";
 import PasswordModal from "./time/blocks/PasswordModal";
 import OrderDetailsModal from "./time/blocks/OrderDetailsModal";
 import LineItemsModal from "./time/blocks/LineItemsModal";
+import {
+  normalizeLineItems,
+  sumLineItemsEuro,
+} from "./time/lib/lineItemUtils";
 import { LineItem } from "../types/lineItem";
 import { clampOrderDetails } from "./time/lib/orderDetailsLimits";
 
@@ -128,12 +132,7 @@ export default function TimeCalculator() {
     ? `Zusatzpositionen: ${lineItems.length}`
     : "Zusatzpositionen hinzufügen";
 
-  const lineItemsTotalCents = useMemo(
-    () => lineItems.reduce((sum, i) => sum + i.amountCents, 0),
-    [lineItems],
-  );
-
-  const lineItemsBrutto = lineItemsTotalCents / 100;
+  const lineItemsBrutto = sumLineItemsEuro(lineItems);
 
   /* ------------------------------------------------------------------
    * Employees selection logic
@@ -356,32 +355,7 @@ export default function TimeCalculator() {
         setOrderDetails("");
       }
       if (Array.isArray(parsed.lineItems)) {
-        setLineItems(
-          (parsed.lineItems as unknown[])
-            .filter(
-              (
-                x,
-              ): x is {
-                id?: unknown;
-                title: string;
-                amountCents?: unknown;
-              } => {
-                if (!x || typeof x !== "object") return false;
-                const obj = x as {
-                  id?: unknown;
-                  title?: unknown;
-                  amountCents?: unknown;
-                };
-                return typeof obj.title === "string";
-              },
-            )
-            .map((x) => ({
-              id: typeof x.id === "string" ? x.id : crypto.randomUUID(),
-              title: x.title,
-              amountCents:
-                typeof x.amountCents === "number" ? x.amountCents : 0,
-            })),
-        );
+        setLineItems(normalizeLineItems(parsed.lineItems));
       } else {
         setLineItems([]);
       }
@@ -532,7 +506,7 @@ export default function TimeCalculator() {
     signatureEmployee: signatures.service.employee,
     orderDetails,
     lineItems,
-    extraBrutto: lineItemsTotalCents / 100,
+    extraBrutto: lineItemsBrutto,
     serviceBrutto,
   });
 
@@ -552,7 +526,7 @@ export default function TimeCalculator() {
     signatureEmployee: signatures.auftrag.employee,
     orderDetails,
     lineItems,
-    extraBrutto: lineItemsTotalCents / 100,
+    extraBrutto: lineItemsBrutto,
     isIOS,
   });
 

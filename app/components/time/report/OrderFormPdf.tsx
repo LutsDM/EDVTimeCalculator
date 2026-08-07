@@ -12,6 +12,10 @@ import { Employee } from "../lib/employees";
 import { Customer } from "@/app/types/customer";
 import { LineItem } from "@/app/types/lineItem";
 import {
+  formatCentsAsEuro,
+  formatLineItemUnitDetail,
+} from "../lib/lineItemUtils";
+import {
   ORDER_FORM_AGB_TITLE,
   splitOrderFormAgbSectionsIntoColumns,
 } from "./orderFormAgbContent";
@@ -554,7 +558,11 @@ export default function OrderFormPdf(props: OrderFormPdfProps) {
                   <Text style={styles.tableCellLeft}>{item.title}</Text>
                   <View style={styles.tableCellRight}>
                     <Text>
-                      {(item.amountCents / 100).toFixed(2).replace(".", ",")} €
+                      {formatLineItemUnitDetail(item)}
+                      <Text>{"  "}</Text>
+                      <Text style={styles.bold}>
+                        {formatCentsAsEuro(item.amountCents)}
+                      </Text>
                     </Text>
                   </View>
                 </View>

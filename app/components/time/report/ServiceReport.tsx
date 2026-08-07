@@ -1,6 +1,10 @@
 "use client";
 
 import { LineItem } from "@/app/types/lineItem";
+import {
+  formatCentsAsEuro,
+  formatLineItemUnitDetail,
+} from "../lib/lineItemUtils";
 import { Employee } from "../lib/employees";
 import { Customer } from "@/app/types/customer";
 import { DIAGNOSIS_FLAT_BRUTTO_EUR } from "../lib/diagnosisConstants";
@@ -130,7 +134,7 @@ export default function ServiceReport({
         </div>
       </div>
 
-      {/* TITLE — крупнее и жирнее */}
+      {/* TITLE */}
       <div className="mb-4 text-right text-sm leading-relaxed">
         <strong className="text-lg font-bold block mb-1">Servicebericht</strong>
         Arbeitsdatum: {arbeitsdatum}
@@ -209,7 +213,10 @@ export default function ServiceReport({
                 <tr key={item.id} className="border border-gray-300">
                   <td className="p-1">{item.title}</td>
                   <td className="p-1 text-right">
-                    {(item.amountCents / 100).toFixed(2).replace(".", ",")} €
+                    <span>{formatLineItemUnitDetail(item)}</span>
+                    <span className="ml-4 font-semibold">
+                      {formatCentsAsEuro(item.amountCents)}
+                    </span>
                   </td>
                 </tr>
               ))}

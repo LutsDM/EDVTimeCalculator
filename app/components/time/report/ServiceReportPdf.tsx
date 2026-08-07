@@ -11,6 +11,10 @@ import {
 import { Employee } from "../lib/employees";
 import { Customer } from "@/app/types/customer";
 import { LineItem } from "@/app/types/lineItem";
+import {
+  formatCentsAsEuro,
+  formatLineItemUnitDetail,
+} from "../lib/lineItemUtils";
 import { DIAGNOSIS_FLAT_BRUTTO_EUR } from "../lib/diagnosisConstants";
 
 type Props = {
@@ -619,8 +623,11 @@ export default function ServiceReportPdf(props: Props) {
                     </Text>
                     <View style={styles.tableCellRight}>
                       <Text style={styles.ledgerText}>
-                        {(item.amountCents / 100).toFixed(2).replace(".", ",")}{" "}
-                        €
+                        {formatLineItemUnitDetail(item)}
+                        <Text>{"  "}</Text>
+                        <Text style={[styles.ledgerText, styles.bold]}>
+                          {formatCentsAsEuro(item.amountCents)}
+                        </Text>
                       </Text>
                     </View>
                   </View>
